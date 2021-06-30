@@ -1,0 +1,23 @@
+title: dido - import du catalogue de DiDo pour export en DCAT
+path: /geoapi/dido
+doc: |
+  urls:
+    - https://dido.geoapi.fr/v1/dcatexport.jsonld?page={page}
+    - https://dido.geoapi.fr/v1/dcatcontext.jsonld
+    - https://dido.geoapi.fr/id/catalog.jsonld
+    - https://dido.geoapi.fr/id/datasets/{id}.jsonld
+    - https://dido.geoapi.fr/id/attachments/{rid}.jsonld
+    - https://dido.geoapi.fr/id/datafiles/{rid}.jsonld
+    - https://dido.geoapi.fr/id/millesimes/{rid}/{m}.jsonld
+    - https://dido.geoapi.fr/id/organizations/{id}.jsonld
+    - https://dido.geoapi.fr/id/themes.jsonld
+    - https://dido.geoapi.fr/id/themes/{concept}.jsonld
+  mapping serveur:
+    https://dido.geoapi.fr/id -> /prod/geoapi/dido/id.php
+    https://dido.geoapi.fr/v1 -> /prod/geoapi/dido/api.php
+
+journal: |
+  26/6/2021:
+    - première version
+phpScripts:
+  /geoapi/dido/import.php
