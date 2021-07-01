@@ -6,9 +6,15 @@ Le site de diffusion officiel devrait ouvrir prochainement sur internet.
 Le présent projet consiste à concevoir et prototyper un export DCAT du catalogue des données de DiDo.  
 La [correspondance en DCAT des classes d'objets DiDo est définie ici](mapping.md).  
 
-Les URI des objets DiDo sont de la forme:
+Dans le prototype les URI des objets DiDo sont de la forme:
 
-  - xx
+  - https://dido.geoapi.fr/id/catalog pour le catalogue
+  - https://dido.geoapi.fr/id/datasets/{id} pour les jeux de données DiDo
+  - https://dido.geoapi.fr/id/attachments/{rid} pour les fichiers annexes
+  - https://dido.geoapi.fr/id/datafiles/{rid} pour les fichiers de données
+  - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour les millésimes
+  - https://dido.geoapi.fr/id/organizations/{id} pour les organisations
+  - https://dido.geoapi.fr/id/themes/{id} pour les thèmes DiDo
 
 Le prototype sera disponible à l'adresse https://dido.geoapi.fr/v1/dcatexport.jsonld  
 
