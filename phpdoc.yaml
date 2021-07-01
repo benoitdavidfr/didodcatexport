@@ -2,7 +2,7 @@ title: dido - import du catalogue de DiDo pour export en DCAT
 path: /geoapi/dido
 doc: |
   urls:
-    - https://dido.geoapi.fr/v1/dcatexport.jsonld?page={page}
+    - https://dido.geoapi.fr/v1/dcatexport.jsonld?page={page}&page_size={page_size}
     - https://dido.geoapi.fr/v1/dcatcontext.jsonld
     - https://dido.geoapi.fr/id/catalog.jsonld
     - https://dido.geoapi.fr/id/datasets/{id}.jsonld
