@@ -32,12 +32,19 @@ doc: |
   Le répertoire jd contient un fichier par jeu de données DiDo permettant de faciliter la compréhension des données de DiDo.
 
 journal: |
+  1/7/2021:
+    - utilisation de pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public sur dido.geoapi.fr
   30/6/2021:
     - changement d'approche et démarrage de la V2
   26-27/6/2021:
     - création de la V1 abandonnée
 */
 require __DIR__.'/../../phplib/pgsql.inc.php';
+
+//echo '<pre>'; print_r($_SERVER); die();
+//echo php_sapi_name(),"<br>\n"; die();
+if (php_sapi_name() <> 'cli')
+  die("Erreur: ce script doit être exécuté en CLI<br>\n");
 
 define('JSON_OPTIONS', JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
 
@@ -72,15 +79,17 @@ $mappingFromDidoThemeToUri = [
 }*/
 
 if (1) { // Ouverture PgSql et création de la table didodcat
-  PgSql::open('pgsql://docker@pgsqlserver/gis/public');
-  //PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public');
+  if (($_SERVER['HOME']=='/home/bdavid')) // sur le serveur dido.geoapi.fr
+    PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public');
+  else // en localhost sur le Mac
+    PgSql::open('pgsql://docker@pgsqlserver/gis/public');
   PgSql::query("drop table if exists didodcat");
   PgSql::query("create table didodcat(
     uri varchar(256) not null primary key, -- l'URI de l'élément DCAT 
     dsuri varchar(256) not null, -- l'URI du dataset auquel l'élément est rattaché
     dcat jsonb not null -- le contenu de l'élément DCAT structuré en JSON-LD
   )");
-  PgSql::query("comment on table didodcat is 'Un n-uplet par element DCAT autre que le dcat:Catalog.'");
+  PgSql::query("comment on table didodcat is 'Un n-uplet par element DCAT autre que dcat:Catalog.'");
   PgSql::query("create index didodcat_dsuri on didodcat(dsuri)");
 }
 

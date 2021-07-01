@@ -6,6 +6,8 @@ Le site de diffusion officiel devrait ouvrir prochainement sur internet.
 Le présent projet consiste à concevoir et prototyper un export DCAT du catalogue des données de DiDo.  
 La [correspondance en DCAT des classes d'objets DiDo est définie ici](mapping.md).  
 
+DCAT est une ontologie du web des données fondée sur l'identification des ressources par des URI.
+Un export DCAT impose donc de définir un URI pour chaque ressource d'une des classes définies dans la correspondance ci-dessus (sauf rdfs:Literal).  
 Dans le prototype les URI des objets DiDo sont de la forme:
 
   - https://dido.geoapi.fr/id/catalog pour le catalogue
