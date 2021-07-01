@@ -1,5 +1,5 @@
 ## Correspondance de DiDo vers DCAT
-Comme évoqué lors de notre échange l'export DCAT nécessite tout d'abord de définir une correspondance entre les classes du catalogue de DiDo vers celles définies dans DCAT.
+L'export DCAT nécessite tout d'abord de définir une correspondance entre les classes du catalogue de DiDo vers celles définies dans DCAT.
 Le catalogue de DiDo définit les classes d'objets suivantes:
   - jeu de données (dataset),
   - fichiers annexes (attachments)
@@ -16,7 +16,7 @@ Le standard DCAT (https://www.w3.org/TR/vocab-dcat-2/) est fondé sur les classe
   - foaf:Organization
   - skos:Concept et skos:ConceptScheme
 
-La correspondance que je propose est la suivante:
+La correspondance proposée est la suivante:
   - jeu de données -> dcat:Dataset
   - fichiers annexes -> dcat:Distribution
   - fichiers de données -> dcat:Dataset
