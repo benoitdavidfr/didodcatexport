@@ -1,6 +1,6 @@
 ## Correspondance de DiDo vers DCAT
 
-mise à jour: 2/7/2021 17h
+mise à jour: 2/7/2021 17h26
 
 L'export DCAT nécessite tout d'abord de définir une correspondance entre les classes du catalogue de DiDo vers celles définies dans DCAT.
 Le catalogue de DiDo définit les classes d'objets suivantes:
