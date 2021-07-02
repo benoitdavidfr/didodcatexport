@@ -31,8 +31,8 @@ La correspondance proposée est la suivante:
 Notes:
   - Un jeu de données DiDo sera représenté en DCAT par un dcat:Dataset qui sera composé de fichiers de données au moyen des propriétés dct:hasPart/dct:isPartOf conformément à la recommandations définie
   dans https://joinup.ec.europa.eu/release/dcat-ap-how-model-dataset-series.  
-  - Un fichier de données DiDo sera représenté en DCAT par un dcat:Dataset qui fera partie d'un jeu de données DiDo.
-  - Un fichier de données définira une propriété dct:conforms_to vers un fichier contenant un schéma JSON du fichier de données.
+  - Un fichier de données DiDo sera représenté en DCAT par un dcat:Dataset qui fera partie d'un jeu de données DiDo ;
+    il définira une propriété dct:conforms_to vers un fichier contenant un schéma JSON du fichier de données.
   - Un fichier annexe sera représenté par un foaf:Document référencé depuis le jeu de données au travers d'une propriété foaf:page.
   - Un millesime sera représenté en DCAT par un dcat:Distribution.  
   - Une organisation DiDo sera représentée comme foaf:Organization.  
