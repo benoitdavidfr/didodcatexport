@@ -43,8 +43,9 @@ require __DIR__.'/../../phplib/pgsql.inc.php';
 
 //echo '<pre>'; print_r($_SERVER); die();
 //echo php_sapi_name(),"<br>\n"; die();
-if (php_sapi_name() <> 'cli')
+if (php_sapi_name() <> 'cli') { // Utilisation du script en CLI, limite l'exécution aux personnes pouvant se loguer
   die("Erreur: ce script doit être exécuté en CLI<br>\n");
+}
 
 define('JSON_OPTIONS', JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
 
