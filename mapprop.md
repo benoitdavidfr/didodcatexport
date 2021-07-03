@@ -1,4 +1,4 @@
-# Correspondance entre propriétés et valeurs
+# Correspondance des propriétés DiDo en DCAT ainsi que de certaines valeurs
 
 ## Organization -> foaf:Organization
 
@@ -29,7 +29,7 @@
 | caution    | string | Mise en garde concernant le JD | **A PRECISER** |
 | attachments | [Attachment] | La liste des fichiers descriptifs | foaf:page | URI https://dido.geoapi.fr/id/attachments/{rid} |
 | created_at | date-time | date de création du jeu de données | dct:created | |
-|            |   |   | dct:issued | | Il semble utile de rajouter une date de publication qui n'est pas dans DiDo. Voir si la date de création convient. Attention aux cas d'embargo. |
+|            |   |   | dct:issued | Rajouter une date de diffusion calculée comme la plus ancienne des dates de diffusion des distributions |
 | last_modified | date-time | Date de dernière modification du jeu de données | dct:modified |
 | datafiles  | [Datafile] | Liste des fichiers de données | dct:hasPart | URI https://dido.geoapi.fr/id/datafiles/{id} |
 
@@ -47,198 +47,43 @@
 | irregular  |  http://publications.europa.eu/resource/authority/frequency/IRREG     |
 | unknown    |  http://publications.europa.eu/resource/authority/frequency/UNKNOWN   |
 
-## Attachment -> foaf:Document
+## Fichier descriptif (Attachment) -> foaf:Document
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
-| rid        | uuid   | Identifiant du fichier descriptif | @id | URI https://dido.geoapi.fr/id/attachments/{rid} |
-| title      | string | Titre du fichier descriptif | dct:title | |
-| description | string | Description du fichier descriptif | dct:description |  |
-| published | date-time | Date de publication du fichier descriptif | dct:issued |  |
-| url | string | Url pour accéder au fichier descriptif | **??** | | Je ne vois pas quelle propriété foaf doit être utilisée ! |
-| created_at | date-time | Date de création du fichier descriptif  | dct:created | | **Attention fichier Swagger erroné** |
-| last_modified | date-time | Date de dernière modification du fichier descriptif | dct:modified | | **Attention fichier Swagger erroné** |
+| rid        | uuid   | Identifiant du fichier | @id | URI https://dido.geoapi.fr/id/datafiles/{rid} |
+| title      | string | Titre du fichier | dct:title | |
+| description | string | Description du fichier | dct:description |  |
+| published | date-time | Date de publication du fichier | dct:issued |  |
+| url | string | Url pour accéder au fichier | | Propriété inutile, l'URL d'accès étant l'URI |
+| created_at | date-time | Date de création du fichier  | dct:created | | **Attention fichier Swagger erroné** |
+| last_modified | date-time | Date de dernière modification du fichier | dct:modified | | **Attention fichier Swagger erroné** |
 
+## Fichier de données (Datafile) -> dcat:Dataset
 
-# JSON
-definitions:
-  datafileFull:
-    title: datafileFull
-    description: 'Schéma json d''un fichier de données complet (avec son jeu de données parent)'
-    type: object
-    allOf:
-      - $ref: '#/definitions/datafileSimple'
-      - type: object
-        required:
-          - dataset
-        properties:
-          dataset:
-            $ref: '#/definitions/datasetSimple'
-  datafileSimple:
-    title: datafileSimple
-    description: Schéma JSON d'un fichier de données simple (sans son jeu de données parent)
-    type: object
-    required:
-      - rid
-      - title
-      - description
-      - published
-      - weburl
-      - created_at
-      - millesimes
-    properties:
-      rid:
-        description: 'Identifiant du fichier de données'
-        type: string
-        format: uuid
-        example: 2f48a6cd-b147-4750-aa70-990a5c17f536
-      title:
-        description: 'Titre du fichier de données'
-        type: string
-        example: 'Le titre de mon fichier de données'
-      description:
-        description: 'Description du fichier de données'
-        type: string
-        example: 'Ce fichier de données.......'
-      published:
-        description: 'Date de publication du fichier de données - format iso 8601'
-        type: string
-        format: date-time
-        example: '2017-10-27T22:00:00.000Z'
-      temporal_coverage:
-        description: 'Couverture temporelle du fichier de données'
-        type: object
-        required:
-          - start
-          - end
-        properties:
-          start:
-            description: 'Date de début de la couverture temporelle du fichier de données - format YYYY-MM-DD'
-            type: string
-            example: '2017-01-01'
-          end:
-            description: 'Date de fin de la couverture temporelle du fichier de données - format YYYY-MM-DD'
-            type: string
-            example: '2017-06-30'
-      legal_notice:
-        description: 'Notice légale concernant le fichier de données'
-        type: string
-        example: 'Ces données .....'
-      weburl:
-        description: 'Url pour accéder à l''interface de visualisation du fichier de données'
-        type: string
-        example: 'https://datahub-ecole.recette.cloud/widget-diffusion//datafile/2f48a6cd-b147-4750-aa70-990a5c17f536'
-      millesimes:
-        description: 'Informations sur les millésimes du fichier de données'
-        type: array
-        items:
-          description: 'Schéma json des informations sur un millésime'
-          $ref: '#/definitions/millesime'
-      created_at:
-        description: 'date de création du fichier de données - format iso 8601'
-        type: string
-        format: date-time
-        example: '2018-01-26T21:58:34.190Z'
-      last_modified:
-        description: 'Date de dernière modification du fichier de données - format iso 8601'
-        type: string
-        format: date-time
-        example: '2018-01-26T21:58:34.190Z'
-  millesime:
-    description: 'Schéma json des informations sur un millésime'
-    type: object
-    required:
-      - millesime
-      - date_diffusion
-    properties:
-      millesime:
-        description: 'Le millésime du fichier de données - format YYYY-MM'
-        type: string
-        example: 2017-10
-      date_diffusion:
-        description: 'Date de diffusion du millesime du fichier de données - format iso 8601'
-        type: string
-        format: date-time
-        example: '2017-10-27T22:00:00.000Z'
-      rows:
-        description: 'Nombre de lignes dans le fichier de données'
-        type: integer
-        example: 2548
-      columns:
-        description: 'Liste des colonnes du fichier de données'
-        type: array
-        items:
-          description: 'Détail d''une colonne de fichier de données'
-          type: object
-          required:
-            - name
-            - description
-            - unit
-            - filters
-          properties:
-            name:
-              description: 'Nom de la colonne'
-              type: string
-              example: COLONNE_N
-            description:
-              description: 'Description de la colonne'
-              type: string
-              example: 'Description de la COLONNE_N.....'
-            unit:
-              description: 'Unité de la colonne'
-              type: string
-              example: t
-            filters:
-              description: 'Liste des filtres disponibles pour cette colonne. Dépend de la colonne.'
-              type: array
-              items:
-                type: string
-              example:
-                - eq
-                - ne
-                - gt
-                - gte
-                - lt
-                - lte
-                - in
-                - nin
-                - startsWith
-                - endsWith
-      extendedFilters:
-        description: 'Liste des filtres étendus du fichier de données'
-        type: array
-        items:
-          description: 'Détail d''un filtre étendu de fichier de données'
-          type: object
-          required:
-            - name
-            - columns
-            - filters
-          properties:
-            name:
-              description: 'Nom du filtre étendu'
-              type: string
-              example: LOCATION
-            columns:
-              description: 'La liste des colonnes sur lesquelles s''appliquent le filtre étendu'
-              type: array
-              items:
-                type: string
-                example:
-                  - COMMUNE_LIBELLE
-                  - COMMUNE_CODE
-            filters:
-              description: 'Liste des type de filtres disponibles pour ce filtre étendu.'
-              type: array
-              items:
-                type: string
-              example:
-                - withinCogZones
-                - withinGeometry
-      geoFields:
-        description: 'Liste des champs disposant d''une géométrie dans le fichier de données'
-        type: array
-        items:
-          type: string
-          description: 'Un champ'
-          example: LOCATION
+| nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
+|------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
+| rid        | uuid   | Identifiant du fichier | @id | URI https://dido.geoapi.fr/id/attachments/{rid} renvoyant vers l'URL du document de la forme https://datahub-ecole.recette.cloud/api-diffusion/files/{rid} |
+| title      | string | Titre du fichier | dct:title | |
+| description | string | Description du fichier | dct:description |  |
+| published | date-time | Date de publication du fichier | dct:issued |  |
+| temporal_coverage/start | date - format YYYY-MM-DD | Date de début de la couverture temporelle | dct:temporal/startDate | |
+| temporal_coverage/end | date - format YYYY-MM-DD | Date de fin de la couverture temporelle | dct:temporal/endDate | |
+| legal_notice | string | Notice légale concernant le fichier | dct:rights | **A VERIFIER EN PRATIQUE** |
+| weburl | string | Url pour accéder à l'interface de visualisation du fichier | dcat:landingPage |  |
+| millesimes | [Millesime] | Informations sur les millésimes du fichier | dcat:distribution |  |
+| created_at | date-time | Date de création du fichier  | dct:created | |
+| last_modified | date-time | Date de dernière modification du fichier | dct:modified | |
+| dataset    | Dataset | Jeu de données parent | dct:isPartOf | |
+
+## Millésime -> dcat:Distribution
+
+| nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
+|------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
+| millesime  | string | Le millésime du fichier - format YYYY-MM | @id | URI https://dido.geoapi.fr/id/millesimes/{rid}/{m} |
+| title      | string | Titre du fichier | dct:title | |
+| date_diffusion | date-time | Date de diffusion du millesime du fichier | dct:issued | |
+| rows | integer | Nombre de lignes dans le fichier | | |
+| columns | array | Liste des colonnes du fichier | ct:conformsTo | Structuration de la liste des colonnes comme schéma JSON | Problème d'encodage des unités ! |
+| extendedFilters | array | Liste des filtres étendus du fichier | | |
+| geoFields | array | Liste des champs disposant d''une géométrie dans le fichier | | |

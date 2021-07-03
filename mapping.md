@@ -12,11 +12,12 @@ Le catalogue de DiDo définit les classes d'objets suivantes:
   - theme
   - mot-clé
 
-Le standard DCAT (https://www.w3.org/TR/vocab-dcat-2/) est fondé sur les classes suivantes:
+Le standard DCAT (https://www.w3.org/TR/vocab-dcat-2/) est notamment fondé sur les classes suivantes:
   - dcat:Dataset
   - dcat:Distribution
   - dcat:DataService
   - foaf:Organization
+  - foaf:Document
   - skos:Concept et skos:ConceptScheme
 
 La correspondance proposée est la suivante:
