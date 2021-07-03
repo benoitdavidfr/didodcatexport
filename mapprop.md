@@ -1,6 +1,13 @@
 # Correspondance des propriétés DiDo en DCAT ainsi que de certaines valeurs
 
-## Organization -> foaf:Organization
+modified: 2021-07-03T15:23
+### Points à compléter
+- traduire le champ license de jeu de données en une forme standard, voir comment c'est fait dans data.gouv
+- vérifier avec Christophe que la valeur 'punctual' du vocabulaire des fréquences correspond bien à http://publications.europa.eu/resource/authority/frequency/NEVER
+- traduction de spatial/zones de jeu de donnée
+- comment intégrer le champ caution de jeu de donnée ?
+
+## Producteur (Organization) -> foaf:Organization
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                               |
 |------------|--------|---------------------------|------------|--------------------------------------------------------------|
@@ -9,7 +16,7 @@
 | acronym    | string | Acronyme du producteur    | foaf:nick  |                                                              |
 | description| string | Description du producteur | rdfs:comment |                                                            |
 
-## Dataset -> dcat:Dataset
+## Jeu de données (Dataset) -> dcat:Dataset
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
@@ -20,7 +27,7 @@
 | topic      | string | Thème du jeu de données | dcat:theme | URI https://dido.geoapi.fr/id/themes/{id} |
 | tags       | string | Liste des mot-clés du jeu de données | dcat:keyword | |
 | license    | string | Licence sous laquelle est publiée le JD | dct:license | **A PRECISER** |
-| frequency  | string | Fréquence d'actualisation du jeu de données | dct:Frequency | URI dans http://publications.europa.eu/resource/authority/frequency selon correspondance définie | la valeur 'punctual' n'a pas de correspondance, voir dans quels cas elle est utilisée |
+| frequency  | string | Fréquence d'actualisation du jeu de données | dct:Frequency | URI dans http://publications.europa.eu/resource/authority/frequency selon correspondance définie |
 | frequency_date | date-time | Prochaine date d'actualisation du jeu de données | **Notion absente** | |
 | spatial/granularity | string | Granularité du jeu de données | **Notion absente** | |
 | spatial/zones | string | Liste de zones géographiques du jeu de données (correspond à un identifiant du référentiel geozone) | dct:spatial | **A PRECISER** |
@@ -86,4 +93,4 @@
 | rows | integer | Nombre de lignes dans le fichier | | |
 | columns | array | Liste des colonnes du fichier | ct:conformsTo | Structuration de la liste des colonnes comme schéma JSON | Problème d'encodage des unités ! |
 | extendedFilters | array | Liste des filtres étendus du fichier | | |
-| geoFields | array | Liste des champs disposant d''une géométrie dans le fichier | | |
+| geoFields | array | Liste des champs disposant d'une géométrie dans le fichier | | |
