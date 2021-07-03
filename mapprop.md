@@ -1,11 +1,12 @@
 # Correspondance des propriétés DiDo en DCAT ainsi que de certaines valeurs
 
-modified: 2021-07-03T15:23
+modified: 2021-07-03T15:26
 ### Points à compléter
 - traduire le champ license de jeu de données en une forme standard, voir comment c'est fait dans data.gouv
 - vérifier avec Christophe que la valeur 'punctual' du vocabulaire des fréquences correspond bien à http://publications.europa.eu/resource/authority/frequency/NEVER
 - traduction de spatial/zones de jeu de donnée
-- comment intégrer le champ caution de jeu de donnée ?
+- comment intégrer le champ caution du jeu de données ?
+- comment intégrer les unités dans le schéma JSON ?
 
 ## Producteur (Organization) -> foaf:Organization
 
@@ -91,6 +92,6 @@ modified: 2021-07-03T15:23
 | title      | string | Titre du fichier | dct:title | |
 | date_diffusion | date-time | Date de diffusion du millesime du fichier | dct:issued | |
 | rows | integer | Nombre de lignes dans le fichier | | |
-| columns | array | Liste des colonnes du fichier | ct:conformsTo | Structuration de la liste des colonnes comme schéma JSON | Problème d'encodage des unités ! |
+| columns | array | Liste des colonnes du fichier | ct:conformsTo | Structuration de la liste des colonnes comme schéma JSON | **Problème d'encodage des unités !** |
 | extendedFilters | array | Liste des filtres étendus du fichier | | |
 | geoFields | array | Liste des champs disposant d'une géométrie dans le fichier | | |
