@@ -24,7 +24,7 @@ modified: 2021-07-03T15:26
 | id         | string | Identifiant du jeu de données | @id    | URI https://dido.geoapi.fr/id/datasets/{id} |
 | title      | string | Titre du jeu de données | dct:title | |
 | description | string | Description du jeu de données | dct:description |  |
-| organization | string | infos sur le producteur du JD | dct:publisher | URI https://dido.geoapi.fr/id/organizations/{id} |
+| organization | string | Infos sur le producteur du JD | dct:publisher | URI https://dido.geoapi.fr/id/organizations/{id} |
 | topic      | string | Thème du jeu de données | dcat:theme | URI https://dido.geoapi.fr/id/themes/{id} |
 | tags       | string | Liste des mot-clés du jeu de données | dcat:keyword | |
 | license    | string | Licence sous laquelle est publiée le JD | dct:license | **A PRECISER** |
@@ -94,4 +94,4 @@ modified: 2021-07-03T15:26
 | rows | integer | Nombre de lignes dans le fichier | | |
 | columns | array | Liste des colonnes du fichier | ct:conformsTo | Structuration de la liste des colonnes comme schéma JSON | **Problème d'encodage des unités !** |
 | extendedFilters | array | Liste des filtres étendus du fichier | | |
-| geoFields | array | Liste des champs disposant d'une géométrie dans le fichier | | |
+| geoFields | array | Liste des champs disposant d'une géométrie dans le fichier | Voir la possibilité d'intégrer l'info dans le schéma JSON | |
