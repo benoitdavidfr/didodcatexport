@@ -109,43 +109,83 @@ function storePg(array $dcat, string $itemUri, string $dsUri, bool $ifDoesntExis
   }
 }
 
+/* construit une nouvelle valeur selon le mapping qui est un array [$pDest => $pSrce] où:
+  - $pDest est le nom du champ dans le nouvel objet
+  - $pSrce est un array d'une des formes suivantes:
+    - ['field', le nom du champ dans l'objet source]
+    - ['val', la valeur]
+    - ['uri', un prefixe d'URI, le nom du champ dans l'objet source à concaténer au prefixe]
+    - ['urival', un prefixe d'URI, la valeur à concaténer au prefixe]
+    - ['mapping', tableau de mapping, nom du champ pour la valeur à utiliser en entrée du mapping]
+    - ['multiple', liste d'array mapping]
+*/
+function buildValWithMapping(array $pSrce, array $srce) {
+  switch ($pSrce[0]) {
+    case 'field': return $srce[$pSrce[1]];
+    case 'val': return $pSrce[1];
+    case 'uri': return $pSrce[1].$srce[$pSrce[2]];
+    case 'urival': return $pSrce[1].$pSrce[2];
+    case 'mapping': return $pSrce[1][$srce[$pSrce[2]]];
+    case 'multiple': {
+      $result = [];
+      foreach ($pSrce[1] as $elt) {
+        $result[] = buildValWithMapping($elt, $srce);
+      }
+      return $result;
+    }
+    default: die("mot-clé '$pSrce[0]' non reconnu ligne ".__LINE__."\n");
+  }
+}
+
+// construit un nouvel objet selon le mapping
+function buildObjectWithMapping(array $srce, array $mapping): array {
+  $dest = [];
+  foreach ($mapping as $pDest => $pSrce) {
+    $dest[$pDest] = buildValWithMapping($pSrce, $srce);
+  }
+  return $dest;
+}
+
 // fabrique l'Organization FOAF correspondant à un publisher DiDo
 function buildDcatForPublisher(array $org): array {
-  return [
-    '@id'=> "https://dido.geoapi.fr/id/organizations/$org[id]",
-    '@type'=> 'foaf:Organization',
-    'label'=> $org['title'],
-    'name'=> $org['title'],
-  ];
+  return buildObjectWithMapping($org,
+    [
+      '@id'=> ['uri', 'https://dido.geoapi.fr/id/organizations/', 'id'],
+      '@type'=> ['val', 'Organization'],
+      'name'=> ['field', 'title'],
+      'nick'=> ['field', 'acronym'],
+      'comments'=> ['field', 'description'],
+    ]);
 }
 
 // fabrique le Dataset DCAT correspondant à un jeu de données DiDo
 function buildDcatForJD(array $jd): array {
   global $mappingFromDidoThemeToDataTheme, $mappingFromDidoThemeToUri;
-  $themes = [];
-  $dcat = [
-    '@id'=> "https://dido.geoapi.fr/id/datasets/$jd[id]",
-    '@type'=> ['Dataset', 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series'],
-    'identifier'=> "https://dido.geoapi.fr/id/datasets/$jd[id]",
-    'title'=> $jd['title'],
-    'description'=> $jd['description'],
-    'publisher'=> 'https://dido.geoapi.fr/id/organizations/'.$jd['organization']['id'],
-    'issued'=> $jd['created_at'],
-    'modified'=> $jd['last_modified'],
-    'theme'=> [
-      $mappingFromDidoThemeToDataTheme[$jd['topic']],
-      $mappingFromDidoThemeToUri[$jd['topic']],
-    ],
-    'didoJD'=> $jd,
-  ];
   
+  // enregistre l'organization en effet de bord ssi elle n'est pas déjà définie
   storePg(
     buildDcatForPublisher($jd['organization']),
     "https://dido.geoapi.fr/id/organizations/$jd[id]",
     "https://dido.geoapi.fr/id/datasets/$jd[id]",
     true
   );
-  return $dcat;
+
+  return buildObjectWithMapping($jd,
+    [
+      '@id'=> ['uri', 'https://dido.geoapi.fr/id/datasets/', 'id'],
+      '@type'=> ['val', ['Dataset', 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series']],
+      'identifier'=> ['uri', 'https://dido.geoapi.fr/id/datasets/', 'id'],
+      'title'=> ['field', 'title'],
+      'description'=> ['field', 'description'],
+      'publisher'=> ['urival', 'https://dido.geoapi.fr/id/organizations/', $jd['organization']['id']],
+      'issued'=> ['field', 'created_at'],
+      'modified'=> ['field', 'last_modified'],
+      'theme'=> ['multiple', [
+          ['mapping', $mappingFromDidoThemeToDataTheme, 'topic'],
+          ['mapping', $mappingFromDidoThemeToUri, 'topic'],
+        ],
+      ],
+    ]);
 }
 
 // fabrique l'élément DCAT correspondant à un fichier attaché

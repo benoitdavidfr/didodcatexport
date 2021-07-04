@@ -29,15 +29,14 @@ modified: 2021-07-03T15:26
 | tags       | string | Liste des mot-clés du jeu de données | dcat:keyword | |
 | license    | string | Licence sous laquelle est publiée le JD | dct:license | **A PRECISER** |
 | frequency  | string | Fréquence d'actualisation du jeu de données | dct:Frequency | URI dans http://publications.europa.eu/resource/authority/frequency selon correspondance définie |
-| frequency_date | date-time | Prochaine date d'actualisation du jeu de données | **Notion absente** | |
-| spatial/granularity | string | Granularité du jeu de données | **Notion absente** | |
+| frequency_date | date-time | Prochaine date d'actualisation du jeu de données | | **Notion absente** |
+| spatial/granularity | string | Granularité du jeu de données | | **Notion absente** |
 | spatial/zones | string | Liste de zones géographiques du jeu de données (correspond à un identifiant du référentiel geozone) | dct:spatial | **A PRECISER** |
 | temporal_coverage/start | date - format YYYY-MM-DD | Date de début de la couverture temporelle | dct:temporal/startDate | |
 | temporal_coverage/end | date - format YYYY-MM-DD | Date de fin de la couverture temporelle | dct:temporal/endDate | |
 | caution    | string | Mise en garde concernant le JD | **A PRECISER** |
 | attachments | [Attachment] | La liste des fichiers descriptifs | foaf:page | URI https://dido.geoapi.fr/id/attachments/{rid} |
 | created_at | date-time | date de création du jeu de données | dct:created | |
-|            |   |   | dct:issued | Rajouter une date de diffusion calculée comme la plus ancienne des dates de diffusion des distributions |
 | last_modified | date-time | Date de dernière modification du jeu de données | dct:modified |
 | datafiles  | [Datafile] | Liste des fichiers de données | dct:hasPart | URI https://dido.geoapi.fr/id/datafiles/{id} |
 
@@ -94,4 +93,4 @@ modified: 2021-07-03T15:26
 | rows | integer | Nombre de lignes dans le fichier | | |
 | columns | array | Liste des colonnes du fichier | ct:conformsTo | Structuration de la liste des colonnes comme schéma JSON | **Problème d'encodage des unités !** |
 | extendedFilters | array | Liste des filtres étendus du fichier | | |
-| geoFields | array | Liste des champs disposant d'une géométrie dans le fichier | Voir la possibilité d'intégrer l'info dans le schéma JSON | |
+| geoFields | array | Liste des champs disposant d'une géométrie dans le fichier | | Voir la possibilité d'intégrer l'info dans le schéma JSON |
