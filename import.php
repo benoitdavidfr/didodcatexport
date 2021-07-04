@@ -32,6 +32,8 @@ doc: |
   Le répertoire jd contient un fichier par jeu de données DiDo permettant de faciliter la compréhension des données de DiDo.
 
 journal: |
+  4/7/2021:
+    - amélioration du publisher et du dataset
   1/7/2021:
     - utilisation de pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public sur dido.geoapi.fr
   30/6/2021:
@@ -51,22 +53,38 @@ define('JSON_OPTIONS', JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_U
 
 $rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine de l'API DiDo
 
-// mapping des themes DiDo vers le voc. data-theme
-$mappingFromDidoThemeToDataTheme = [
-  'Environnement' => 'http://publications.europa.eu/resource/authority/data-theme/ENVI', // Environnement
-  'Énergie' => 'http://publications.europa.eu/resource/authority/data-theme/ENER', // Energie
-  'Transports' => 'http://publications.europa.eu/resource/authority/data-theme/TRAN', // Transports
-  'Logement' => 'http://publications.europa.eu/resource/authority/data-theme/SOCI', // Population et société
-  'Changement climatique' => 'http://publications.europa.eu/resource/authority/data-theme/ENVI', // Environnement
-];
+// différents mappings de valeurs
+$mappings = [
+  // mapping des themes DiDo vers le voc. data-theme
+  'FromDidoThemeToDataTheme' => [
+    'Environnement' => 'http://publications.europa.eu/resource/authority/data-theme/ENVI', // Environnement
+    'Énergie' => 'http://publications.europa.eu/resource/authority/data-theme/ENER', // Energie
+    'Transports' => 'http://publications.europa.eu/resource/authority/data-theme/TRAN', // Transports
+    'Logement' => 'http://publications.europa.eu/resource/authority/data-theme/SOCI', // Population et société
+    'Changement climatique' => 'http://publications.europa.eu/resource/authority/data-theme/ENVI', // Environnement
+  ],
 
-// mapping des themes DiDo vers leur uri
-$mappingFromDidoThemeToUri = [
-  'Environnement' => 'https://dido.geoapi.fr/id/themes/environnement',
-  'Énergie' => 'https://dido.geoapi.fr/id/themes/energie',
-  'Transports' => 'https://dido.geoapi.fr/id/themes/transports',
-  'Logement' => 'https://dido.geoapi.fr/id/themes/logement',
-  'Changement climatique' => 'https://dido.geoapi.fr/id/themes/Changement_climatique',
+  // mapping des themes DiDo vers leur uri
+  'FromDidoThemeToUri' => [
+    'Environnement' => 'https://dido.geoapi.fr/id/themes/environnement',
+    'Énergie' => 'https://dido.geoapi.fr/id/themes/energie',
+    'Transports' => 'https://dido.geoapi.fr/id/themes/transports',
+    'Logement' => 'https://dido.geoapi.fr/id/themes/logement',
+    'Changement climatique' => 'https://dido.geoapi.fr/id/themes/Changement_climatique',
+  ],
+
+  // mapping des valeurs du champ DiDo frequency vers le vocabulaire http://publications.europa.eu/resource/authority/frequency
+  'FromDidoFrequencyToFrequencyVoc' => [
+    'daily'=>     'http://publications.europa.eu/resource/authority/frequency/DAILY',
+    'weekly'=>    'http://publications.europa.eu/resource/authority/frequency/WEEKLY',
+    'monthly'=>   'http://publications.europa.eu/resource/authority/frequency/MONTHLY',
+    'quarterly'=> 'http://publications.europa.eu/resource/authority/frequency/QUARTERLY',
+    'semiannual'=>'http://publications.europa.eu/resource/authority/frequency/ANNUAL_2',
+    'annual'=>    'http://publications.europa.eu/resource/authority/frequency/ANNUAL',
+    'punctual'=>  'http://publications.europa.eu/resource/authority/frequency/NEVER',
+    'irregular'=> 'http://publications.europa.eu/resource/authority/frequency/IRREG',
+    'unknown'=>   'http://publications.europa.eu/resource/authority/frequency/UNKNOWN',
+  ],
 ];
 
 //unlink(__DIR__."/pgsql.json");
@@ -121,11 +139,27 @@ function storePg(array $dcat, string $itemUri, string $dsUri, bool $ifDoesntExis
 */
 function buildValWithMapping(array $pSrce, array $srce) {
   switch ($pSrce[0]) {
-    case 'field': return $srce[$pSrce[1]];
+    case 'field': return $srce[$pSrce[1]] ?? null;
     case 'val': return $pSrce[1];
     case 'uri': return $pSrce[1].$srce[$pSrce[2]];
     case 'urival': return $pSrce[1].$pSrce[2];
+    case 'uriarray': {
+      $result = [];
+      foreach ($pSrce[2] as $elt) {
+        $result[] = $pSrce[1].$elt;
+      }
+      return $result;
+    }
     case 'mapping': return $pSrce[1][$srce[$pSrce[2]]];
+    case 'object': {
+      $object = [];
+      foreach ($pSrce[1] as $key => $val) {
+        $newval = buildValWithMapping($val, $srce);
+        if ($newval !== null)
+          $object[$key] = $newval;
+      }
+      return $object;
+    }
     case 'multiple': {
       $result = [];
       foreach ($pSrce[1] as $elt) {
@@ -139,9 +173,12 @@ function buildValWithMapping(array $pSrce, array $srce) {
 
 // construit un nouvel objet selon le mapping
 function buildObjectWithMapping(array $srce, array $mapping): array {
+  //echo "buildObjectWithMapping(srce, mapping=",json_encode($mapping),")\n"; 
   $dest = [];
   foreach ($mapping as $pDest => $pSrce) {
-    $dest[$pDest] = buildValWithMapping($pSrce, $srce);
+    //echo "buildValWithMapping(pSrce=",json_encode($pSrce),")\n";
+    if ($destVal = buildValWithMapping($pSrce, $srce))
+      $dest[$pDest] = $destVal;
   }
   return $dest;
 }
@@ -154,13 +191,13 @@ function buildDcatForPublisher(array $org): array {
       '@type'=> ['val', 'Organization'],
       'name'=> ['field', 'title'],
       'nick'=> ['field', 'acronym'],
-      'comments'=> ['field', 'description'],
+      'comment'=> ['field', 'description'],
     ]);
 }
 
 // fabrique le Dataset DCAT correspondant à un jeu de données DiDo
 function buildDcatForJD(array $jd): array {
-  global $mappingFromDidoThemeToDataTheme, $mappingFromDidoThemeToUri;
+  global $mappings;
   
   // enregistre l'organization en effet de bord ssi elle n'est pas déjà définie
   storePg(
@@ -170,21 +207,41 @@ function buildDcatForJD(array $jd): array {
     true
   );
 
+  $attachmentRids = [];
+  foreach ($jd['attachments'] as $attachment)
+    $attachmentRids[] = $attachment['rid'];
+  $datafileRids = [];
+  foreach ($jd['datafiles'] as $datafile)
+    $datafileRids[] = $datafile['rid'];
   return buildObjectWithMapping($jd,
     [
       '@id'=> ['uri', 'https://dido.geoapi.fr/id/datasets/', 'id'],
       '@type'=> ['val', ['Dataset', 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series']],
-      'identifier'=> ['uri', 'https://dido.geoapi.fr/id/datasets/', 'id'],
+      'identifier'=> ['field', 'id'],
       'title'=> ['field', 'title'],
       'description'=> ['field', 'description'],
       'publisher'=> ['urival', 'https://dido.geoapi.fr/id/organizations/', $jd['organization']['id']],
-      'issued'=> ['field', 'created_at'],
-      'modified'=> ['field', 'last_modified'],
       'theme'=> ['multiple', [
-          ['mapping', $mappingFromDidoThemeToDataTheme, 'topic'],
-          ['mapping', $mappingFromDidoThemeToUri, 'topic'],
+          ['mapping', $mappings['FromDidoThemeToDataTheme'], 'topic'],
+          ['mapping', $mappings['FromDidoThemeToUri'], 'topic'],
         ],
       ],
+      'keyword'=> ['field', 'tags'],
+      'license'=> ['field', 'license'],
+      'accrualPeriodicity'=> ['mapping', $mappings['FromDidoFrequencyToFrequencyVoc'], 'frequency'],
+      'frequency_date'=> ['field', 'frequency_date'], // Prochaine date d'actualisation du jeu de données
+      'spatial_granularity'=> ['val', $jd['spatial']['granularity']], // Granularité du jeu de données
+      'spatial'=> ['uriarray', 'https://dido.geoapi.fr/id/organizations/', $jd['spatial']['zones']],
+      'temporal'=> ['object', [
+          'startDate'=> ['val', $jd['temporal_coverage']['start'] ?? null],
+          'endDate'=> ['val', $jd['temporal_coverage']['end'] ?? null],
+        ],
+      ],
+      'caution'=> ['field', 'caution'],
+      'page'=> ['uriarray', 'https://dido.geoapi.fr/id/attachments/', $attachmentRids],
+      'created'=> ['field', 'created_at'],
+      'modified'=> ['field', 'last_modified'],
+      'hasPart'=> ['uriarray', 'https://dido.geoapi.fr/id/datafiles/', $datafileRids],
     ]);
 }
 

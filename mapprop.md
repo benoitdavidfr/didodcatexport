@@ -10,25 +10,28 @@ modified: 2021-07-03T15:26
 
 ## Producteur (Organization) -> foaf:Organization
 
-| nom DiDo   |  type  | description               | nom DCAT   | transformation                                               |
-|------------|--------|---------------------------|------------|--------------------------------------------------------------|
-| id         | string | Identifiant du producteur | @id        | URI https://dido.geoapi.fr/id/organizations/{id}             |
-| title      | string | Nom du producteur         | foaf:name  |                                                              |
-| acronym    | string | Acronyme du producteur    | foaf:nick  |                                                              |
-| description| string | Description du producteur | rdfs:comment |                                                            |
+| nom DiDo   |  type  | description               | nom DCAT   | transformation |
+|------------|--------|---------------------------|------------|----------------|
+| id         | string | Identifiant du producteur | @id        | URI https://dido.geoapi.fr/id/organizations/{id} |
+|            |        |                           | @type      | Organization |
+| title      | string | Nom du producteur         | foaf:name  | |
+| acronym    | string | Acronyme du producteur    | foaf:nick  | |
+| description| string | Description du producteur | rdfs:comment | |
 
 ## Jeu de données (Dataset) -> dcat:Dataset
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
-| id         | string | Identifiant du jeu de données | @id    | URI https://dido.geoapi.fr/id/datasets/{id} |
-| title      | string | Titre du jeu de données | dct:title | |
+| id         | string | Identifiant du jeu        | @id        | URI https://dido.geoapi.fr/id/datasets/{id} |
+|            |        |                           | @type      | ['Dataset', 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series'] |
+| id         | string | Identifiant du jeu        | identifier | |
+| title      | string | Titre du jeu de données   | dct:title | |
 | description | string | Description du jeu de données | dct:description |  |
 | organization | string | Infos sur le producteur du JD | dct:publisher | URI https://dido.geoapi.fr/id/organizations/{id} |
-| topic      | string | Thème du jeu de données | dcat:theme | URI https://dido.geoapi.fr/id/themes/{id} |
+| topic      | string | Thème du jeu de données | dcat:theme | URI https://dido.geoapi.fr/id/themes/{id} + mapping des themes DiDo vers le voc. data-theme |
 | tags       | string | Liste des mot-clés du jeu de données | dcat:keyword | |
 | license    | string | Licence sous laquelle est publiée le JD | dct:license | **A PRECISER** |
-| frequency  | string | Fréquence d'actualisation du jeu de données | dct:Frequency | URI dans http://publications.europa.eu/resource/authority/frequency selon correspondance définie |
+| frequency  | string | Fréquence d'actualisation du jeu de données | dct:accrualPeriodicity | URI dans http://publications.europa.eu/resource/authority/frequency selon correspondance définie |
 | frequency_date | date-time | Prochaine date d'actualisation du jeu de données | | **Notion absente** |
 | spatial/granularity | string | Granularité du jeu de données | | **Notion absente** |
 | spatial/zones | string | Liste de zones géographiques du jeu de données (correspond à un identifiant du référentiel geozone) | dct:spatial | **A PRECISER** |
@@ -40,7 +43,20 @@ modified: 2021-07-03T15:26
 | last_modified | date-time | Date de dernière modification du jeu de données | dct:modified |
 | datafiles  | [Datafile] | Liste des fichiers de données | dct:hasPart | URI https://dido.geoapi.fr/id/datafiles/{id} |
 
+### Topic -> http://publications.europa.eu/resource/authority/data-theme
+Correspondance des thèmes DiDo vers un thème de data-theme
+
+| thème DiDo   |  URI                                                              | commentaire |
+|------------|---------------------------------------------------------------------|-------------|
+| Environnement | http://publications.europa.eu/resource/authority/data-theme/ENVI |
+| Énergie       | http://publications.europa.eu/resource/authority/data-theme/ENER |
+| Transports    | http://publications.europa.eu/resource/authority/data-theme/TRAN |
+| Logement      | http://publications.europa.eu/resource/authority/data-theme/SOCI | Population et société |
+| Changement climatique |  http://publications.europa.eu/resource/authority/data-theme/ENVI | Environnement |
+
 ### Frequency -> http://publications.europa.eu/resource/authority/frequency
+Correspondance des fréquences (valeurs possibles du champ frequency) vers un concept du vocabulaire
+http://publications.europa.eu/resource/authority/frequency
 
 | nom DiDo   |  URI                                                                  | commentaire |
 |------------|-----------------------------------------------------------------------|-------------|
