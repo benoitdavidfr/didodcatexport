@@ -1,6 +1,6 @@
 # Correspondance des propriétés DiDo en DCAT ainsi que de certaines valeurs
 
-modified: 2021-07-03T15:26
+modified: 2021-07-04T10:30
 ### Points à compléter
 - traduire le champ license de jeu de données en une forme standard, voir comment c'est fait dans data.gouv
 - vérifier avec Christophe que la valeur 'punctual' du vocabulaire des fréquences correspond bien à http://publications.europa.eu/resource/authority/frequency/NEVER
