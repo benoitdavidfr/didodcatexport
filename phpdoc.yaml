@@ -15,8 +15,10 @@ doc: |
   mapping serveur:
     https://dido.geoapi.fr/id -> /prod/geoapi/dido/id.php
     https://dido.geoapi.fr/v1 -> /prod/geoapi/dido/api.php
-
+  Essai d'utilisation de esayRdf avec composer - pas réussi à le faire fonctionner
 journal: |
+  4/7/2021:
+    - version un peu complète de l'export à améliorer - génère une erreur dans le validateur EU
   26/6/2021:
     - première version
 phpScripts:
