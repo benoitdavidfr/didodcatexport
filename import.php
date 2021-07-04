@@ -211,7 +211,7 @@ function buildDcatForJD(array $jd): array {
   // enregistre l'organization en effet de bord ssi elle n'est pas déjà définie
   storePg(
     buildDcatForPublisher($jd['organization']),
-    "https://dido.geoapi.fr/id/organizations/$jd[id]",
+    'https://dido.geoapi.fr/id/organizations/'.$jd['organization']['id'],
     "https://dido.geoapi.fr/id/datasets/$jd[id]",
     true
   );
@@ -300,13 +300,14 @@ while ($url) { // tant qu'il reste au moins une page à aller chercher
     storePg(buildDcatForJD($jd), $jdUri, $jdUri);
     
     foreach ($jd['attachments'] as $attach) {
-      storePg(buildDcatForAttachment($attach, $jd), "https://dido.geoapi.fr/id/attachments/$attach[rid]", $jdUri);
+      //storePg(buildDcatForAttachment($attach, $jd), "https://dido.geoapi.fr/id/attachments/$attach[rid]", $jdUri);
     }
     foreach ($jd['datafiles'] as $datafile) {
       $dfUri = "https://dido.geoapi.fr/id/datafiles/$datafile[rid]";
-      storePg(buildDcatForDataFile($datafile), $dfUri, $dfUri);
+      //storePg(buildDcatForDataFile($datafile), $dfUri, $dfUri);
       
       foreach ($datafile['millesimes'] as $millesime) {
+        if (0)
         storePg(
           buildDcatForMillesime($millesime, $datafile, $rootUrl),
           "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/$millesime[millesime]", $dfUri);

@@ -6,6 +6,8 @@ doc: |
   Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/dcatexport.jsonld
   ou de http://localhost/geoapi/dido/api.php/v1/dcatexport.jsonld
 journal: |
+  4/7/2021:
+    - version non paginée
   1/7/2021:
     - création d'un fantome
 */
