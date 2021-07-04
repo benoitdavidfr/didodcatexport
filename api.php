@@ -3,8 +3,8 @@
 name: api.php
 title: script appelé lors de l'appel de l'API export DCAT
 doc: |
-  Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/dcatexport.jsonld
-  ou de http://localhost/geoapi/dido/api.php/v1/dcatexport.jsonld
+  Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/xxx
+  ou de http://localhost/geoapi/dido/api.php/v1/xxx
 journal: |
   4/7/2021:
     - version non paginée
@@ -32,7 +32,21 @@ function catalog(array $datasetIds) {
   ];
 }
 
-if (in_array($_SERVER['REQUEST_URI'], ['/geoapi/dido/api.php/v1/dcatexport.jsonld','/v1/dcatexport.jsonld'])) {
+if (in_array($_SERVER['REQUEST_URI'], ['/geoapi/dido/api.php/v1/dcatcontext.jsonld', '/v1/dcatcontext.jsonld'])) {
+  header('Content-type: application/ld+json; charset="utf-8"');
+  $context = file_get_contents(__DIR__.'/dcatcontext.json');
+  echo "$context\n"; die();
+  $context = json_decode($context, true);
+  die(json_encode($context, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+}
+
+elseif (!in_array($_SERVER['REQUEST_URI'], ['/geoapi/dido/api.php/v1/dcatexport.jsonld','/v1/dcatexport.jsonld'])) {
+  header("HTTP/1.0 404 Not Found");
+  header('Content-type: text/plain; charset="utf-8"');
+  die("No match for '$_SERVER[REQUEST_URI]'\n");
+}
+
+else {
   //echo "<pre>";
   if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
     PgSql::open('pgsql://docker@pgsqlserver/gis/public');
@@ -53,14 +67,13 @@ if (in_array($_SERVER['REQUEST_URI'], ['/geoapi/dido/api.php/v1/dcatexport.jsonl
   
   $graph[] = catalog($datasetIds);
   
-  header('Content-type: application/json; charset="utf-8"');
-  die(json_encode([
-    '@context'=> 'https://dido.geoapi.fr/v1/dcatcontext.jsonld',
-    '@graph'=> $graph,
-  ]));
-}
-else {
-  header("HTTP/1.0 404 Not Found");
-  header('Content-type: text/plain; charset="utf-8"');
-  die("No match for '$_SERVER[REQUEST_URI]'\n");
+  
+  header('Content-type: application/ld+json; charset="utf-8"');
+  die(json_encode(
+    [
+      '@context'=> 'https://dido.geoapi.fr/v1/dcatcontext.jsonld',
+      '@graph'=> $graph,
+    ],
+    JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE
+  ));
 }

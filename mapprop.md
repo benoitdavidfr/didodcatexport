@@ -86,10 +86,11 @@ http://publications.europa.eu/resource/authority/frequency
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
-| rid        | uuid   | Identifiant du fichier | @id | URI https://dido.geoapi.fr/id/attachments/{rid} renvoyant vers l'URL du document de la forme https://datahub-ecole.recette.cloud/api-diffusion/files/{rid} |
-| title      | string | Titre du fichier | dct:title | |
-| description | string | Description du fichier | dct:description |  |
-| published | date-time | Date de publication du fichier | dct:issued |  |
+| rid        | uuid   | Identifiant du fichier    | @id        | URI https://dido.geoapi.fr/id/attachments/{rid} |
+| dataset    | Dataset | Jeu de données parent    | dct:isPartOf | |
+| title      | string | Titre du fichier          | dct:title  | |
+| description | string | Description du fichier   | dct:description | |
+| published | date-time | Date de publication du fichier | dct:issued | |
 | temporal_coverage/start | date - format YYYY-MM-DD | Date de début de la couverture temporelle | dct:temporal/startDate | |
 | temporal_coverage/end | date - format YYYY-MM-DD | Date de fin de la couverture temporelle | dct:temporal/endDate | |
 | legal_notice | string | Notice légale concernant le fichier | dct:rights | **A VERIFIER EN PRATIQUE** |
@@ -97,7 +98,6 @@ http://publications.europa.eu/resource/authority/frequency
 | millesimes | [Millesime] | Informations sur les millésimes du fichier | dcat:distribution |  |
 | created_at | date-time | Date de création du fichier  | dct:created | |
 | last_modified | date-time | Date de dernière modification du fichier | dct:modified | |
-| dataset    | Dataset | Jeu de données parent | dct:isPartOf | |
 
 ## Millésime -> dcat:Distribution
 

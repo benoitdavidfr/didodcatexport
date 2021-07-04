@@ -18,7 +18,8 @@ Dans le prototype les URI des objets DiDo sont de la forme:
   - https://dido.geoapi.fr/id/organizations/{id} pour les organisations
   - https://dido.geoapi.fr/id/themes/{id} pour les thèmes DiDo
   - https://dido.geoapi.fr/id/geozones/{id} pour les géozones
+  - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour le schéma JSON
 
-Le prototype sera disponible à l'adresse https://dido.geoapi.fr/v1/dcatexport.jsonld  
+L'export DCAT est disponible à l'adresse https://dido.geoapi.fr/v1/dcatexport.jsonld  
 
 

@@ -11,12 +11,14 @@ doc: |
       son contexte sera exposé à l'URL https://dido.geoapi.fr/v1/dcatcontext.jsonld
    2) les objets DiDo sont identifiés par les URI suivants:
     - https://dido.geoapi.fr/id/catalog pour le catalogue
-    - https://dido.geoapi.fr/id/datasets/{id} pour les jeux de données DiDo
-    - https://dido.geoapi.fr/id/attachments/{rid} pour les fichiers annexes
-    - https://dido.geoapi.fr/id/datafiles/{rid} pour les fichiers de données
-    - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour les millésimes
-    - https://dido.geoapi.fr/id/organizations/{id} pour les organisations
-    - https://dido.geoapi.fr/id/themes/{id} pour les thèmes DiDo
+    - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo identifié par {id}
+    - https://dido.geoapi.fr/id/attachments/{rid} pour le fichier annexe identifié par {rid}
+    - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données identifié par {rid}
+    - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour le millésime identifié par {rid} et {m}
+    - https://dido.geoapi.fr/id/organizations/{id} pour l'organisation identifiée par {id}
+    - https://dido.geoapi.fr/id/themes/{id} pour le thème DiDo {id}
+    - https://dido.geoapi.fr/id/geozones/{id} pour la géozone {id}
+    - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour les schéma JSON du millésime identifié par {rid} et {m}
    3) l'objet dcat:Catalog est paginé selon les principes d'une Collection Hydra,
    4) le paramètre page_size de la requête d'exposition correspond au nbre de dcat:Dataset par sous-objet dcat:Catalog
    5) la page contenant un sous-objet dcat:Catalog contient aussi tous les Dataset et autres objets liés qui n'ont pas 
@@ -33,7 +35,9 @@ doc: |
 
 journal: |
   4/7/2021:
-    - amélioration du publisher et du dataset
+    - première version un peu complète à améliorer
+      - revoir la licence, le champ spatial, le schéma JSON
+    - erreur 400 avec le validataeur EU
   1/7/2021:
     - utilisation de pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public sur dido.geoapi.fr
   30/6/2021:
@@ -250,24 +254,63 @@ function buildDcatForJD(array $jd): array {
 
 // fabrique l'élément DCAT correspondant à un fichier attaché
 function buildDcatForAttachment(array $attach, array $dataset): array {
-  return array_merge(['type'=> 'attachment', 'datasetId'=> $dataset['id']], $attach);
+  return buildObjectWithMapping($attach,
+    [
+      '@id'=> ['uri', 'https://dido.geoapi.fr/id/attachments/', 'rid'],
+      '@type'=> ['val', 'Document'],
+      'title'=> ['field', 'title'],
+      'description'=> ['field', 'description'],
+      'issued'=> ['field', 'published'],
+      'created'=> ['field', 'created_at'],
+      'modified'=> ['field', 'last_modified'],
+    ]);
 }
 
 // fabrique le Dataset DCAT correspondant à un fichier de données
-function buildDcatForDataFile(array $datafile) : array {
-  return array_merge(['type'=> 'datafile'], $datafile);
+function buildDcatForDataFile(array $datafile, array $dataset) : array {
+  return buildObjectWithMapping($datafile,
+    [
+      '@id'=> ['uri', 'https://dido.geoapi.fr/id/datafiles/', 'rid'],
+      '@type'=> ['val', 'Dataset'],
+      'isPartOf'=> ['urival', 'https://dido.geoapi.fr/id/datasets/', $dataset['id']],
+      'title'=> ['field', 'title'],
+      'description'=> ['field', 'description'],
+      'issued'=> ['field', 'published'],
+      'temporal'=> ['object', [
+          'startDate'=> ['val', $datafile['temporal_coverage']['start'] ?? null],
+          'endDate'=> ['val', $datafile['temporal_coverage']['end'] ?? null],
+        ],
+      ],
+      'license'=> ['val', $dataset['license']],
+      'rights'=> ['field', 'legal_notice'],
+      'landingPage'=> ['field', 'weburl'],
+      'distribution'=> [
+        'uriarray',
+        "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/",
+        project($datafile['millesimes'], 'millesime')
+      ],
+      'created'=> ['field', 'created_at'],
+      'modified'=> ['field', 'last_modified'],
+    ]);
 }
 
 // fabrique l'élément DCAT correspondant à un millésime
-function buildDcatForMillesime(array $millesime, array $datafile, string $rootUrl) {
-  return array_merge(
+function buildDcatForMillesime(array $millesime, array $datafile, array $dataset, string $rootUrl) {
+  return buildObjectWithMapping($millesime,
     [
-      'type'=> 'millesime',
-      'csvUrl'=> "$rootUrl/datafiles/$datafile[rid]/csv?millesime=$millesime[millesime]"
-        ."&withColumnName=true&withColumnDescription=true&withColumnUnit=true"
-    ],
-    $millesime
-  );
+      '@id'=> ['uri', "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/", 'millesime'],
+      '@type'=> ['val', 'Distribution'],
+      'title'=> ['field', 'title'],
+      'issued'=> ['field', 'date_diffusion'],
+      'conformsTo'=> ['uri', "https://dido.geoapi.fr/id/json-schema/$datafile[rid]/", 'millesime'],
+      'license'=> ['val', $dataset['license']],
+      'downloadURL'=> [
+        'val',
+        "$rootUrl/datafiles/$datafile[rid]/csv?millesime=$millesime[millesime]"
+          ."&withColumnName=true&withColumnDescription=true&withColumnUnit=true"
+      ],
+      'MediaType'=> ['val', 'text/csv'],
+    ]);
 }
 
 $pageNo = 1; // no de la page courante lue dans DiDo initialisé à 1
@@ -300,16 +343,15 @@ while ($url) { // tant qu'il reste au moins une page à aller chercher
     storePg(buildDcatForJD($jd), $jdUri, $jdUri);
     
     foreach ($jd['attachments'] as $attach) {
-      //storePg(buildDcatForAttachment($attach, $jd), "https://dido.geoapi.fr/id/attachments/$attach[rid]", $jdUri);
+      storePg(buildDcatForAttachment($attach, $jd), "https://dido.geoapi.fr/id/attachments/$attach[rid]", $jdUri);
     }
     foreach ($jd['datafiles'] as $datafile) {
       $dfUri = "https://dido.geoapi.fr/id/datafiles/$datafile[rid]";
-      //storePg(buildDcatForDataFile($datafile), $dfUri, $dfUri);
+      storePg(buildDcatForDataFile($datafile, $jd), $dfUri, $dfUri);
       
       foreach ($datafile['millesimes'] as $millesime) {
-        if (0)
         storePg(
-          buildDcatForMillesime($millesime, $datafile, $rootUrl),
+          buildDcatForMillesime($millesime, $datafile, $jd, $rootUrl),
           "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/$millesime[millesime]", $dfUri);
       }
     }

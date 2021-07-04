@@ -34,12 +34,13 @@ if (!preg_match($pattern, $_SERVER['REQUEST_URI'], $matches)) {
 //print_r($_SERVER); die();
 //echo "REQUEST_URI -> $_SERVER[REQUEST_URI]<br>\n";
 
-//print_r($matches);
+print_r($matches);
 
 if ($matches[2] == 'catalog') {
   header('Content-type: text/plain; charset="utf-8"');
   echo "Génération du catalogue<br>\n";
 }
+
 else {
   $uri = 'https://dido.geoapi.fr/id/'.$matches[2];
   //echo "URI = $uri\n";
