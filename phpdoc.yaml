@@ -15,10 +15,12 @@ doc: |
   mapping serveur:
     https://dido.geoapi.fr/id -> /prod/geoapi/dido/id.php
     https://dido.geoapi.fr/v1 -> /prod/geoapi/dido/api.php
-  Essai d'utilisation de esayRdf avec composer - pas réussi à le faire fonctionner
+  Essai d'utilisation de easyRdf avec composer - pas réussi à le faire fonctionner
 journal: |
   4/7/2021:
-    - version un peu complète de l'export à améliorer - génère une erreur dans le validateur EU
+    - version un peu complète de l'export à améliorer
+      - production d'une version turtle avec http://rdfvalidator.mybluemix.net/
+      - génère des violations dans le validateur EU en utilisant la version turtle 
   26/6/2021:
     - première version
 phpScripts:
