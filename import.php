@@ -225,8 +225,8 @@ function buildDcatForJD(array $jd): array {
       'description'=> ['field', 'description'],
       'publisher'=> ['urival', 'https://dido.geoapi.fr/id/organizations/', $jd['organization']['id']],
       'theme'=> ['multiple', [
-          ['mapping', $mappings['FromDidoThemeToDataTheme'], 'topic'],
-          ['mapping', $mappings['FromDidoThemeToUri'], 'topic'],
+          ['mapping', $mappings['FromDidoThemeToDataTheme'], 'topic'], // le thème de data-theme
+          ['mapping', $mappings['FromDidoThemeToUri'], 'topic'], // le theme DiDo sous la forme d'un URI
         ],
       ],
       'keyword'=> ['field', 'tags'],
@@ -234,7 +234,7 @@ function buildDcatForJD(array $jd): array {
       'accrualPeriodicity'=> ['mapping', $mappings['FromDidoFrequencyToFrequencyVoc'], 'frequency'],
       'frequency_date'=> ['field', 'frequency_date'], // Prochaine date d'actualisation du jeu de données
       'spatial_granularity'=> ['val', $jd['spatial']['granularity']], // Granularité du jeu de données
-      'spatial'=> ['uriarray', 'https://dido.geoapi.fr/id/organizations/', $jd['spatial']['zones']],
+      'spatial'=> ['uriarray', 'https://dido.geoapi.fr/id/geozones/', $jd['spatial']['zones']],
       'temporal'=> ['object', [
           'startDate'=> ['val', $jd['temporal_coverage']['start'] ?? null],
           'endDate'=> ['val', $jd['temporal_coverage']['end'] ?? null],
