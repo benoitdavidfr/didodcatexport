@@ -195,6 +195,15 @@ function buildDcatForPublisher(array $org): array {
     ]);
 }
 
+// prend un array d'objets JSON et le nom d'un champ et renvoie un array des valeurs du champ construit à partir de chaque objet 
+function project(array $objects, string $field): array {
+  $result = [];
+  foreach ($objects as $object) {
+    $result[] = $object[$field];
+  }
+  return $result;
+}
+
 // fabrique le Dataset DCAT correspondant à un jeu de données DiDo
 function buildDcatForJD(array $jd): array {
   global $mappings;
@@ -207,12 +216,6 @@ function buildDcatForJD(array $jd): array {
     true
   );
 
-  $attachmentRids = [];
-  foreach ($jd['attachments'] as $attachment)
-    $attachmentRids[] = $attachment['rid'];
-  $datafileRids = [];
-  foreach ($jd['datafiles'] as $datafile)
-    $datafileRids[] = $datafile['rid'];
   return buildObjectWithMapping($jd,
     [
       '@id'=> ['uri', 'https://dido.geoapi.fr/id/datasets/', 'id'],
@@ -238,10 +241,10 @@ function buildDcatForJD(array $jd): array {
         ],
       ],
       'caution'=> ['field', 'caution'],
-      'page'=> ['uriarray', 'https://dido.geoapi.fr/id/attachments/', $attachmentRids],
+      'page'=> ['uriarray', 'https://dido.geoapi.fr/id/attachments/', project($jd['attachments'], 'rid')],
       'created'=> ['field', 'created_at'],
       'modified'=> ['field', 'last_modified'],
-      'hasPart'=> ['uriarray', 'https://dido.geoapi.fr/id/datafiles/', $datafileRids],
+      'hasPart'=> ['uriarray', 'https://dido.geoapi.fr/id/datafiles/', project($jd['datafiles'], 'rid')],
     ]);
 }
 
