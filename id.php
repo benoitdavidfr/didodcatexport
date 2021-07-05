@@ -23,7 +23,7 @@ journal: |
 */
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
-$pattern = '!^(/geoapi/dido/id.php/|/id/)(catalog|(datasets|attachments|datafiles|millesimes|organizations|themes)/[^/]+)$!';
+$pattern = '!^(/geoapi/dido/id.php/|/id/)(catalog|(datasets|attachments|datafiles|millesimes|organizations|themes)/[^/]+(/[^/]+)?)$!';
 if (!preg_match($pattern, $_SERVER['REQUEST_URI'], $matches)) {
   header("HTTP/1.0 404 Not Found");
   header('Content-type: text/plain; charset="utf-8"');

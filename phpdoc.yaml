@@ -17,6 +17,9 @@ doc: |
     https://dido.geoapi.fr/v1 -> /prod/geoapi/dido/api.php
   Essai d'utilisation de easyRdf avec composer - pas réussi à le faire fonctionner
 journal: |
+  5/7/2021:
+    - plus de violations dans le validataeur EU mais des warnings
+    - vérifier le déref. des URI
   4/7/2021:
     - version un peu complète de l'export à améliorer
       - production d'une version turtle avec http://rdfvalidator.mybluemix.net/

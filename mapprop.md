@@ -8,6 +8,7 @@ modified: 2021-07-05T20:50
 - frequency_date, spatialGranularity ?
 - produire le schema JSON
 - comment intégrer les unités dans le schéma JSON ?
+- permettre le téléchargement CSV
 
 ## Producteur (Organization) -> foaf:Organization
 
