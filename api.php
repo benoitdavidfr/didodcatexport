@@ -18,7 +18,7 @@ require __DIR__.'/geozones.inc.php';
 require __DIR__.'/frequency.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
-// retourne un ensemble d'objets dont l'objet Catalog et des objets généraux à initialiser
+// retourne un ensemble d'objets dont l'objet Catalog et des déclarations initiales
 function catalog(array $datasetIds) {
   return array_merge(
     ThemeDido::jsonld(), // Déclaration des thèmes DiDo et du Scheme
