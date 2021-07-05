@@ -43,6 +43,7 @@ function catalog(array $datasetIds) {
         ],
         'themeTaxonomy'=> [
           'http://publications.europa.eu/resource/authority/data-theme',
+          'https://dido.geoapi.fr/id/themes',
         ],
       ],
     ]
