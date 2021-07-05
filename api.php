@@ -11,25 +11,42 @@ journal: |
   1/7/2021:
     - création d'un fantome
 */
+require __DIR__.'/themesdido.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
-// génère l'objet Catalog
+// retourne un ensemble d'objets dont l'objet Catalog et des objets généraux à initialiser
 function catalog(array $datasetIds) {
-  return [
-    '@id'=> 'https://dido.geoapi.fr/id/catalog',
-    '@type'=> 'Catalog',
-    'title'=> "Catalogue DiDo",
-    'dataset'=> $datasetIds,
-    'homepage'=> 'https://dido.geoapi.fr/',
-    'language'=> 'http://publications.europa.eu/resource/authority/language/FRA',
-    'publisher'=> [
-      '@id'=> 'https://dido.geoapi.fr/id/organizations/SDES',
-      '@type'=> 'Organization',
-      'name'=> "Ministère de la transition écologique (MTE), Service des Données et des Etudes Statistiques",
-      'nick'=> 'SDES',
-      'comment'=> "Le SDES est le service statistique du ministère de la transition écologique. Il fait partie du Commissariat Général au Développement Durable (CGDD)",
-    ],
-  ];
+  return array_merge(
+    ThemeDido::jsonld(), // Déclaration des thèmes DiDo et du Scheme
+    [
+      [
+        '@id'=> 'http://publications.europa.eu/resource/authority/language/FRA',
+        '@type'=> 'dct:LinguisticSystem',
+      ],
+      [
+        '@id'=> 'https://dido.geoapi.fr/id/catalog',
+        '@type'=> 'Catalog',
+        'title'=> "Catalogue DiDo",
+        'description'=> "Test d'export en DCAT-AP du catalogue DiDo provenant du site école ; l'export est formatté en JSON-LD",
+        'dataset'=> $datasetIds,
+        'homepage'=> [
+          '@id'=> 'https://dido.geoapi.fr/',
+          '@type'=> 'foaf:Document',
+        ],
+        'language'=> 'http://publications.europa.eu/resource/authority/language/FRA',
+        'publisher'=> [
+          '@id'=> 'https://dido.geoapi.fr/id/organizations/SDES',
+          '@type'=> 'Organization',
+          'name'=> "Ministère de la transition écologique (MTE), Service des Données et des Etudes Statistiques",
+          'nick'=> 'SDES',
+          'comment'=> "Le SDES est le service statistique du ministère de la transition écologique. Il fait partie du Commissariat Général au Développement Durable (CGDD)",
+        ],
+        'themeTaxonomy'=> [
+          'http://publications.europa.eu/resource/authority/data-theme',
+        ],
+      ],
+    ]
+  );
 }
 
 if (in_array($_SERVER['REQUEST_URI'], ['/geoapi/dido/api.php/v1/dcatcontext.jsonld', '/v1/dcatcontext.jsonld'])) {
@@ -65,7 +82,7 @@ else {
     }
   }
   
-  $graph[] = catalog($datasetIds);
+  $graph[] = array_merge(catalog($datasetIds), $graph);
   
   
   header('Content-type: application/ld+json; charset="utf-8"');

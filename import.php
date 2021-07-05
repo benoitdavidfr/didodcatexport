@@ -33,11 +33,13 @@ doc: |
   De plus un cache des pages datasets lues dans DiDo est stocké dans le répertoire import dans des fichiers nommés page{no}.json
   Le répertoire jd contient un fichier par jeu de données DiDo permettant de faciliter la compréhension des données de DiDo.
 
+  Remarques sur la structuration DiDo:
+    - il manque un point de contact par jeu de données et fichier de données
 journal: |
   4/7/2021:
     - première version un peu complète à améliorer
       - revoir la licence, le champ spatial, le schéma JSON
-    - erreur 400 avec le validataeur EU
+    - des violations dans le validataeur EU
   1/7/2021:
     - utilisation de pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public sur dido.geoapi.fr
   30/6/2021:
@@ -45,6 +47,7 @@ journal: |
   26-27/6/2021:
     - création de la V1 abandonnée
 */
+require __DIR__.'/themesdido.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
 //echo '<pre>'; print_r($_SERVER); die();
@@ -58,48 +61,74 @@ define('JSON_OPTIONS', JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_U
 $rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine de l'API DiDo
 
 // différents mappings de valeurs
-$mappings = [
-  // mapping des themes DiDo vers le voc. data-theme
-  'FromDidoThemeToDataTheme' => [
-    'Environnement' => 'http://publications.europa.eu/resource/authority/data-theme/ENVI', // Environnement
-    'Énergie' => 'http://publications.europa.eu/resource/authority/data-theme/ENER', // Energie
-    'Transports' => 'http://publications.europa.eu/resource/authority/data-theme/TRAN', // Transports
-    'Logement' => 'http://publications.europa.eu/resource/authority/data-theme/SOCI', // Population et société
-    'Changement climatique' => 'http://publications.europa.eu/resource/authority/data-theme/ENVI', // Environnement
-  ],
+function mappings(string $name): array {
+  switch($name) {
+    // mapping des themes DiDo vers le voc. data-theme
+    case 'FromDidoThemeToDataTheme': return ThemeDido::mapping('data-theme');
 
-  // mapping des themes DiDo vers leur uri
-  'FromDidoThemeToUri' => [
-    'Environnement' => 'https://dido.geoapi.fr/id/themes/environnement',
-    'Énergie' => 'https://dido.geoapi.fr/id/themes/energie',
-    'Transports' => 'https://dido.geoapi.fr/id/themes/transports',
-    'Logement' => 'https://dido.geoapi.fr/id/themes/logement',
-    'Changement climatique' => 'https://dido.geoapi.fr/id/themes/Changement_climatique',
-  ],
+    // mapping des themes DiDo vers leur uri
+    case 'FromDidoThemeToUri': return ThemeDido::mapping('uri');
 
-  // mapping des valeurs du champ DiDo frequency vers le vocabulaire http://publications.europa.eu/resource/authority/frequency
-  'FromDidoFrequencyToFrequencyVoc' => [
-    'daily'=>     'http://publications.europa.eu/resource/authority/frequency/DAILY',
-    'weekly'=>    'http://publications.europa.eu/resource/authority/frequency/WEEKLY',
-    'monthly'=>   'http://publications.europa.eu/resource/authority/frequency/MONTHLY',
-    'quarterly'=> 'http://publications.europa.eu/resource/authority/frequency/QUARTERLY',
-    'semiannual'=>'http://publications.europa.eu/resource/authority/frequency/ANNUAL_2',
-    'annual'=>    'http://publications.europa.eu/resource/authority/frequency/ANNUAL',
-    'punctual'=>  'http://publications.europa.eu/resource/authority/frequency/NEVER',
-    'irregular'=> 'http://publications.europa.eu/resource/authority/frequency/IRREG',
-    'unknown'=>   'http://publications.europa.eu/resource/authority/frequency/UNKNOWN',
-  ],
-];
+    // mapping des valeurs du champ DiDo frequency vers le vocabulaire http://publications.europa.eu/resource/authority/frequency
+    case 'FromDidoFrequencyToFrequencyVoc': return [
+      'daily'=>     'http://publications.europa.eu/resource/authority/frequency/DAILY',
+      'weekly'=>    'http://publications.europa.eu/resource/authority/frequency/WEEKLY',
+      'monthly'=>   'http://publications.europa.eu/resource/authority/frequency/MONTHLY',
+      'quarterly'=> 'http://publications.europa.eu/resource/authority/frequency/QUARTERLY',
+      'semiannual'=>'http://publications.europa.eu/resource/authority/frequency/ANNUAL_2',
+      'annual'=>    'http://publications.europa.eu/resource/authority/frequency/ANNUAL',
+      'punctual'=>  'http://publications.europa.eu/resource/authority/frequency/NEVER',
+      'irregular'=> 'http://publications.europa.eu/resource/authority/frequency/IRREG',
+      'unknown'=>   'http://publications.europa.eu/resource/authority/frequency/UNKNOWN',
+    ];
+  
+    // mapping des Geozones vers un URI
+    case 'FromGeozonesToUri': return [
+      /*
+      Utilisation d'un code, inspiré de la norme ISO 3166-1 utilisée par le burreau des publications UE,
+      dont la liste est la suivante:
+        - FXX pour la métropole
+        - GLP/MTQ/GUF/REU/MYT pour chacun des DOM
+        - FRA pour la métrople + les 5 DOM (conformément à la logique de l'INSEE - http://id.insee.fr/geo/pays/france)
+        - SPM/BLM/MAF/WLF/PYF pour chacune des COM
+        - NCL pour la Nouvelle Calédonie
+        - ATF pour les Terres australes et antarctiques françaises (TAAF)
+        - enfin CPT pour l'île de Clipperton
+      Ces codes ont l'avantage d'être plus faciles à retenir que ceux de l'Insee.
 
-//unlink(__DIR__."/pgsql.json");
-
-/*function storePgInJson(array $dcat, string $itemUri, string $jdUri) {
-  file_put_contents(
-    __DIR__."/pgsql.json",
-    json_encode(['jsonld'=> $dcat, 'itemUri'=> $itemUri, 'jdUri'=> $jdUri], JSON_OPTIONS).",\n",
-    FILE_APPEND
-  );
-}*/
+      Dans la publication RDF, ces codes sont transformés en URI selon la table suivante, dans laquelle je propose,
+      pour respecter DCAT-AP d'utiliser si possible les URI définis par l'UE et sinon pour la métropole
+      et la métropole + 5 DOM ceux définis par l'Insee dans son espace RDF:
+        FXX: http://id.insee.fr/geo/territoireFrancais/franceMetropolitaine
+        GLP: http://publications.europa.eu/resource/authority/country/GLP
+        MTQ: http://publications.europa.eu/resource/authority/country/MTQ
+        GUF: http://publications.europa.eu/resource/authority/country/GUF
+        REU: http://publications.europa.eu/resource/authority/country/REU
+        MYT: http://publications.europa.eu/resource/authority/country/MYT
+        FRA: http://id.insee.fr/geo/pays/france
+        SPM: http://publications.europa.eu/resource/authority/country/MYT
+        BLM: http://publications.europa.eu/resource/authority/country/BLM
+        MAF: http://publications.europa.eu/resource/authority/country/MAF
+        WLF: http://publications.europa.eu/resource/authority/country/WLF
+        PYF: http://publications.europa.eu/resource/authority/country/PYF
+        NCL: http://publications.europa.eu/resource/authority/country/NCL
+        ATF: http://publications.europa.eu/resource/authority/country/FQ0
+        CPT: http://publications.europa.eu/resource/authority/country/CPT
+      */
+      'country:fr'=> ['http://id.insee.fr/geo/pays/france'],
+      'country-subset:fr:metro'=> ['http://id.insee.fr/geo/territoireFrancais/franceMetropolitaine'],
+      'country-subset:fr:drom'=> [
+        'http://publications.europa.eu/resource/authority/country/GLP',
+        'http://publications.europa.eu/resource/authority/country/MTQ',
+        'http://publications.europa.eu/resource/authority/country/GUF',
+        'http://publications.europa.eu/resource/authority/country/REU',
+        'http://publications.europa.eu/resource/authority/country/MYT',
+      ],
+    ];
+    
+    default: die("Erreur ligne ".__LINE__.", mapping $name non défini\n");
+  }
+}
 
 if (1) { // Ouverture PgSql et création de la table didodcat
   if (($_SERVER['HOME']=='/home/bdavid')) // sur le serveur dido.geoapi.fr
@@ -131,17 +160,18 @@ function storePg(array $dcat, string $itemUri, string $dsUri, bool $ifDoesntExis
   }
 }
 
-/* construit une nouvelle valeur selon le mapping qui est un array [$pDest => $pSrce] où:
-  - $pDest est le nom du champ dans le nouvel objet
-  - $pSrce est un array d'une des formes suivantes:
+function buildValWithMapping(array $pSrce, array $srce) {
+  /* construit une nouvelle valeur selon $pSrce qui est un array d'une des formes suivantes:
     - ['field', le nom du champ dans l'objet source]
     - ['val', la valeur]
     - ['uri', un prefixe d'URI, le nom du champ dans l'objet source à concaténer au prefixe]
     - ['urival', un prefixe d'URI, la valeur à concaténer au prefixe]
-    - ['mapping', tableau de mapping, nom du champ pour la valeur à utiliser en entrée du mapping]
+    - ['uriarray', un prefixe d'URI, un array de valeurs à concaténer chacune au prefixe]]
+    - ['mapping', liste de mapping, nom du champ pour la valeur à utiliser en entrée du mapping]
+    - ['mappingSetOnVal', liste de mapping, ensemble des valeurs à utiliser en entrée du mapping]
+    - ['object', array [key => mapping où mapping définit le mapping pour le champ key ]]
     - ['multiple', liste d'array mapping]
-*/
-function buildValWithMapping(array $pSrce, array $srce) {
+  */
   switch ($pSrce[0]) {
     case 'field': return $srce[$pSrce[1]] ?? null;
     case 'val': return $pSrce[1];
@@ -154,7 +184,27 @@ function buildValWithMapping(array $pSrce, array $srce) {
       }
       return $result;
     }
-    case 'mapping': return $pSrce[1][$srce[$pSrce[2]]];
+    case 'mapping': {
+      if (isset($pSrce[1][$srce[$pSrce[2]]]))
+        return $pSrce[1][$srce[$pSrce[2]]];
+      else {
+        echo "Pas de mapping pour ",$srce[$pSrce[2]],"\n";
+        return "PAS DE MAPPING pour '".$srce[$pSrce[2]];
+      }
+    }
+    case 'mappingSetOnVal': {
+      $result = [];
+      foreach ($pSrce[2] as $elt) {
+        if (isset($pSrce[1][$elt])) {
+          $result = array_merge($pSrce[1][$elt], $result);
+        }
+        else {
+          echo "Pas de maping pour $elt\n";
+          $result[] = "PAS DE MAPPING POUR $elt";
+        }
+      }
+      return $result;
+    }
     case 'object': {
       $object = [];
       foreach ($pSrce[1] as $key => $val) {
@@ -175,8 +225,11 @@ function buildValWithMapping(array $pSrce, array $srce) {
   }
 }
 
-// construit un nouvel objet selon le mapping
 function buildObjectWithMapping(array $srce, array $mapping): array {
+  /* construit un nouvel objet selon le mapping qui est un array [$pDest => $pSrce] où:
+    - $pDest est le nom du champ dans le nouvel objet
+    - $pSrce est un array à passer à buildValWithMapping()
+  */
   //echo "buildObjectWithMapping(srce, mapping=",json_encode($mapping),")\n"; 
   $dest = [];
   foreach ($mapping as $pDest => $pSrce) {
@@ -210,8 +263,6 @@ function project(array $objects, string $field): array {
 
 // fabrique le Dataset DCAT correspondant à un jeu de données DiDo
 function buildDcatForJD(array $jd): array {
-  global $mappings;
-  
   // enregistre l'organization en effet de bord ssi elle n'est pas déjà définie
   storePg(
     buildDcatForPublisher($jd['organization']),
@@ -220,6 +271,9 @@ function buildDcatForJD(array $jd): array {
     true
   );
 
+  /*foreach ($jd['spatial']['zones'] as $spatial)
+    echo "spatial: $spatial\n";*/
+  
   return buildObjectWithMapping($jd,
     [
       '@id'=> ['uri', 'https://dido.geoapi.fr/id/datasets/', 'id'],
@@ -229,17 +283,18 @@ function buildDcatForJD(array $jd): array {
       'description'=> ['field', 'description'],
       'publisher'=> ['urival', 'https://dido.geoapi.fr/id/organizations/', $jd['organization']['id']],
       'theme'=> ['multiple', [
-          ['mapping', $mappings['FromDidoThemeToDataTheme'], 'topic'], // le thème de data-theme
-          ['mapping', $mappings['FromDidoThemeToUri'], 'topic'], // le theme DiDo sous la forme d'un URI
+          ['mapping', mappings('FromDidoThemeToDataTheme'), 'topic'], // le thème de data-theme
+          ['mapping', mappings('FromDidoThemeToUri'), 'topic'], // le theme DiDo sous la forme d'un URI
         ],
       ],
       'keyword'=> ['field', 'tags'],
       'license'=> ['field', 'license'],
-      'accrualPeriodicity'=> ['mapping', $mappings['FromDidoFrequencyToFrequencyVoc'], 'frequency'],
+      'accrualPeriodicity'=> ['mapping', mappings('FromDidoFrequencyToFrequencyVoc'), 'frequency'],
       'frequency_date'=> ['field', 'frequency_date'], // Prochaine date d'actualisation du jeu de données
-      'spatial_granularity'=> ['val', $jd['spatial']['granularity']], // Granularité du jeu de données
-      'spatial'=> ['uriarray', 'https://dido.geoapi.fr/id/geozones/', $jd['spatial']['zones']],
+      'spatialGranularity'=> ['val', $jd['spatial']['granularity']], // Granularité du jeu de données
+      'spatial'=> ['mappingSetOnVal', mappings('FromGeozonesToUri'), $jd['spatial']['zones']],
       'temporal'=> ['object', [
+          '@type'=> ['val', 'dct:PeriodOfTime'],
           'startDate'=> ['val', $jd['temporal_coverage']['start'] ?? null],
           'endDate'=> ['val', $jd['temporal_coverage']['end'] ?? null],
         ],
@@ -277,6 +332,7 @@ function buildDcatForDataFile(array $datafile, array $dataset) : array {
       'description'=> ['field', 'description'],
       'issued'=> ['field', 'published'],
       'temporal'=> ['object', [
+          '@type'=> ['val', 'dct:PeriodOfTime'],
           'startDate'=> ['val', $datafile['temporal_coverage']['start'] ?? null],
           'endDate'=> ['val', $datafile['temporal_coverage']['end'] ?? null],
         ],
@@ -302,9 +358,18 @@ function buildDcatForMillesime(array $millesime, array $datafile, array $dataset
       '@type'=> ['val', 'Distribution'],
       'title'=> ['field', 'title'],
       'issued'=> ['field', 'date_diffusion'],
-      'conformsTo'=> ['uri', "https://dido.geoapi.fr/id/json-schema/$datafile[rid]/", 'millesime'],
+      'conformsTo'=> ['object', [
+          '@type'=> ['val', 'dct:Standard'],
+          '@id'=> ['uri', "https://dido.geoapi.fr/id/json-schema/$datafile[rid]/", 'millesime'],
+        
+      ]],
       'license'=> ['val', $dataset['license']],
       'downloadURL'=> [
+        'val',
+        "$rootUrl/datafiles/$datafile[rid]/csv?millesime=$millesime[millesime]"
+          ."&withColumnName=true&withColumnDescription=true&withColumnUnit=true"
+      ],
+      'accessURL'=> [
         'val',
         "$rootUrl/datafiles/$datafile[rid]/csv?millesime=$millesime[millesime]"
           ."&withColumnName=true&withColumnDescription=true&withColumnUnit=true"

@@ -33,8 +33,7 @@ if (!preg_match($pattern, $_SERVER['REQUEST_URI'], $matches)) {
 //echo "<h2>id.php</h2><pre>\n";
 //print_r($_SERVER); die();
 //echo "REQUEST_URI -> $_SERVER[REQUEST_URI]<br>\n";
-
-print_r($matches);
+//print_r($matches);
 
 if ($matches[2] == 'catalog') {
   header('Content-type: text/plain; charset="utf-8"');
