@@ -6,6 +6,8 @@ doc: |
   Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/xxx
   ou de http://localhost/geoapi/dido/api.php/v1/xxx
 journal: |
+  5/7/2021:
+    - plus de violations dans le validataeur EU mais des warnings
   4/7/2021:
     - version non paginée
   1/7/2021:
@@ -13,13 +15,15 @@ journal: |
 */
 require __DIR__.'/themesdido.inc.php';
 require __DIR__.'/geozones.inc.php';
+require __DIR__.'/frequency.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
 // retourne un ensemble d'objets dont l'objet Catalog et des objets généraux à initialiser
 function catalog(array $datasetIds) {
   return array_merge(
     ThemeDido::jsonld(), // Déclaration des thèmes DiDo et du Scheme
-    GeoZone::jsonld(), // La traduction des GéoZones
+    GeoZone::jsonld(), // Déclaration des GéoZones
+    Frequency::jsonld(), // Déclaration des frequences
     [
       [
         '@id'=> 'http://publications.europa.eu/resource/authority/language/FRA',
@@ -38,7 +42,8 @@ function catalog(array $datasetIds) {
         'language'=> 'http://publications.europa.eu/resource/authority/language/FRA',
         'publisher'=> [
           '@id'=> 'https://dido.geoapi.fr/id/organizations/SDES',
-          '@type'=> 'Organization',
+          //'@type'=> 'Organization', -> génère une violation du validateur DCAT-AP
+          '@type'=> 'Agent',
           'name'=> "Ministère de la transition écologique (MTE), Service des Données et des Etudes Statistiques",
           'nick'=> 'SDES',
           'comment'=> "Le SDES est le service statistique du ministère de la transition écologique. Il fait partie du Commissariat Général au Développement Durable (CGDD)",
@@ -85,7 +90,7 @@ else {
     }
   }
   
-  $graph[] = array_merge(catalog($datasetIds), $graph);
+  $graph = array_merge(catalog($datasetIds), $graph);
   
   
   header('Content-type: application/ld+json; charset="utf-8"');

@@ -36,6 +36,8 @@ doc: |
   Remarques sur la structuration DiDo:
     - il manque un point de contact par jeu de données et fichier de données
 journal: |
+  5/7/2021:
+    - plus de violations dans le validataeur EU mais des warnings
   4/7/2021:
     - première version un peu complète à améliorer
       - revoir la licence, le champ spatial, le schéma JSON
@@ -49,6 +51,8 @@ journal: |
 */
 require __DIR__.'/themesdido.inc.php';
 require __DIR__.'/geozones.inc.php';
+require __DIR__.'/frequency.inc.php';
+require __DIR__.'/licenses.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
 //echo '<pre>'; print_r($_SERVER); die();
@@ -60,22 +64,6 @@ if (php_sapi_name() <> 'cli') { // Utilisation du script en CLI pour restreindre
 define('JSON_OPTIONS', JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
 
 $rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine de l'API DiDo
-
-// différents mappings de valeurs
-function mappingFromDidoFrequencyToFrequencyVoc(): array {
-  return [
-    'daily'=>     'http://publications.europa.eu/resource/authority/frequency/DAILY',
-    'weekly'=>    'http://publications.europa.eu/resource/authority/frequency/WEEKLY',
-    'monthly'=>   'http://publications.europa.eu/resource/authority/frequency/MONTHLY',
-    'quarterly'=> 'http://publications.europa.eu/resource/authority/frequency/QUARTERLY',
-    'semiannual'=>'http://publications.europa.eu/resource/authority/frequency/ANNUAL_2',
-    'annual'=>    'http://publications.europa.eu/resource/authority/frequency/ANNUAL',
-    'punctual'=>  'http://publications.europa.eu/resource/authority/frequency/NEVER',
-    'irregular'=> 'http://publications.europa.eu/resource/authority/frequency/IRREG',
-    'unknown'=>   'http://publications.europa.eu/resource/authority/frequency/UNKNOWN',
-  ];
-}
-
 
 if (1) { // Ouverture PgSql et création de la table didodcat
   if (($_SERVER['HOME']=='/home/bdavid')) // sur le serveur dido.geoapi.fr
@@ -115,6 +103,7 @@ function buildValWithMapping(array $pSrce, array $srce) {
     - ['urival', un prefixe d'URI, la valeur à concaténer au prefixe]
     - ['uriarray', un prefixe d'URI, un array de valeurs à concaténer chacune au prefixe]]
     - ['mapping', liste de mapping, nom du champ pour la valeur à utiliser en entrée du mapping]
+    - ['mappingVal', liste de mapping, valeur à utiliser en entrée du mapping]
     - ['mappingSetOnVal', liste de mapping, ensemble des valeurs à utiliser en entrée du mapping]
     - ['object', array [key => mapping où mapping définit le mapping pour le champ key ]]
     - ['multiple', liste d'array mapping]
@@ -137,6 +126,14 @@ function buildValWithMapping(array $pSrce, array $srce) {
       else {
         echo "Pas de mapping pour ",$srce[$pSrce[2]],"\n";
         return "PAS DE MAPPING pour '".$srce[$pSrce[2]];
+      }
+    }
+    case 'mappingVal': {
+      if (isset($pSrce[1][$pSrce[2]]))
+        return $pSrce[1][$pSrce[2]];
+      else {
+        echo "Pas de mapping pour $pSrce[2]\n";
+        return "PAS DE MAPPING pour '$pSrce[2]'";
       }
     }
     case 'mappingSetOnVal': {
@@ -187,18 +184,6 @@ function buildObjectWithMapping(array $srce, array $mapping): array {
   return $dest;
 }
 
-// fabrique l'Organization FOAF correspondant à un publisher DiDo
-function buildDcatForPublisher(array $org): array {
-  return buildObjectWithMapping($org,
-    [
-      '@id'=> ['val', "https://dido.geoapi.fr/id/organizations/$org[id]"],
-      '@type'=> ['val', 'Organization'],
-      'name'=> ['val', $org['title']],
-      'nick'=> ['val', $org['acronym']],
-      'comment'=> ['val', $org['description']],
-    ]);
-}
-
 // prend un array d'objets JSON et le nom d'un champ et renvoie un array des valeurs du champ construit à partir de chaque objet 
 function project(array $objects, string $field): array {
   $result = [];
@@ -206,6 +191,19 @@ function project(array $objects, string $field): array {
     $result[] = $object[$field];
   }
   return $result;
+}
+
+// fabrique l'Organization FOAF correspondant à un publisher DiDo
+function buildDcatForPublisher(array $org): array {
+  return buildObjectWithMapping($org,
+    [
+      '@id'=> ['val', "https://dido.geoapi.fr/id/organizations/$org[id]"],
+      //'@type'=> ['val', 'Organization'], -> génère une violation, DCAT-AP exige un foaf:Agent
+      '@type'=> ['val', 'Agent'],
+      'name'=> ['val', $org['title']],
+      'nick'=> ['val', $org['acronym']],
+      'comment'=> ['val', $org['description']],
+    ]);
 }
 
 // fabrique le Dataset DCAT correspondant à un jeu de données DiDo
@@ -235,8 +233,8 @@ function buildDcatForJD(array $jd): array {
         ],
       ],
       'keyword'=> ['val', $jd['tags']],
-      'license'=> ['val', $jd['license']],
-      'accrualPeriodicity'=> ['mapping', mappingFromDidoFrequencyToFrequencyVoc(), 'frequency'],
+      'license'=> ['mapping', License::mappingToURI(), 'license'],
+      'accrualPeriodicity'=> ['mapping', Frequency::mappingToURI(), 'frequency'],
       'frequency_date'=> ['val', $jd['frequency_date'] ?? null], // Prochaine date d'actualisation du jeu de données
       'spatialGranularity'=> ['val', $jd['spatial']['granularity']], // Granularité du jeu de données
       'spatial'=> ['mappingSetOnVal', Geozone::mappingToUri(), $jd['spatial']['zones']],
@@ -284,9 +282,14 @@ function buildDcatForDataFile(array $datafile, array $dataset) : array {
           'endDate'=> ['val', $datafile['temporal_coverage']['end'] ?? null],
         ],
       ],
-      'license'=> ['val', $dataset['license']],
+      'license'=> ['mappingVal', License::mappingToURI(), $dataset['license']],
       'rights'=> ['val', $datafile['legal_notice'] ?? null],
-      'landingPage'=> ['val', $datafile['weburl']],
+      'landingPage'=> [
+        'val', [
+          '@id'=> $datafile['weburl'],
+          '@type'=> 'foaf:Document',
+        ],
+      ],
       'distribution'=> [
         'uriarray',
         "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/",
@@ -310,7 +313,7 @@ function buildDcatForMillesime(array $millesime, array $datafile, array $dataset
           '@id'=> ['val', "https://dido.geoapi.fr/id/json-schema/$datafile[rid]/$millesime[millesime]"],
         
       ]],
-      'license'=> ['val', $dataset['license']],
+      'license'=> ['mappingVal', License::mappingToURI(), $dataset['license']],
       'downloadURL'=> [
         'val',
         "$rootUrl/datafiles/$datafile[rid]/csv?millesime=$millesime[millesime]"
