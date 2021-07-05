@@ -12,12 +12,14 @@ journal: |
     - création d'un fantome
 */
 require __DIR__.'/themesdido.inc.php';
+require __DIR__.'/geozones.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
 // retourne un ensemble d'objets dont l'objet Catalog et des objets généraux à initialiser
 function catalog(array $datasetIds) {
   return array_merge(
     ThemeDido::jsonld(), // Déclaration des thèmes DiDo et du Scheme
+    GeoZone::jsonld(), // La traduction des GéoZones
     [
       [
         '@id'=> 'http://publications.europa.eu/resource/authority/language/FRA',

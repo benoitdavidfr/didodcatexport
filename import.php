@@ -48,6 +48,7 @@ journal: |
     - création de la V1 abandonnée
 */
 require __DIR__.'/themesdido.inc.php';
+require __DIR__.'/geozones.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
 //echo '<pre>'; print_r($_SERVER); die();
@@ -61,74 +62,20 @@ define('JSON_OPTIONS', JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_U
 $rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine de l'API DiDo
 
 // différents mappings de valeurs
-function mappings(string $name): array {
-  switch($name) {
-    // mapping des themes DiDo vers le voc. data-theme
-    case 'FromDidoThemeToDataTheme': return ThemeDido::mapping('data-theme');
-
-    // mapping des themes DiDo vers leur uri
-    case 'FromDidoThemeToUri': return ThemeDido::mapping('uri');
-
-    // mapping des valeurs du champ DiDo frequency vers le vocabulaire http://publications.europa.eu/resource/authority/frequency
-    case 'FromDidoFrequencyToFrequencyVoc': return [
-      'daily'=>     'http://publications.europa.eu/resource/authority/frequency/DAILY',
-      'weekly'=>    'http://publications.europa.eu/resource/authority/frequency/WEEKLY',
-      'monthly'=>   'http://publications.europa.eu/resource/authority/frequency/MONTHLY',
-      'quarterly'=> 'http://publications.europa.eu/resource/authority/frequency/QUARTERLY',
-      'semiannual'=>'http://publications.europa.eu/resource/authority/frequency/ANNUAL_2',
-      'annual'=>    'http://publications.europa.eu/resource/authority/frequency/ANNUAL',
-      'punctual'=>  'http://publications.europa.eu/resource/authority/frequency/NEVER',
-      'irregular'=> 'http://publications.europa.eu/resource/authority/frequency/IRREG',
-      'unknown'=>   'http://publications.europa.eu/resource/authority/frequency/UNKNOWN',
-    ];
-  
-    // mapping des Geozones vers un URI
-    case 'FromGeozonesToUri': return [
-      /*
-      Utilisation d'un code, inspiré de la norme ISO 3166-1 utilisée par le burreau des publications UE,
-      dont la liste est la suivante:
-        - FXX pour la métropole
-        - GLP/MTQ/GUF/REU/MYT pour chacun des DOM
-        - FRA pour la métrople + les 5 DOM (conformément à la logique de l'INSEE - http://id.insee.fr/geo/pays/france)
-        - SPM/BLM/MAF/WLF/PYF pour chacune des COM
-        - NCL pour la Nouvelle Calédonie
-        - ATF pour les Terres australes et antarctiques françaises (TAAF)
-        - enfin CPT pour l'île de Clipperton
-      Ces codes ont l'avantage d'être plus faciles à retenir que ceux de l'Insee.
-
-      Dans la publication RDF, ces codes sont transformés en URI selon la table suivante, dans laquelle je propose,
-      pour respecter DCAT-AP d'utiliser si possible les URI définis par l'UE et sinon pour la métropole
-      et la métropole + 5 DOM ceux définis par l'Insee dans son espace RDF:
-        FXX: http://id.insee.fr/geo/territoireFrancais/franceMetropolitaine
-        GLP: http://publications.europa.eu/resource/authority/country/GLP
-        MTQ: http://publications.europa.eu/resource/authority/country/MTQ
-        GUF: http://publications.europa.eu/resource/authority/country/GUF
-        REU: http://publications.europa.eu/resource/authority/country/REU
-        MYT: http://publications.europa.eu/resource/authority/country/MYT
-        FRA: http://id.insee.fr/geo/pays/france
-        SPM: http://publications.europa.eu/resource/authority/country/MYT
-        BLM: http://publications.europa.eu/resource/authority/country/BLM
-        MAF: http://publications.europa.eu/resource/authority/country/MAF
-        WLF: http://publications.europa.eu/resource/authority/country/WLF
-        PYF: http://publications.europa.eu/resource/authority/country/PYF
-        NCL: http://publications.europa.eu/resource/authority/country/NCL
-        ATF: http://publications.europa.eu/resource/authority/country/FQ0
-        CPT: http://publications.europa.eu/resource/authority/country/CPT
-      */
-      'country:fr'=> ['http://id.insee.fr/geo/pays/france'],
-      'country-subset:fr:metro'=> ['http://id.insee.fr/geo/territoireFrancais/franceMetropolitaine'],
-      'country-subset:fr:drom'=> [
-        'http://publications.europa.eu/resource/authority/country/GLP',
-        'http://publications.europa.eu/resource/authority/country/MTQ',
-        'http://publications.europa.eu/resource/authority/country/GUF',
-        'http://publications.europa.eu/resource/authority/country/REU',
-        'http://publications.europa.eu/resource/authority/country/MYT',
-      ],
-    ];
-    
-    default: die("Erreur ligne ".__LINE__.", mapping $name non défini\n");
-  }
+function mappingFromDidoFrequencyToFrequencyVoc(): array {
+  return [
+    'daily'=>     'http://publications.europa.eu/resource/authority/frequency/DAILY',
+    'weekly'=>    'http://publications.europa.eu/resource/authority/frequency/WEEKLY',
+    'monthly'=>   'http://publications.europa.eu/resource/authority/frequency/MONTHLY',
+    'quarterly'=> 'http://publications.europa.eu/resource/authority/frequency/QUARTERLY',
+    'semiannual'=>'http://publications.europa.eu/resource/authority/frequency/ANNUAL_2',
+    'annual'=>    'http://publications.europa.eu/resource/authority/frequency/ANNUAL',
+    'punctual'=>  'http://publications.europa.eu/resource/authority/frequency/NEVER',
+    'irregular'=> 'http://publications.europa.eu/resource/authority/frequency/IRREG',
+    'unknown'=>   'http://publications.europa.eu/resource/authority/frequency/UNKNOWN',
+  ];
 }
+
 
 if (1) { // Ouverture PgSql et création de la table didodcat
   if (($_SERVER['HOME']=='/home/bdavid')) // sur le serveur dido.geoapi.fr
@@ -173,10 +120,10 @@ function buildValWithMapping(array $pSrce, array $srce) {
     - ['multiple', liste d'array mapping]
   */
   switch ($pSrce[0]) {
-    case 'field': return $srce[$pSrce[1]] ?? null;
+    //case 'field': return $srce[$pSrce[1]] ?? null;
     case 'val': return $pSrce[1];
-    case 'uri': return $pSrce[1].$srce[$pSrce[2]];
-    case 'urival': return $pSrce[1].$pSrce[2];
+    //case 'uri': return $pSrce[1].$srce[$pSrce[2]];
+    //case 'urival': return $pSrce[1].$pSrce[2];
     case 'uriarray': {
       $result = [];
       foreach ($pSrce[2] as $elt) {
@@ -221,7 +168,7 @@ function buildValWithMapping(array $pSrce, array $srce) {
       }
       return $result;
     }
-    default: die("mot-clé '$pSrce[0]' non reconnu ligne ".__LINE__."\n");
+    default: throw new Exception("mot-clé '$pSrce[0]' non reconnu ligne ".__LINE__."\n");
   }
 }
 
@@ -244,11 +191,11 @@ function buildObjectWithMapping(array $srce, array $mapping): array {
 function buildDcatForPublisher(array $org): array {
   return buildObjectWithMapping($org,
     [
-      '@id'=> ['uri', 'https://dido.geoapi.fr/id/organizations/', 'id'],
+      '@id'=> ['val', "https://dido.geoapi.fr/id/organizations/$org[id]"],
       '@type'=> ['val', 'Organization'],
-      'name'=> ['field', 'title'],
-      'nick'=> ['field', 'acronym'],
-      'comment'=> ['field', 'description'],
+      'name'=> ['val', $org['title']],
+      'nick'=> ['val', $org['acronym']],
+      'comment'=> ['val', $org['description']],
     ]);
 }
 
@@ -276,33 +223,33 @@ function buildDcatForJD(array $jd): array {
   
   return buildObjectWithMapping($jd,
     [
-      '@id'=> ['uri', 'https://dido.geoapi.fr/id/datasets/', 'id'],
+      '@id'=> ['val', "https://dido.geoapi.fr/id/datasets/$jd[id]"],
       '@type'=> ['val', ['Dataset', 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series']],
-      'identifier'=> ['field', 'id'],
-      'title'=> ['field', 'title'],
-      'description'=> ['field', 'description'],
-      'publisher'=> ['urival', 'https://dido.geoapi.fr/id/organizations/', $jd['organization']['id']],
+      'identifier'=> ['val', $jd['id']],
+      'title'=> ['val', $jd['title']],
+      'description'=> ['val', $jd['description']],
+      'publisher'=> ['val', 'https://dido.geoapi.fr/id/organizations/'.$jd['organization']['id']],
       'theme'=> ['multiple', [
-          ['mapping', mappings('FromDidoThemeToDataTheme'), 'topic'], // le thème de data-theme
-          ['mapping', mappings('FromDidoThemeToUri'), 'topic'], // le theme DiDo sous la forme d'un URI
+          ['mapping', ThemeDido::mapping('data-theme'), 'topic'], // le thème de data-theme
+          ['mapping', ThemeDido::mapping('uri'), 'topic'], // le theme DiDo sous la forme d'un URI
         ],
       ],
-      'keyword'=> ['field', 'tags'],
-      'license'=> ['field', 'license'],
-      'accrualPeriodicity'=> ['mapping', mappings('FromDidoFrequencyToFrequencyVoc'), 'frequency'],
-      'frequency_date'=> ['field', 'frequency_date'], // Prochaine date d'actualisation du jeu de données
+      'keyword'=> ['val', $jd['tags']],
+      'license'=> ['val', $jd['license']],
+      'accrualPeriodicity'=> ['mapping', mappingFromDidoFrequencyToFrequencyVoc(), 'frequency'],
+      'frequency_date'=> ['val', $jd['frequency_date'] ?? null], // Prochaine date d'actualisation du jeu de données
       'spatialGranularity'=> ['val', $jd['spatial']['granularity']], // Granularité du jeu de données
-      'spatial'=> ['mappingSetOnVal', mappings('FromGeozonesToUri'), $jd['spatial']['zones']],
+      'spatial'=> ['mappingSetOnVal', Geozone::mappingToUri(), $jd['spatial']['zones']],
       'temporal'=> ['object', [
           '@type'=> ['val', 'dct:PeriodOfTime'],
           'startDate'=> ['val', $jd['temporal_coverage']['start'] ?? null],
           'endDate'=> ['val', $jd['temporal_coverage']['end'] ?? null],
         ],
       ],
-      'caution'=> ['field', 'caution'],
+      'caution'=> ['val', $jd['caution'] ?? null],
       'page'=> ['uriarray', 'https://dido.geoapi.fr/id/attachments/', project($jd['attachments'], 'rid')],
-      'created'=> ['field', 'created_at'],
-      'modified'=> ['field', 'last_modified'],
+      'created'=> ['val', $jd['created_at']],
+      'modified'=> ['val', $jd['last_modified']],
       'hasPart'=> ['uriarray', 'https://dido.geoapi.fr/id/datafiles/', project($jd['datafiles'], 'rid')],
     ]);
 }
@@ -311,13 +258,13 @@ function buildDcatForJD(array $jd): array {
 function buildDcatForAttachment(array $attach, array $dataset): array {
   return buildObjectWithMapping($attach,
     [
-      '@id'=> ['uri', 'https://dido.geoapi.fr/id/attachments/', 'rid'],
+      '@id'=> ['val', "https://dido.geoapi.fr/id/attachments/$attach[rid]"],
       '@type'=> ['val', 'Document'],
-      'title'=> ['field', 'title'],
-      'description'=> ['field', 'description'],
-      'issued'=> ['field', 'published'],
-      'created'=> ['field', 'created_at'],
-      'modified'=> ['field', 'last_modified'],
+      'title'=> ['val', $attach['title']],
+      'description'=> ['val', $attach['description']],
+      'issued'=> ['val', $attach['published']],
+      'created'=> ['val', $attach['created_at']],
+      'modified'=> ['val', $attach['last_modified']],
     ]);
 }
 
@@ -325,12 +272,12 @@ function buildDcatForAttachment(array $attach, array $dataset): array {
 function buildDcatForDataFile(array $datafile, array $dataset) : array {
   return buildObjectWithMapping($datafile,
     [
-      '@id'=> ['uri', 'https://dido.geoapi.fr/id/datafiles/', 'rid'],
+      '@id'=> ['val', "https://dido.geoapi.fr/id/datafiles/$datafile[rid]"],
       '@type'=> ['val', 'Dataset'],
-      'isPartOf'=> ['urival', 'https://dido.geoapi.fr/id/datasets/', $dataset['id']],
-      'title'=> ['field', 'title'],
-      'description'=> ['field', 'description'],
-      'issued'=> ['field', 'published'],
+      'isPartOf'=> ['val', "https://dido.geoapi.fr/id/datasets/$dataset[id]"],
+      'title'=> ['val', $datafile['title']],
+      'description'=> ['val', $datafile['description']],
+      'issued'=> ['val', $datafile['published']],
       'temporal'=> ['object', [
           '@type'=> ['val', 'dct:PeriodOfTime'],
           'startDate'=> ['val', $datafile['temporal_coverage']['start'] ?? null],
@@ -338,15 +285,15 @@ function buildDcatForDataFile(array $datafile, array $dataset) : array {
         ],
       ],
       'license'=> ['val', $dataset['license']],
-      'rights'=> ['field', 'legal_notice'],
-      'landingPage'=> ['field', 'weburl'],
+      'rights'=> ['val', $datafile['legal_notice'] ?? null],
+      'landingPage'=> ['val', $datafile['weburl']],
       'distribution'=> [
         'uriarray',
         "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/",
         project($datafile['millesimes'], 'millesime')
       ],
-      'created'=> ['field', 'created_at'],
-      'modified'=> ['field', 'last_modified'],
+      'created'=> ['val', $datafile['created_at']],
+      'modified'=> ['val', $datafile['last_modified']],
     ]);
 }
 
@@ -354,13 +301,13 @@ function buildDcatForDataFile(array $datafile, array $dataset) : array {
 function buildDcatForMillesime(array $millesime, array $datafile, array $dataset, string $rootUrl) {
   return buildObjectWithMapping($millesime,
     [
-      '@id'=> ['uri', "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/", 'millesime'],
+      '@id'=> ['val', "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/$millesime[millesime]"],
       '@type'=> ['val', 'Distribution'],
-      'title'=> ['field', 'title'],
-      'issued'=> ['field', 'date_diffusion'],
+      'title'=> ['val', $millesime['title'] ?? null],
+      'issued'=> ['val', $millesime['date_diffusion']],
       'conformsTo'=> ['object', [
           '@type'=> ['val', 'dct:Standard'],
-          '@id'=> ['uri', "https://dido.geoapi.fr/id/json-schema/$datafile[rid]/", 'millesime'],
+          '@id'=> ['val', "https://dido.geoapi.fr/id/json-schema/$datafile[rid]/$millesime[millesime]"],
         
       ]],
       'license'=> ['val', $dataset['license']],
