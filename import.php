@@ -301,7 +301,7 @@ function buildDcatForDataFile(array $datafile, array $dataset) : array {
 }
 
 // fabrique l'élément DCAT correspondant à un millésime
-function buildDcatForMillesime(array $millesime, array $datafile, array $dataset, string $rootUrl) {
+function buildDcatForMillesime(array $millesime, array $datafile, array $dataset, string $rootUrl): array {
   return buildObjectWithMapping($millesime,
     [
       '@id'=> ['val', "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/$millesime[millesime]"],

@@ -6,6 +6,8 @@ doc: |
   Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/xxx
   ou de http://localhost/geoapi/dido/api.php/v1/xxx
 journal: |
+  6/7/2021:
+    - améliorations
   5/7/2021:
     - plus de violations dans le validataeur EU mais des warnings
   4/7/2021:
@@ -16,44 +18,16 @@ journal: |
 require __DIR__.'/themesdido.inc.php';
 require __DIR__.'/geozones.inc.php';
 require __DIR__.'/frequency.inc.php';
+require __DIR__.'/catalog.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
 // retourne un ensemble d'objets dont l'objet Catalog et des déclarations initiales
-function catalog(array $datasetIds) {
+function headers(array $datasetUris) {
   return array_merge(
     ThemeDido::jsonld(), // Déclaration des thèmes DiDo et du Scheme
     GeoZone::jsonld(), // Déclaration des GéoZones
     Frequency::jsonld(), // Déclaration des frequences
-    [
-      [
-        '@id'=> 'http://publications.europa.eu/resource/authority/language/FRA',
-        '@type'=> 'dct:LinguisticSystem',
-      ],
-      [
-        '@id'=> 'https://dido.geoapi.fr/id/catalog',
-        '@type'=> 'Catalog',
-        'title'=> "Catalogue DiDo",
-        'description'=> "Test d'export en DCAT-AP du catalogue DiDo provenant du site école ; l'export est formatté en JSON-LD",
-        'dataset'=> $datasetIds,
-        'homepage'=> [
-          '@id'=> 'https://dido.geoapi.fr/',
-          '@type'=> 'foaf:Document',
-        ],
-        'language'=> 'http://publications.europa.eu/resource/authority/language/FRA',
-        'publisher'=> [
-          '@id'=> 'https://dido.geoapi.fr/id/organizations/SDES',
-          //'@type'=> 'Organization', -> génère une violation du validateur DCAT-AP
-          '@type'=> 'Agent',
-          'name'=> "Ministère de la transition écologique (MTE), Service des Données et des Etudes Statistiques",
-          'nick'=> 'SDES',
-          'comment'=> "Le SDES est le service statistique du ministère de la transition écologique. Il fait partie du Commissariat Général au Développement Durable (CGDD)",
-        ],
-        'themeTaxonomy'=> [
-          'http://publications.europa.eu/resource/authority/data-theme',
-          'https://dido.geoapi.fr/id/themes',
-        ],
-      ],
-    ]
+    catalog($datasetUris)
   );
 }
 
@@ -78,7 +52,7 @@ else {
   else // sur le serveur dido.geoapi.fr
     PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public');
   $graph = [];
-  $datasetIds = [];
+  $datasetUris = [];
   foreach (PgSql::query("select dcat from didodcat") as $tuple) {
     //echo "$tuple[dcat]\n";
     $resource = json_decode($tuple['dcat'], true);
@@ -86,11 +60,11 @@ else {
     if (isset($resource['@type'])
         && ((is_string($resource['@type']) && ($resource['@type']=='Dataset'))
              || (is_array($resource['@type']) && in_array('Dataset', $resource['@type'])))) {
-      $datasetIds[] = $resource['@id'];
+      $datasetUris[] = $resource['@id'];
     }
   }
   
-  $graph = array_merge(catalog($datasetIds), $graph);
+  $graph = array_merge(headers($datasetUris), $graph);
   
   
   header('Content-type: application/ld+json; charset="utf-8"');
