@@ -62,16 +62,13 @@ else {
              || (is_array($resource['@type']) && in_array('Dataset', $resource['@type'])))) {
       $datasetUris[] = $resource['@id'];
     }
-  }
-  
-  $graph = array_merge(headers($datasetUris), $graph);
-  
+  }  
   
   header('Content-type: application/ld+json; charset="utf-8"');
   die(json_encode(
     [
       '@context'=> 'https://dido.geoapi.fr/v1/dcatcontext.jsonld',
-      '@graph'=> $graph,
+      '@graph'=> array_merge(headers($datasetUris), $graph),
     ],
     JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE
   ));

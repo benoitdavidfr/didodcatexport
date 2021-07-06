@@ -68,8 +68,10 @@ if ($param == 'catalog') {
 }
 
 // Elt DCAT non stockes en base
-elseif (0) {
-  Mettre ici l'affichage des éléments DCAT non stockés en base
+elseif (preg_match('!^themes(/([^/]+))?$!', $param, $matches)) {
+  header('Content-type: text/plain; charset="utf-8"');
+  echo "Affichage Thèmes\n";
+  print_r($matches);
 }
 
 else {
