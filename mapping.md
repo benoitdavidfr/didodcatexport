@@ -42,9 +42,11 @@ Notes:
     dans https://joinup.ec.europa.eu/release/dcat-ap-how-model-dataset-series.  
   - Un fichier de données DiDo sera représenté en DCAT par un dcat:Dataset qui fera partie d'un jeu de données DiDo ;
     il définira une propriété dct:conforms_to vers un fichier contenant un schéma JSON du fichier de données.
-  - Un fichier annexe sera représenté par un foaf:Document référencé depuis le jeu de données au travers d'une propriété foaf:page.
+  - Un catalogue DCAT sera défini et comprendra tous les jeux de données et les fichiers de données.
+  - Un fichier annexe sera représenté par un foaf:Document référencé depuis le jeu de données au travers d'une propriété foaf:page ;
+    son URI sera l'URL de téléchargement défini par DiDo.
   - Un millesime sera représenté en DCAT par un dcat:Distribution.  
-  - Une organisation DiDo sera représentée comme foaf:Organization.  
+  - Une organisation DiDo sera représentée comme foaf:Agent.  
   - Les thémes DiDo seront structurés en skos:Concept structurés dans un skos:ConceptScheme, un mapping de ces thèmes vers le vocabulaire data-theme sera proposé.  
   - Un mot-clé DiDo sera représenté par un rdfs:Literal lié par la propriété dcat:keyword.
 
@@ -53,19 +55,24 @@ La solution sera d'indiquer dans les dcat:Distribution correspondant à un mille
 
 La suite du document décrit les correspondances des propriétés des classes et dans certains cas des valeurs possible.
 
-## Correspondance des propriétés DiDo en DCAT ainsi que de certaines valeurs
+## Correspondance des propriétés ainsi que de certaines valeurs
 
-### Producteur (Organization) -> foaf:Organization
+### Propriétés de Producteur (Organization) -> foaf:Agent
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation |
 |------------|--------|---------------------------|------------|----------------|
 | id         | string | Identifiant du producteur | @id        | URI https://dido.geoapi.fr/id/organizations/{id} |
-|            |        |                           | @type      | Organization |
+|            |        |                           | @type      | foaf:Agent |
 | title      | string | Nom du producteur         | foaf:name  | |
 | acronym    | string | Acronyme du producteur    | foaf:nick  | |
 | description| string | Description du producteur | rdfs:comment | |
 
-### Jeu de données (Dataset) -> dcat:Dataset
+Note:
+
+  - il manque à DiDo la notion de point de contact avec  notamment une adresse mail et un numéro de téléphone pour contacter
+    une personne en charge du suivi du jeu de données.
+
+### Propriétés de Jeu de données (Dataset) -> dcat:Dataset
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
@@ -77,31 +84,33 @@ La suite du document décrit les correspondances des propriétés des classes et
 | organization | string | Infos sur le producteur du JD | dct:publisher | URI https://dido.geoapi.fr/id/organizations/{id} |
 | topic      | string | Thème du jeu de données | dcat:theme | URI https://dido.geoapi.fr/id/themes/{id} + mapping des themes DiDo vers le voc. data-theme |
 | tags       | string | Liste des mot-clés du jeu de données | dcat:keyword | |
-| license    | string | Licence sous laquelle est publiée le JD | dct:license | **A PRECISER** |
-| frequency  | string | Fréquence d'actualisation du jeu de données | dct:accrualPeriodicity | URI dans http://publications.europa.eu/resource/authority/frequency selon correspondance définie |
+| license    | string | Licence sous laquelle est publiée le JD | dct:license | Voir ci-dessous la correspondance des valeurs |
+| frequency  | string | Fréquence d'actualisation du jeu de données | dct:accrualPeriodicity | URI dans http://publications.europa.eu/resource/authority/frequency selon correspondance définie ci-dessous |
 | frequency_date | date-time | Prochaine date d'actualisation du jeu de données | | **Notion absente** |
 | spatial/granularity | string | Granularité du jeu de données | | **Notion absente** |
-| spatial/zones | string | Liste de zones géographiques du jeu de données (correspond à un identifiant du référentiel geozone) | dct:spatial | **A PRECISER** |
+| spatial/zones | string | Liste de zones géographiques du jeu de données (correspond à un identifiant du référentiel geozone) | dct:spatial | Voir ci-dessous la correspondance des valeurs |
 | temporal_coverage/start | date - format YYYY-MM-DD | Date de début de la couverture temporelle | dct:temporal/startDate | |
 | temporal_coverage/end | date - format YYYY-MM-DD | Date de fin de la couverture temporelle | dct:temporal/endDate | |
-| caution    | string | Mise en garde concernant le JD | **A PRECISER** |
-| attachments | [Attachment] | La liste des fichiers descriptifs | foaf:page | URI https://dido.geoapi.fr/id/attachments/{rid} |
+| caution    | string | Mise en garde concernant le JD | **A PRECISER** Utiliser éventuellement dct:rights |
+| attachments | [Attachment] | La liste des fichiers descriptifs | foaf:page | comme URI l'URL DiDo de téléchargement du fichier |
 | created_at | date-time | date de création du jeu de données | dct:created | |
 | last_modified | date-time | Date de dernière modification du jeu de données | dct:modified |
-| datafiles  | [Datafile] | Liste des fichiers de données | dct:hasPart | URI https://dido.geoapi.fr/id/datafiles/{id} |
+| datafiles  | [Datafile] | Liste des fichiers de données | dct:hasPart | liste d'URI https://dido.geoapi.fr/id/datafiles/{id} |
 
-### Topic -> http://publications.europa.eu/resource/authority/data-theme
+### Valeurs Topic -> http://publications.europa.eu/resource/authority/data-theme
 Correspondance des thèmes DiDo vers un thème de data-theme
 
-| thème DiDo   |  URI                                                              | commentaire |
-|------------|---------------------------------------------------------------------|-------------|
+| thème DiDo    |  URI                                                             | commentaire |
+|---------------|------------------------------------------------------------------|-------------|
 | Environnement | http://publications.europa.eu/resource/authority/data-theme/ENVI |
 | Énergie       | http://publications.europa.eu/resource/authority/data-theme/ENER |
 | Transports    | http://publications.europa.eu/resource/authority/data-theme/TRAN |
 | Logement      | http://publications.europa.eu/resource/authority/data-theme/SOCI | Population et société |
 | Changement climatique |  http://publications.europa.eu/resource/authority/data-theme/ENVI | Environnement |
 
-### Frequency -> http://publications.europa.eu/resource/authority/frequency
+### Valeurs pour le champ licence
+
+### Valeurs Frequency -> http://publications.europa.eu/resource/authority/frequency
 Correspondance des fréquences (valeurs possibles du champ frequency) vers un concept du vocabulaire
 http://publications.europa.eu/resource/authority/frequency
 
@@ -116,6 +125,8 @@ http://publications.europa.eu/resource/authority/frequency
 | punctual   |  http://publications.europa.eu/resource/authority/frequency/NEVER     | **Vérifier que le concept DiDo 'punctual' correspond bien au concept NEVER du vocabulaire EU** |
 | irregular  |  http://publications.europa.eu/resource/authority/frequency/IRREG     |
 | unknown    |  http://publications.europa.eu/resource/authority/frequency/UNKNOWN   |
+
+### Valeurs Zones géographiques
 
 ### Fichier descriptif (Attachment) -> foaf:Document
 
