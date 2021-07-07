@@ -200,6 +200,6 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 | title      | string | Titre du fichier | dct:title | |
 | date_diffusion | date-time | Date de diffusion du millesime du fichier | dct:issued | |
 | rows | integer | Nombre de lignes dans le fichier | | |
-| columns | array | Liste des colonnes du fichier | ct:conformsTo | Structuration de la liste des colonnes comme schéma JSON | **Problème d'encodage des unités !** |
+| columns | array | Liste des colonnes du fichier | dct:conformsTo | Structuration de la liste des colonnes comme schéma JSON | **Problème d'encodage des unités !** |
 | extendedFilters | array | Liste des filtres étendus du fichier | | |
 | geoFields | array | Liste des champs disposant d'une géométrie dans le fichier | | Voir la possibilité d'intégrer l'info dans le schéma JSON |
