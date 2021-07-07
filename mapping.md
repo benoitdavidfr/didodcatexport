@@ -1,6 +1,6 @@
 # Correspondances de DiDo en DCAT
 
-mise à jour: 7/7/2021 17h (en cours)
+mise à jour: 7/7/2021 17h30 (en cours)
 
 ## Correspondances entre classes d'objets
 
@@ -26,13 +26,13 @@ Le standard DCAT (https://www.w3.org/TR/vocab-dcat-2/) est fondé notamment sur 
   - foaf:Document
   - skos:Concept et skos:ConceptScheme
 
-La correspondance choisie est la suivante:
+La correspondance choisie pour les classes est la suivante:
 
   - jeu de données -> dcat:Dataset
   - fichier annexes -> foaf:Document
   - fichier de données -> dcat:Dataset
   - millesime -> dcat:Distribution
-  - organisation -> foaf:Agent (Visiblement DCAT-AP exige d'utiliser la classe foaf:Agent)
+  - organisation -> foaf:Agent (Visiblement DCAT-AP exige que l'on utilise la classe foaf:Agent et pas la classe foaf:Organization)
   - thème -> skos:Concept et le vocabulaire des thèmes -> skos:ConceptScheme
   - mot-clé -> rdfs:Literal
 
@@ -47,13 +47,13 @@ Notes:
     son URI sera l'URL de téléchargement défini par DiDo.
   - Un millesime sera représenté en DCAT par un dcat:Distribution.  
   - Une organisation DiDo sera représentée comme foaf:Agent.  
-  - Les thémes DiDo seront structurés en skos:Concept structurés dans un skos:ConceptScheme, un mapping de ces thèmes vers le vocabulaire data-theme sera proposé.  
+  - Les thémes DiDo seront structurés en skos:Concept structurés dans un skos:ConceptScheme, la correspondance de ces thèmes vers le vocabulaire data-theme est définie ci-dessous.  
   - Un mot-clé DiDo sera représenté par un rdfs:Literal lié par la propriété dcat:keyword.
 
-Dans un premier temps, il n'est pas envisagé de représenter les API DiDo comme dcat:DataService car cette dernière classe est spécifique de DCAT v2.
-La solution sera d'indiquer dans les dcat:Distribution correspondant à un millesime un lien vers un fichier CSV généré par DiDo.
+Dans un premier temps, il n'est pas envisagé de représenter les API DiDo comme dcat:DataService car cette dernière classe est spécifique de DCAT v2 et encore peu utilisée.
+La solution sera d'indiquer dans les dcat:Distribution correspondant à un millésime un lien vers un fichier CSV généré par DiDo.
 
-La suite du document décrit les correspondances des propriétés des classes et dans certains cas des valeurs possible.
+La suite du document décrit les correspondances des propriétés des classes et dans certains cas des valeurs possibles.
 
 ## Correspondance des propriétés ainsi que de certaines valeurs
 
@@ -69,8 +69,9 @@ La suite du document décrit les correspondances des propriétés des classes et
 
 Note:
 
-  - il manque à DiDo la notion de point de contact avec  notamment une adresse mail et un numéro de téléphone pour contacter
-    une personne en charge du suivi du jeu de données.
+  - il manque à DiDo la notion de point de contact avec notamment une adresse mail et un numéro de téléphone pour contacter
+    une personne qui peut répondre à des questions sur le jeu de données.
+    Etant donné l'organisation du SDES, le point de contact pourrait être l'adresse électronique du bureau producteur.
 
 ### Propriétés de Jeu de données (Dataset) -> dcat:Dataset
 
