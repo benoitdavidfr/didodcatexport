@@ -30,13 +30,16 @@ Le standard DCAT (https://www.w3.org/TR/vocab-dcat-2/) est fondé notamment sur 
 
 La correspondance choisie pour les classes est la suivante:
 
-  - jeu de données -> dcat:Dataset
-  - fichier annexes -> foaf:Document
-  - fichier de données -> dcat:Dataset
-  - millesime -> dcat:Distribution
-  - organisation -> foaf:Agent (Visiblement DCAT-AP exige que l'on utilise la classe foaf:Agent et pas la classe foaf:Organization)
-  - thème -> skos:Concept et le vocabulaire des thèmes -> skos:ConceptScheme
-  - mot-clé -> rdfs:Literal
+| classe DiDo            | classe RDFS        |
+|------------------------|--------------------|
+| jeu de données         | dcat:Dataset       |
+| fichier annexes        | foaf:Document      |
+| fichier de données     | dcat:Dataset       |
+| millesime              | dcat:Distribution  |
+| organisation           | foaf:Agent         |
+| thème                  | skos:Concept       |
+| vocabulaire des thèmes | skos:ConceptScheme |
+| mot-clé                | rdfs:Literal       |
 
 Notes:
 
@@ -48,7 +51,8 @@ Notes:
   - Un fichier annexe sera représenté par un foaf:Document référencé depuis le jeu de données au travers d'une propriété foaf:page ;
     son URI sera l'URL de téléchargement défini par DiDo.
   - Un millesime sera représenté en DCAT par un dcat:Distribution.  
-  - Une organisation DiDo sera représentée comme foaf:Agent.  
+  - Une organisation DiDo sera représentée comme foaf:Agent ;
+    DCAT-AP exige que l'on utilise la classe foaf:Agent et pas la classe foaf:Organization.  
   - Les thémes DiDo seront structurés en skos:Concept structurés dans un skos:ConceptScheme, la correspondance de ces thèmes vers le vocabulaire data-theme est définie ci-dessous.  
   - Un mot-clé DiDo sera représenté par un rdfs:Literal lié par la propriété dcat:keyword.
 
@@ -65,9 +69,9 @@ La suite du document décrit les correspondances des propriétés des classes et
 |------------|--------|---------------------------|------------|----------------|
 | id         | string | Identifiant du producteur | @id        | URI https://dido.geoapi.fr/id/organizations/{id} |
 |            |        |                           | @type      | foaf:Agent |
-| title      | string | Nom du producteur         | foaf:name  | |
-| acronym    | string | Acronyme du producteur    | foaf:nick  | |
-| description| string | Description du producteur | rdfs:comment | |
+| title      | string | Nom du producteur         | foaf:name  |
+| acronym    | string | Acronyme du producteur    | foaf:nick  |
+| description| string | Description du producteur | rdfs:comment |
 
 Note:
 
@@ -79,11 +83,11 @@ Note:
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
-| id         | string | Identifiant du jeu        | @id        | URI https://dido.geoapi.fr/id/datasets/{id} |
+| id         | string | Identifiant du jeu        | @id        | URI https://dido.geoapi.fr/id/datasets/{id}     |
 |            |        |                           | @type      | ['Dataset', 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series'] | On utilise l'URI Inspire de series qui correspond à un ensemble de jeux de données |
 | id         | string | Identifiant du jeu        | identifier | |
 | title      | string | Titre du jeu de données   | dct:title | |
-| description | string | Description du jeu de données | dct:description |  |
+| description | string | Description du jeu de données | dct:description | |
 | organization | string | Infos sur le producteur du JD | dct:publisher | URI https://dido.geoapi.fr/id/organizations/{id} |
 | topic      | string | Thème du jeu de données | dcat:theme | URI https://dido.geoapi.fr/id/themes/{id} + mapping des themes DiDo vers le voc. data-theme |
 | tags       | string | Liste des mot-clés du jeu de données | dcat:keyword | |
@@ -112,6 +116,10 @@ Correspondance des thèmes DiDo vers un thème de data-theme
 | Changement climatique |  http://publications.europa.eu/resource/authority/data-theme/ENVI | Environnement |
 
 ### Valeurs pour le champ licence
+
+| thème DiDo    |  URI                                                             | commentaire |
+|---------------|------------------------------------------------------------------|-------------|
+| Environnement | http://publications.europa.eu/resource/authority/data-theme/ENVI |
 
 ### Valeurs Frequency -> http://publications.europa.eu/resource/authority/frequency
 Correspondance des fréquences (valeurs possibles du champ frequency) vers un concept du vocabulaire
