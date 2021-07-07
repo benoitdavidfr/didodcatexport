@@ -29,7 +29,9 @@ doc: |
   Essai d'utilisation de easyRdf avec composer - pas réussi à le faire fonctionner
   
   A faire:
-    - génération du schamé JSON -> jsonschema.inc.php
+    - pagination de l'export du catalogue
+    - génération du schéma JSON -> jsonschema.inc.php
+    - accès aux fichiers attachés
 journal: |
   6-7/7/2021:
     - amélioration du déref. des URI
