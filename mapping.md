@@ -32,7 +32,7 @@ La correspondance choisie pour les classes est la suivante:
 
 | classe DiDo            | classe RDFS     | commentaire | 
 |------------------------|-----------------|-------------|
-|                        | dcat:Catalog    | Un catalogue DCAT sera défini et comprendra tous les jeux de données et les fichiers de données ; cette ressource n'apparait pas explicitement dans DiDo. |
+|                        | dcat:Catalog    | Un catalogue DCAT est défini et comprend tous les jeux de données et les fichiers de données ; cette ressource n'apparait pas explicitement dans DiDo. |
 | jeu de données         | dcat:Dataset    | Un jeu de données DiDo est composé de fichiers de données au moyen des propriétés dct:hasPart/dct:isPartOf conformément à la recommandations définie dans https://joinup.ec.europa.eu/release/dcat-ap-how-model-dataset-series. |
 | fichier annexes        | foaf:Document   | Un fichier annexe est référencé depuis le jeu de données au travers d'une propriété foaf:page ; son URI sera l'URL de téléchargement défini par DiDo. |
 | fichier de données     | dcat:Dataset    | Un fichier de données DiDo fait partie d'un jeu de données DiDo ; il définit une propriété dct:conformsTo vers un fichier contenant un schéma JSON du fichier de données, lui-même défini comme foaf:Document. |
