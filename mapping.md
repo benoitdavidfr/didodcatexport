@@ -1,6 +1,6 @@
 # Correspondances de DiDo en DCAT
 
-mise à jour: 7/7/2021 17h30 (en cours)
+mise à jour: 8/7/2021 0h13
 
 ## Correspondances entre classes d'objets
 
@@ -105,7 +105,7 @@ Note:
 | datafiles  | [Datafile] | Liste des fichiers de données | dct:hasPart | liste d'URI https://dido.geoapi.fr/id/datafiles/{id} |
 
 ### Valeurs Topic -> http://publications.europa.eu/resource/authority/data-theme
-Correspondance des thèmes DiDo vers un thème de data-theme
+Correspondance des thèmes DiDo vers un thème de data-theme.  
 
 | thème DiDo    |  URI                                                             | commentaire |
 |---------------|------------------------------------------------------------------|-------------|
@@ -116,14 +116,17 @@ Correspondance des thèmes DiDo vers un thème de data-theme
 | Changement climatique |  http://publications.europa.eu/resource/authority/data-theme/ENVI | Environnement |
 
 ### Valeurs pour le champ licence
+Correspondance en valeurs pour le champ licence vers des URI.  
+Ces URI sont déclarées comme des objets de la classe dct:LicenseDocument.
 
-| thème DiDo    |  URI                                                             | commentaire |
-|---------------|------------------------------------------------------------------|-------------|
-| Environnement | http://publications.europa.eu/resource/authority/data-theme/ENVI |
+| thème DiDo    |  URI                                                             | commentaire                             |
+|---------------|------------------------------------------------------------------|-----------------------------------------|
+| fr-lo         | https://www.etalab.gouv.fr/licence-ouverte-open-licence          | URL utilisée notamment sur data.gouv.fr |
 
 ### Valeurs Frequency -> http://publications.europa.eu/resource/authority/frequency
 Correspondance des fréquences (valeurs possibles du champ frequency) vers un concept du vocabulaire
-http://publications.europa.eu/resource/authority/frequency
+http://publications.europa.eu/resource/authority/frequency  
+Ces URI sont déclarées comme des objets de la classe dct:Frequency.
 
 | nom DiDo   |  URI                                                                  | commentaire |
 |------------|-----------------------------------------------------------------------|-------------|
@@ -139,7 +142,7 @@ http://publications.europa.eu/resource/authority/frequency
 
 ### Valeurs Géozones -> URI
 
-Les valeurs de GéoZones ne peuvent pas utilisées car elles ne sont pas définies comme URI.  
+Les valeurs de GéoZones ne peuvent pas être utilisées car elles ne sont pas définies par des URI.  
 L'idée est d'utiliser pour les différents territoires l'URI défini par la Commission fondé sur les codes ISO 3166-1
 et exigé dans DCAT-AP.  
 Les concepts de métropole et de France posent problème car ils sont définis différemment par les autorités différentes.
@@ -177,10 +180,11 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
 | url        | string | Url pour accéder au fichier | @id      |                         | Utilisation comme URI de l'URL DiDo |
-| title      | string | Titre du fichier | dct:title | |
-| description | string | Description du fichier | dct:description |  |
+|            |        |                           | @type      | foaf:Document |
+| title      | string | Titre du fichier          | dct:title  | |
+| description | string | Description du fichier   | dct:description |  |
 | published | date-time | Date de publication du fichier | dct:issued |  |
-| created_at | date-time | Date de création du fichier  | dct:created | | **Attention fichier Swagger erroné** |
+| created_at | date-time | Date de création du fichier | dct:created | | **Attention fichier Swagger erroné** |
 | last_modified | date-time | Date de dernière modification du fichier | dct:modified | | **Attention fichier Swagger erroné** |
 
 ### Fichier de données (Datafile) -> dcat:Dataset
