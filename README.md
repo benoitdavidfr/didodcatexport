@@ -20,7 +20,7 @@ Les principes suivants ont été retenus pour l'exposition DCAT:
     été fournis dans les pages précédentes.
   - Les URL de téléchargement des données exposés dans l'export sont ceux fournis par DiDo pour le format CSV.
   - A chaque millésime est associé un fichier CSV et un schéma JSON qui fournit les champs du fichier CSV.
-  - Chaque fichier annexe (Attachment) correspond à un URI dont le déréférencement produit à téléchargement de ce fichier.
+  - Chaque fichier annexe (Attachment) correspond à un URI dont le déréférencement produit le téléchargement de ce fichier.
 
 DCAT étant une ontologie du web des données fondée sur l'identification des ressources par des URI,
 il est nécessaire de définir des URI pour chaque ressource apparaissant dans l'export.  

@@ -1,11 +1,14 @@
 # Correspondances de DiDo en DCAT
 
-mise à jour: 2/7/2021 17h33
+mise à jour: 7/7/2021 17h (en cours)
+
+## Correspondances entre classes d'objets
 
 L'export DCAT nécessite tout d'abord de définir une correspondance entre les classes du catalogue de DiDo
 vers celles définies dans DCAT.
 
 Le catalogue de DiDo définit les classes d'objets suivantes:
+
   - jeu de données (dataset),
   - fichiers annexes (attachments)
   - fichiers de données (datafile)
@@ -14,15 +17,17 @@ Le catalogue de DiDo définit les classes d'objets suivantes:
   - theme
   - mot-clé
 
-Le standard DCAT (https://www.w3.org/TR/vocab-dcat-2/) est notamment fondé sur les classes suivantes:
+Le standard DCAT (https://www.w3.org/TR/vocab-dcat-2/) est fondé notamment sur les classes suivantes:
+
   - dcat:Dataset
   - dcat:Distribution
   - dcat:DataService
-  - foaf:Organization
+  - foaf:Agent
   - foaf:Document
   - skos:Concept et skos:ConceptScheme
 
-La correspondance proposée est la suivante:
+La correspondance choisie est la suivante:
+
   - jeu de données -> dcat:Dataset
   - fichier annexes -> foaf:Document
   - fichier de données -> dcat:Dataset
@@ -32,8 +37,9 @@ La correspondance proposée est la suivante:
   - mot-clé -> rdfs:Literal
 
 Notes:
+
   - Un jeu de données DiDo sera représenté en DCAT par un dcat:Dataset qui sera composé de fichiers de données au moyen des propriétés dct:hasPart/dct:isPartOf conformément à la recommandations définie
-  dans https://joinup.ec.europa.eu/release/dcat-ap-how-model-dataset-series.  
+    dans https://joinup.ec.europa.eu/release/dcat-ap-how-model-dataset-series.  
   - Un fichier de données DiDo sera représenté en DCAT par un dcat:Dataset qui fera partie d'un jeu de données DiDo ;
     il définira une propriété dct:conforms_to vers un fichier contenant un schéma JSON du fichier de données.
   - Un fichier annexe sera représenté par un foaf:Document référencé depuis le jeu de données au travers d'une propriété foaf:page.
@@ -47,19 +53,9 @@ La solution sera d'indiquer dans les dcat:Distribution correspondant à un mille
 
 La suite du document décrit les correspondances des propriétés des classes et dans certains cas des valeurs possible.
 
-# Correspondance des propriétés DiDo en DCAT ainsi que de certaines valeurs
+## Correspondance des propriétés DiDo en DCAT ainsi que de certaines valeurs
 
-modified: 2021-07-05T20:50
-
-### Points à compléter
-- vérifier avec Christophe que la valeur 'punctual' du vocabulaire des fréquences correspond bien à http://publications.europa.eu/resource/authority/frequency/NEVER
-- comment intégrer le champ caution du jeu de données, dct:rights ?
-- frequency_date, spatialGranularity ?
-- produire le schema JSON
-- comment intégrer les unités dans le schéma JSON ?
-- permettre le téléchargement CSV
-
-## Producteur (Organization) -> foaf:Organization
+### Producteur (Organization) -> foaf:Organization
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation |
 |------------|--------|---------------------------|------------|----------------|
@@ -69,7 +65,7 @@ modified: 2021-07-05T20:50
 | acronym    | string | Acronyme du producteur    | foaf:nick  | |
 | description| string | Description du producteur | rdfs:comment | |
 
-## Jeu de données (Dataset) -> dcat:Dataset
+### Jeu de données (Dataset) -> dcat:Dataset
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
@@ -121,7 +117,7 @@ http://publications.europa.eu/resource/authority/frequency
 | irregular  |  http://publications.europa.eu/resource/authority/frequency/IRREG     |
 | unknown    |  http://publications.europa.eu/resource/authority/frequency/UNKNOWN   |
 
-## Fichier descriptif (Attachment) -> foaf:Document
+### Fichier descriptif (Attachment) -> foaf:Document
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
@@ -133,7 +129,7 @@ http://publications.europa.eu/resource/authority/frequency
 | created_at | date-time | Date de création du fichier  | dct:created | | **Attention fichier Swagger erroné** |
 | last_modified | date-time | Date de dernière modification du fichier | dct:modified | | **Attention fichier Swagger erroné** |
 
-## Fichier de données (Datafile) -> dcat:Dataset
+### Fichier de données (Datafile) -> dcat:Dataset
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
@@ -150,7 +146,7 @@ http://publications.europa.eu/resource/authority/frequency
 | created_at | date-time | Date de création du fichier  | dct:created | |
 | last_modified | date-time | Date de dernière modification du fichier | dct:modified | |
 
-## Millésime -> dcat:Distribution
+### Millésime -> dcat:Distribution
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
