@@ -19,12 +19,14 @@ Le catalogue de DiDo définit les classes d'objets suivantes:
 
 Le standard DCAT (https://www.w3.org/TR/vocab-dcat-2/) est fondé notamment sur les classes suivantes:
 
-  - dcat:Dataset
-  - dcat:Distribution
-  - dcat:DataService
-  - foaf:Agent
-  - foaf:Document
-  - skos:Concept et skos:ConceptScheme
+  - [dcat:Catalog](https://www.w3.org/TR/vocab-dcat-2/#Class:Catalog)
+  - [dcat:Dataset](https://www.w3.org/TR/vocab-dcat-2/#Class:Dataset)
+  - [dcat:Distribution](https://www.w3.org/TR/vocab-dcat-2/#Class:Distribution)
+  - [dcat:DataService](https://www.w3.org/TR/vocab-dcat-2/#Class:DataService)
+  - [foaf:Agent](http://xmlns.com/foaf/spec/#term_Agent)
+  - [foaf:Document](http://xmlns.com/foaf/spec/#term_Document)
+  - [skos:Concept](https://www.w3.org/TR/skos-primer/#secconcept)
+    et [skos:ConceptScheme](https://www.w3.org/TR/skos-primer/#secscheme)
 
 La correspondance choisie pour les classes est la suivante:
 
@@ -78,7 +80,7 @@ Note:
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
 | id         | string | Identifiant du jeu        | @id        | URI https://dido.geoapi.fr/id/datasets/{id} |
-|            |        |                           | @type      | ['Dataset', 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series'] |
+|            |        |                           | @type      | ['Dataset', 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series'] | On utilise l'URI Inspire de series qui correspond à un ensemble de jeux de données |
 | id         | string | Identifiant du jeu        | identifier | |
 | title      | string | Titre du jeu de données   | dct:title | |
 | description | string | Description du jeu de données | dct:description |  |
@@ -87,8 +89,8 @@ Note:
 | tags       | string | Liste des mot-clés du jeu de données | dcat:keyword | |
 | license    | string | Licence sous laquelle est publiée le JD | dct:license | Voir ci-dessous la correspondance des valeurs |
 | frequency  | string | Fréquence d'actualisation du jeu de données | dct:accrualPeriodicity | URI dans http://publications.europa.eu/resource/authority/frequency selon correspondance définie ci-dessous |
-| frequency_date | date-time | Prochaine date d'actualisation du jeu de données | | **Notion absente** |
-| spatial/granularity | string | Granularité du jeu de données | | **Notion absente** |
+| frequency_date | date-time | Prochaine date d'actualisation du jeu de données | | **Notion absente dans DCAT** |
+| spatial/granularity | string | Granularité du jeu de données | | **Notion absente dans DCAT** |
 | spatial/zones | string | Liste de zones géographiques du jeu de données (correspond à un identifiant du référentiel geozone) | dct:spatial | Voir ci-dessous la correspondance des valeurs |
 | temporal_coverage/start | date - format YYYY-MM-DD | Date de début de la couverture temporelle | dct:temporal/startDate | |
 | temporal_coverage/end | date - format YYYY-MM-DD | Date de fin de la couverture temporelle | dct:temporal/endDate | |
@@ -127,17 +129,49 @@ http://publications.europa.eu/resource/authority/frequency
 | irregular  |  http://publications.europa.eu/resource/authority/frequency/IRREG     |
 | unknown    |  http://publications.europa.eu/resource/authority/frequency/UNKNOWN   |
 
-### Valeurs Zones géographiques
+### Valeurs Géozones -> URI
+
+Les valeurs de GéoZones ne peuvent pas utilisées car elles ne sont pas définies comme URI.  
+L'idée est d'utiliser pour les différents territoires l'URI défini par la Commission fondé sur les codes ISO 3166-1
+et exigé dans DCAT-AP.  
+Les concepts de métropole et de France posent problème car ils sont définis différemment par les autorités différentes.
+On utilisera pour ces 2 concepts les URI définis par l'INSEE, à savoir:
+
+  - http://id.insee.fr/geo/territoireFrancais/franceMetropolitaine pour la France métropolitaine
+  - http://id.insee.fr/geo/pays/france pour la France métropolitaine plus les 5 DROM.
+
+Pour l'outre-mer on utilisera les URI suivants :
+
+  - http://publications.europa.eu/resource/authority/country/GLP pour la Guadeloupe,
+  - http://publications.europa.eu/resource/authority/country/MTQ pour la Martinique,
+  - http://publications.europa.eu/resource/authority/country/GUF pour la Guyane,
+  - http://publications.europa.eu/resource/authority/country/REU pour la Réunion,
+  - http://publications.europa.eu/resource/authority/country/MYT pour Mayotte,
+  - http://publications.europa.eu/resource/authority/country/BLM pour Saint-Barthélémy,
+  - http://publications.europa.eu/resource/authority/country/MAF pour Saint-Martin,
+  - http://publications.europa.eu/resource/authority/country/WLF pour Wallis-et-Futuna,
+  - http://publications.europa.eu/resource/authority/country/PYF pour la Polynésie Française,
+  - http://publications.europa.eu/resource/authority/country/NCL pour la Nouvelle Calédonie,
+  - http://publications.europa.eu/resource/authority/country/FQ0 pour les Terres australes et antarctiques françaises,
+  - http://publications.europa.eu/resource/authority/country/CPT pour l'île de Clipperton.
+
+Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
+
+| Géozone       |  URI                                                             | commentaire |
+|---------------|------------------------------------------------------------------|-------------|
+| country:fr    | http://id.insee.fr/geo/pays/france | Il s'agit de la métrople plus les 5 DROM  |
+| country-subset:fr:metro | http://id.insee.fr/geo/territoireFrancais/franceMetropolitaine | Il s'agit de la métrople |
+| country-subset:fr:drom  | [http://publications.europa.eu/resource/authority/country/GLP, http://publications.europa.eu/resource/authority/country/MTQ, http://publications.europa.eu/resource/authority/country/GUF, http://publications.europa.eu/resource/authority/country/REU, http://publications.europa.eu/resource/authority/country/MYT], | Il s'agit des 5 DROM  |
+
 
 ### Fichier descriptif (Attachment) -> foaf:Document
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
-| rid        | uuid   | Identifiant du fichier | @id | URI https://dido.geoapi.fr/id/datafiles/{rid} |
+| url        | string | Url pour accéder au fichier | @id      |                         | Utilisation comme URI de l'URL DiDo |
 | title      | string | Titre du fichier | dct:title | |
 | description | string | Description du fichier | dct:description |  |
 | published | date-time | Date de publication du fichier | dct:issued |  |
-| url | string | Url pour accéder au fichier | | Propriété inutile, l'URL d'accès étant l'URI |
 | created_at | date-time | Date de création du fichier  | dct:created | | **Attention fichier Swagger erroné** |
 | last_modified | date-time | Date de dernière modification du fichier | dct:modified | | **Attention fichier Swagger erroné** |
 

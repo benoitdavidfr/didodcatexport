@@ -36,7 +36,7 @@ doc: |
     - pagination de l'export du catalogue
     - génération du schéma JSON -> jsonschema.inc.php
       - comment intégrer les unités dans le schéma JSON ?
-    - accès aux fichiers attachés
+    - prendre comme URI des fichiers attachés l'URL fourni par DiDo et non https://dido.geoapi.fr/id/attachments/{rid}
     - comment intégrer le champ caution du jeu de données, dct:rights ?
       frequency_date, spatialGranularity ?
     
