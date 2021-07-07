@@ -30,6 +30,12 @@ journal: |
     - changement d'approche et démarrage de la V2
   26-27/6/2021:
     - création de la V1 abandonnée
+includes:
+  - themesdido.inc.php
+  - geozones.inc.php
+  - frequency.inc.php
+  - licenses.inc.php
+  - ../../phplib/pgsql.inc.php
 */
 require __DIR__.'/themesdido.inc.php';
 require __DIR__.'/geozones.inc.php';

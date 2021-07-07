@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 name: id.php
-title: script appelé lors de l'appel des URI définis dans l'export DCAT
+title: déréférencement des URI définis dans l'export DCAT
 doc: |
   Ce script est appelé lors de l'appel d'un des URI
     - https://dido.geoapi.fr/id/catalog pour le catalogue
@@ -26,6 +26,11 @@ journal: |
     - manque l'accès aux fichiers attachés
   1/7/2021:
     - première version assez complète
+includes:
+  - catalog.inc.php
+  - themesdido.inc.php
+  - jsonschema.inc.php
+  - ../../phplib/pgsql.inc.php
 */
 require __DIR__.'/catalog.inc.php';
 require __DIR__.'/themesdido.inc.php';

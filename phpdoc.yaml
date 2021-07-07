@@ -20,7 +20,9 @@ doc: |
       été fournis dans les pages précédentes.
   
   Remarques sur la structuration DiDo:
-    - il manque un point de contact par jeu de données et fichier de données, ca pourrait être une adresse mail associée au producteur
+    - vérifier que la valeur de fréquence 'punctual' correspond à http://publications.europa.eu/resource/authority/frequency/NEVER
+    - il manque un point de contact par jeu de données et fichier de données,
+      ca pourrait être une adresse mail associée au producteur
   
   mapping serveur:
     https://dido.geoapi.fr/id -> /prod/geoapi/dido/id.php
@@ -31,7 +33,7 @@ doc: |
   A faire:
     - pagination de l'export du catalogue
     - génération du schéma JSON -> jsonschema.inc.php
-    - accès aux fichiers attachés
+    - accès aux fichiers attachés, préciser la logique mise en oeuvre
 journal: |
   6-7/7/2021:
     - amélioration du déref. des URI
@@ -45,4 +47,13 @@ journal: |
   26/6/2021:
     - première version
 phpScripts:
-  /geoapi/dido/import.php
+  - /geoapi/dido/api.php
+  - /geoapi/dido/id.php
+  - /geoapi/dido/import.php
+phpIncludes:
+  - /geoapi/dido/catalog.inc.php
+  - /geoapi/dido/frequency.inc.php
+  - /geoapi/dido/geozones.inc.php
+  - /geoapi/dido/jsonschema.inc.php
+  - /geoapi/dido/themesdido.inc.php
+  - /geoapi/dido/licenses.inc.php

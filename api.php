@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 name: api.php
-title: script appelé lors de l'appel de l'API export DCAT et de son contexte
+title: script d'appel de l'export DCAT et de son contexte
 doc: |
   Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/xxx
   ou de http://localhost/geoapi/dido/api.php/v1/xxx
@@ -15,6 +15,12 @@ journal: |
     - version non paginée
   1/7/2021:
     - création d'un fantome
+includes:
+  - themesdido.inc.php
+  - geozones.inc.php
+  - frequency.inc.php
+  - catalog.inc.php
+  - ../../phplib/pgsql.inc.php
 */
 require __DIR__.'/themesdido.inc.php';
 require __DIR__.'/geozones.inc.php';
