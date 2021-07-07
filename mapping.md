@@ -30,18 +30,17 @@ Le standard DCAT (https://www.w3.org/TR/vocab-dcat-2/) est fondé notamment sur 
 
 La correspondance choisie pour les classes est la suivante:
 
-| classe DiDo            | classe RDFS        | commentaire | 
-|------------------------|--------------------|-------------|
-|                        | dcat:Catalog       | Un catalogue DCAT sera défini et comprendra tous les jeux de données et les fichiers de données ; cette ressource n'apparait pas explicitement dans DiDo |
-| jeu de données         | dcat:Dataset       | Un jeu de données DiDo sera représenté en DCAT par un dcat:Dataset qui sera composé de fichiers de données au moyen des propriétés dct:hasPart/dct:isPartOf conformément à la recommandations définie dans https://joinup.ec.europa.eu/release/dcat-ap-how-model-dataset-series. |
-| fichier annexes        | foaf:Document      | Un fichier annexe sera représenté par un foaf:Document référencé depuis le jeu de données au travers d'une propriété foaf:page ; son URI sera l'URL de téléchargement défini par DiDo. |
-| fichier de données     | dcat:Dataset       | Un fichier de données DiDo sera représenté en DCAT par un dcat:Dataset qui fera partie d'un jeu de données DiDo ; il définira une propriété dct:conformsTo vers un fichier contenant un schéma JSON du fichier de données. |
+| classe DiDo            | classe RDFS     | commentaire | 
+|------------------------|-----------------|-------------|
+|                        | dcat:Catalog    | Un catalogue DCAT sera défini et comprendra tous les jeux de données et les fichiers de données ; cette ressource n'apparait pas explicitement dans DiDo. |
+| jeu de données         | dcat:Dataset    | Un jeu de données DiDo est composé de fichiers de données au moyen des propriétés dct:hasPart/dct:isPartOf conformément à la recommandations définie dans https://joinup.ec.europa.eu/release/dcat-ap-how-model-dataset-series. |
+| fichier annexes        | foaf:Document   | Un fichier annexe est référencé depuis le jeu de données au travers d'une propriété foaf:page ; son URI sera l'URL de téléchargement défini par DiDo. |
+| fichier de données     | dcat:Dataset    | Un fichier de données DiDo fait partie d'un jeu de données DiDo ; il définit une propriété dct:conformsTo vers un fichier contenant un schéma JSON du fichier de données, lui-même défini comme foaf:Document. |
 | millesime              | dcat:Distribution  |
-| organisation           | foaf:Agent         | DCAT-AP exige que l'on utilise la classe foaf:Agent et pas la classe foaf:Organization |
+| organisation           | foaf:Agent      | DCAT-AP exige que l'on utilise la classe foaf:Agent et pas la classe foaf:Organization |
 | thème                  | skos:Concept    | la correspondance de ces thèmes vers le vocabulaire data-theme est définie ci-dessous |
-| vocabulaire des thèmes | skos:ConceptScheme | Les thémes DiDo seront structurés en skos:Concept structurés dans un skos:ConceptScheme |
-| mot-clé                | rdfs:Literal       | Un mot-clé DiDo sera représenté par un rdfs:Literal lié par la propriété dcat:keyword |
-
+| vocabulaire des thèmes | skos:ConceptScheme | L'ensemble des thémes DiDo est structuré dans un skos:ConceptScheme |
+| mot-clé                | rdfs:Literal    | Un mot-clé DiDo sera représenté par un rdfs:Literal lié par la propriété dcat:keyword |
 
 Dans un premier temps, il n'est pas envisagé de représenter les API DiDo comme dcat:DataService car cette dernière classe est spécifique de DCAT v2 et encore peu utilisée.
 La solution sera d'indiquer dans les dcat:Distribution correspondant à un millésime un lien vers un fichier CSV généré par DiDo.
