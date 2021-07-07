@@ -28,7 +28,6 @@ Dans le prototype les URI des objets DiDo sont de la forme:
 
   - https://dido.geoapi.fr/id/catalog pour le catalogue (dcat:Catalog)
   - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo {id} (dcat:Dataset)
-  - https://dido.geoapi.fr/id/attachments/{rid} pour le fichier annexe {rid} (foaf:Document)
   - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données {rid} (dcat:Dataset)
   - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour le millésime {m} du fichier de données {rid} (dcat:Distribution)
   - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour le schéma JSON du millésime {m} du fichier de données {rid} (foaf:Document)
