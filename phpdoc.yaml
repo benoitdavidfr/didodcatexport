@@ -18,7 +18,8 @@ doc: |
    4) le paramètre page_size de la requête d'exposition correspond au nbre de dcat:Dataset par sous-objet dcat:Catalog
    5) la page contenant un sous-objet dcat:Catalog contient aussi tous les Dataset et autres objets liés qui n'ont pas 
       été fournis dans les pages précédentes.
-   6) A chaque millésime est associé un fichier CSV et un schéma JSON qui fournit les champs du fichier CSV.
+   6) Les URL de téléchargement des données exposés dans l'export sont ceux fournis par DiDo pour le format CSV.
+   7) A chaque millésime est associé un fichier CSV et un schéma JSON qui fournit les champs du fichier CSV.
   
   Remarques sur la structuration DiDo:
     - vérifier que la valeur de fréquence 'punctual' correspond à http://publications.europa.eu/resource/authority/frequency/NEVER
@@ -34,7 +35,7 @@ doc: |
   A faire:
     - pagination de l'export du catalogue
     - génération du schéma JSON -> jsonschema.inc.php
-    - accès aux fichiers attachés, préciser la logique mise en oeuvre
+    - accès aux fichiers attachés
 journal: |
   6-7/7/2021:
     - amélioration du déref. des URI
