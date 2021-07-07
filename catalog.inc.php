@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 name: catalog.inc.php
-title: Génération de l'objet JSON-LD catalog
+title: Génération de l'objet JSON-LD du catalogue
 doc: |
 journal: |
   6/7/2021:
@@ -17,7 +17,7 @@ function catalog(array $datasetUris) {
       'description'=> "Test d'export en DCAT-AP du catalogue DiDo provenant du site école ; l'export est formatté en JSON-LD",
       'dataset'=> $datasetUris,
       'homepage'=> [
-        '@id'=> 'https://dido.geoapi.fr/', // indiquer ici la page d'accueil du catalogue
+        '@id'=> 'https://github.com/benoitdavidfr/didodcatexport', // indiquer ici la page d'accueil du catalogue
         '@type'=> 'foaf:Document',
       ],
       'language'=> [

@@ -1,24 +1,40 @@
 title: dido - import du catalogue de DiDo pour export en DCAT
 path: /geoapi/dido
 doc: |
-  urls:
-    - https://dido.geoapi.fr/v1/dcatexport.jsonld?page={page}&page_size={page_size}
-    - https://dido.geoapi.fr/v1/dcatcontext.jsonld
-    - https://dido.geoapi.fr/id/catalog.jsonld
-    - https://dido.geoapi.fr/id/datasets/{id}.jsonld
-    - https://dido.geoapi.fr/id/attachments/{rid}.jsonld
-    - https://dido.geoapi.fr/id/datafiles/{rid}.jsonld
-    - https://dido.geoapi.fr/id/millesimes/{rid}/{m}.jsonld
-    - https://dido.geoapi.fr/id/organizations/{id}.jsonld
-    - https://dido.geoapi.fr/id/themes.jsonld
-    - https://dido.geoapi.fr/id/themes/{concept}.jsonld
+  Les principes d'exposition DCAT sont:
+   1) l'export DCAT est exposé à l'URL https://dido.geoapi.fr/v1/dcatexport.jsonld?page={page}&page_size={page_size}
+      son contexte  est exposé à l'URL https://dido.geoapi.fr/v1/dcatcontext.jsonld
+   2) les objets DiDo sont identifiés par les URI suivants:
+    - https://dido.geoapi.fr/id/catalog pour le catalogue (dcat:Catalog)
+    - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo identifié par {id} (dcat:Dataset)
+    - https://dido.geoapi.fr/id/attachments/{rid} pour le fichier annexe identifié par {rid} (foaf:Document)
+    - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données identifié par {rid} (dcat:Dataset)
+    - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour le millésime identifié par {rid} et {m} (dcat:Distribution)
+    - https://dido.geoapi.fr/id/organizations/{id} pour l'organisation identifiée par {id} (foaf:Organzation)
+    - https://dido.geoapi.fr/id/themes pour les thèmes DiDo (skos:ConceptScheme)
+    - https://dido.geoapi.fr/id/themes/{id} pour le thème DiDo {id} (skos:Concept)
+    - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour les schéma JSON du millésime identifié par {rid} et {m} (foaf:Document)
+   3) l'objet dcat:Catalog est paginé selon les principes d'une Collection Hydra,
+   4) le paramètre page_size de la requête d'exposition correspond au nbre de dcat:Dataset par sous-objet dcat:Catalog
+   5) la page contenant un sous-objet dcat:Catalog contient aussi tous les Dataset et autres objets liés qui n'ont pas 
+      été fournis dans les pages précédentes.
+  
+  Remarques sur la structuration DiDo:
+    - il manque un point de contact par jeu de données et fichier de données, ca pourrait être une adresse mail associée au producteur
+  
   mapping serveur:
     https://dido.geoapi.fr/id -> /prod/geoapi/dido/id.php
     https://dido.geoapi.fr/v1 -> /prod/geoapi/dido/api.php
+  
   Essai d'utilisation de easyRdf avec composer - pas réussi à le faire fonctionner
+  
+  A faire:
+    - génération du schamé JSON -> jsonschema.inc.php
 journal: |
+  6-7/7/2021:
+    - amélioration du déref. des URI
   5/7/2021:
-    - plus de violations dans le validataeur EU mais des warnings
+    - plus de violations dans le validateur EU mais des warnings
     - vérifier le déref. des URI
   4/7/2021:
     - version un peu complète de l'export à améliorer

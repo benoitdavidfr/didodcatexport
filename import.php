@@ -6,35 +6,17 @@ doc: |
   Ce script lit les objets DiDo au travers de son API de consultation, les restructure en DCAT
   et les stocke en base PostGis en vue de leur exposition DCAT.
 
-  Les principes d'exposition sont:
-   1) l'export DCAT est exposé à l'URL https://dido.geoapi.fr/v1/dcatexport.jsonld
-      son contexte sera exposé à l'URL https://dido.geoapi.fr/v1/dcatcontext.jsonld
-   2) les objets DiDo sont identifiés par les URI suivants:
-    - https://dido.geoapi.fr/id/catalog pour le catalogue
-    - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo identifié par {id}
-    - https://dido.geoapi.fr/id/attachments/{rid} pour le fichier annexe identifié par {rid}
-    - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données identifié par {rid}
-    - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour le millésime identifié par {rid} et {m}
-    - https://dido.geoapi.fr/id/organizations/{id} pour l'organisation identifiée par {id}
-    - https://dido.geoapi.fr/id/themes/{id} pour le thème DiDo {id}
-    - https://dido.geoapi.fr/id/geozones/{id} pour la géozone {id}
-    - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour les schéma JSON du millésime identifié par {rid} et {m}
-   3) l'objet dcat:Catalog est paginé selon les principes d'une Collection Hydra,
-   4) le paramètre page_size de la requête d'exposition correspond au nbre de dcat:Dataset par sous-objet dcat:Catalog
-   5) la page contenant un sous-objet dcat:Catalog contient aussi tous les Dataset et autres objets liés qui n'ont pas 
-      été fournis dans les pages précédentes.
-
-  Ce script d'import prépare l'exposition en stockant en base Pgsql les objets DCAT, sauf les dcat:Catalog,
-  en stockant pour chacun:
-   - leur contenu DCAT comme jsonld
-   - l'URI de l'item permettant de le retrouver par son URI
-   - l'URI du dcat:Dataset auquel l'item est associé
+  Le script décompose les objets en éléments DCAT et stocke chaque élément en base Pgsql avec pour chacun:
+   - leur contenu DiDo moissonné comme JSON
+   - leur contenu DCAT comme JSON-LD
+   - l'URI de l'objet permettant de le retrouver par son URI
+   - l'URI du dcat:Dataset auquel l'objet est associé
 
   De plus un cache des pages datasets lues dans DiDo est stocké dans le répertoire import dans des fichiers nommés page{no}.json
   Le répertoire jd contient un fichier par jeu de données DiDo permettant de faciliter la compréhension des données de DiDo.
 
-  Remarques sur la structuration DiDo:
-    - il manque un point de contact par jeu de données et fichier de données
+  L'objet catalogue n'existe pas en DiDo et n'est donc pas créé dans la base PgSql.
+  De même les thèmes et mots-clés ne sont pas créés dans la base PgSql.
 journal: |
   5/7/2021:
     - plus de violations dans le validataeur EU mais des warnings
@@ -74,18 +56,19 @@ if (1) { // Ouverture PgSql et création de la table didodcat
   PgSql::query("create table didodcat(
     uri varchar(256) not null primary key, -- l'URI de l'élément DCAT 
     dsuri varchar(256) not null, -- l'URI du dataset auquel l'élément est rattaché
-    dcat jsonb not null -- le contenu de l'élément DCAT structuré en JSON-LD
+    dido jsonb not null, -- le contenu de l'élément DiDo structuré en JSON
+    dcat jsonb not null  -- le contenu de l'élément traduit en DCAT et structuré en JSON-LD
   )");
-  PgSql::query("comment on table didodcat is 'Un n-uplet par element DCAT autre que dcat:Catalog.'");
+  PgSql::query("comment on table didodcat is 'Un n-uplet par element moissonné dans DiDo'");
   PgSql::query("create index didodcat_dsuri on didodcat(dsuri)");
 }
 
 // stockage d'un enregistrement dans PgSql, si $ifDoesntExist est vrai alors pas d'erreur
-function storePg(array $dcat, string $itemUri, string $dsUri, bool $ifDoesntExist=false) {
+function storePg(array $dido, array $dcat, string $itemUri, string $dsUri, bool $ifDoesntExist=false) {
   try {
-    //$json = json_encode($dcat, JSON_OPTIONS);
-    $json = str_replace("'","''", json_encode($dcat, JSON_OPTIONS));
-    $sql = "insert into didodcat(uri, dsuri, dcat) values ('$itemUri', '$dsUri', '$json')";
+    $dido = str_replace("'","''", json_encode($dido, JSON_OPTIONS));
+    $dcat = str_replace("'","''", json_encode($dcat, JSON_OPTIONS));
+    $sql = "insert into didodcat(uri, dsuri, dido, dcat) values ('$itemUri', '$dsUri', '$dido', '$dcat')";
     //echo "<pre>$sql</pre>\n";
     PgSql::query($sql);
   }
@@ -193,7 +176,7 @@ function project(array $objects, string $field): array {
   return $result;
 }
 
-// fabrique l'Organization FOAF correspondant à un publisher DiDo
+// fabrique l'Agent FOAF correspondant à un publisher DiDo
 function buildDcatForPublisher(array $org): array {
   return buildObjectWithMapping($org,
     [
@@ -210,6 +193,7 @@ function buildDcatForPublisher(array $org): array {
 function buildDcatForJD(array $jd): array {
   // enregistre l'organization en effet de bord ssi elle n'est pas déjà définie
   storePg(
+    $jd['organization'],
     buildDcatForPublisher($jd['organization']),
     'https://dido.geoapi.fr/id/organizations/'.$jd['organization']['id'],
     "https://dido.geoapi.fr/id/datasets/$jd[id]",
@@ -355,17 +339,18 @@ while ($url) { // tant qu'il reste au moins une page à aller chercher
     }
     
     $jdUri = "https://dido.geoapi.fr/id/datasets/$jd[id]";
-    storePg(buildDcatForJD($jd), $jdUri, $jdUri);
+    storePg($jd, buildDcatForJD($jd), $jdUri, $jdUri);
     
     foreach ($jd['attachments'] as $attach) {
-      storePg(buildDcatForAttachment($attach, $jd), "https://dido.geoapi.fr/id/attachments/$attach[rid]", $jdUri);
+      storePg($attach, buildDcatForAttachment($attach, $jd), "https://dido.geoapi.fr/id/attachments/$attach[rid]", $jdUri);
     }
     foreach ($jd['datafiles'] as $datafile) {
       $dfUri = "https://dido.geoapi.fr/id/datafiles/$datafile[rid]";
-      storePg(buildDcatForDataFile($datafile, $jd), $dfUri, $dfUri);
+      storePg($datafile, buildDcatForDataFile($datafile, $jd), $dfUri, $dfUri);
       
       foreach ($datafile['millesimes'] as $millesime) {
         storePg(
+          $millesime,
           buildDcatForMillesime($millesime, $datafile, $jd, $rootUrl),
           "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/$millesime[millesime]", $dfUri);
       }

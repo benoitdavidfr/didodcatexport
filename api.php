@@ -6,8 +6,9 @@ doc: |
   Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/xxx
   ou de http://localhost/geoapi/dido/api.php/v1/xxx
 journal: |
-  6/7/2021:
+  6-7/7/2021:
     - améliorations
+    - manque la pagination de l'export
   5/7/2021:
     - plus de violations dans le validataeur EU mais des warnings
   4/7/2021:
@@ -70,13 +71,31 @@ else {
     }
   }  
   
-  // Génération de l'export du catalogue DCAT non paginée
+  // Génération de l'export du catalogue DCAT non paginé
   header('Content-type: application/ld+json; charset="utf-8"');
-  die(json_encode(
+  $json = json_encode(
     [
       '@context'=> 'https://dido.geoapi.fr/v1/dcatcontext.jsonld',
       '@graph'=> array_merge(headers($datasetUris), $graph),
     ],
     JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE
-  ));
+  );
+
+  // En localhost je remplace les URL par des URL locales pour faciliter les tests en local
+  if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
+    die(
+      str_replace(
+        [
+          'https://dido.geoapi.fr/v1',
+          'https://dido.geoapi.fr/id',
+        ],
+        [
+          'http://localhost/geoapi/dido/api.php/v1',
+          'http://localhost/geoapi/dido/id.php',
+        ],
+        $json
+      )
+    );
+  else // sur le serveur dido.geoapi.fr
+    die($json);
 }

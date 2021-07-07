@@ -9,10 +9,10 @@ doc: |
     - https://dido.geoapi.fr/id/attachments/{rid} pour les fichiers annexe {rid} (foaf:Document)
     - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données {rid} (dcat:Dataset)
     - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour le millésime {m} du fichier de données {rid} (dcat:Distribution)
+    - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour le schéma JSON du mill. {m} du fichier de données {rid} (foaf:Document)
     - https://dido.geoapi.fr/id/organizations/{id} pour l'organisation {id} (foaf:Organzation)
     - https://dido.geoapi.fr/id/themes pour les thèmes DiDo (skos:ConceptScheme)
     - https://dido.geoapi.fr/id/themes/{id} pour le thème DiDo {id} (skos:Concept)
-    - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour le schéma JSON du millésime {m} du fichier de données {rid} (foaf:Document)
 
   Il peut être appelé pour des tests locaux à l'adresse:
     - https://localhost/geoapi/dido/id.php/...
@@ -22,11 +22,14 @@ doc: |
 journal: |
   6-7/7/2021:
     - améliorations
+    - manque les schéma JSON
+    - manque l'accès aux fichiers attachés
   1/7/2021:
     - première version assez complète
 */
 require __DIR__.'/catalog.inc.php';
 require __DIR__.'/themesdido.inc.php';
+require __DIR__.'/jsonschema.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
 $pattern = '!^(/geoapi/dido/id.php/|/id/)'
@@ -65,9 +68,21 @@ if ($param == 'catalog') {
       $datasetUris[] = $resource['@id'];
     }
   }
-  
-  header('Content-type: application/json; charset="utf-8"');
-  die(json_encode(catalog($datasetUris), JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+  $result = catalog($datasetUris);
+}
+
+// Un fichier attaché
+elseif (preg_match('!^attachments/!', $param)) {
+  $tuples = PgSql::getTuples("select dido, dcat from didodcat where uri='$uri'");
+  if (count($tuples) > 0) { // élément trouvé
+    $result = json_decode($tuples[0]['dcat'], true);
+    $result['dido'] = json_decode($tuples[0]['dido'], true);
+  }
+  else { // élément non trouvé
+    header("HTTP/1.0 404 Not Found");
+    header('Content-type: text/plain; charset="utf-8"');
+    die("Erreur, URI $uri absente\n");
+  }
 }
 
 // Un theme ou les themes
@@ -75,14 +90,9 @@ elseif (preg_match('!^themes(/([^/]+))?$!', $param, $matches)) {
   //echo "Affichage Thèmes\n";
   //print_r($matches);
   if (!isset($matches[2])) { // pas de theme particulier -> le vocabulaire contrôlé
-    header('Content-type: application/json; charset="utf-8"');
-    die(json_encode(ThemeDido::themes(), JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+    $result = ThemeDido::themes();
   }
-  elseif ($result = ThemeDido::theme($uri)) {
-    header('Content-type: application/json; charset="utf-8"');
-    die(json_encode($result, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-  }
-  else {
+  elseif (!($result = ThemeDido::theme($uri))) {
     header("HTTP/1.0 404 Not Found");
     header('Content-type: text/plain; charset="utf-8"');
     die("Erreur, URI $uri absente\n");
@@ -92,15 +102,24 @@ elseif (preg_match('!^themes(/([^/]+))?$!', $param, $matches)) {
 // Un schema json
 elseif (preg_match('!^json-schema/([^/]+)/([^/]+)$!', $param, $matches)) {
   header('Content-type: text/plain; charset="utf-8"');
-  echo "Affichage json-schema\n";
+  $milUri = "https://dido.geoapi.fr/id/millesimes/$matches[1]/$matches[2]";
+  echo "Affichage json-schema de $milUri\n";
+  $tuples = PgSql::getTuples("select dido from didodcat where uri='$milUri'");
+  if (count($tuples) > 0) { // élément trouvé
+    $result = jsonSchema(json_decode($tuples[0]['dido'], true));
+  }
+  else {
+    header("HTTP/1.0 404 Not Found");
+    header('Content-type: text/plain; charset="utf-8"');
+    die("Erreur, json-schema de $milUri absent\n");
+  }
 }
 
-// Elt DCAT stockés en base
+// Elt DCAT stockés en base et restitués tel quel
 else {
   $tuples = PgSql::getTuples("select dcat from didodcat where uri='$uri'");
   if (count($tuples) > 0) { // élément trouvé
-    header('Content-type: application/json; charset="utf-8"');
-    die($tuples[0]['dcat']);
+    $result = json_decode($tuples[0]['dcat'], true);
   }
   else { // élément non trouvé
     header("HTTP/1.0 404 Not Found");
@@ -108,3 +127,15 @@ else {
     die("Erreur, URI $uri absente\n");
   }
 }
+
+header('Content-type: application/json; charset="utf-8"');
+if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
+  die(
+    str_replace(
+      'https://dido.geoapi.fr/id',
+      'http://localhost/geoapi/dido/id.php',
+      json_encode($result, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)
+    )
+  );
+else // sur le serveur dido.geoapi.fr
+  die(json_encode($result, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
