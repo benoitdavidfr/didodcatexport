@@ -1,6 +1,6 @@
 # Correspondances de DiDo en DCAT
 
-mise à jour: 8/7/2021 0h13
+mise à jour: 8/7/2021 0h30
 
 ## Correspondances entre classes d'objets
 
@@ -38,14 +38,14 @@ La correspondance choisie pour les classes est la suivante:
 | fichier de données     | dcat:Dataset    | Un fichier de données DiDo fait partie d'un jeu de données DiDo ; il définit une propriété dct:conformsTo vers un fichier contenant un schéma JSON du fichier de données, lui-même défini comme foaf:Document. |
 | millesime              | dcat:Distribution  |
 | organisation           | foaf:Agent      | DCAT-AP exige que l'on utilise la classe foaf:Agent et pas la classe foaf:Organization |
-| thème                  | skos:Concept    | la correspondance de ces thèmes vers le vocabulaire data-theme est définie ci-dessous |
+| thème                  | skos:Concept    | La correspondance de ces thèmes vers le vocabulaire data-theme est définie ci-dessous |
 | vocabulaire des thèmes | skos:ConceptScheme | L'ensemble des thémes DiDo est structuré dans un skos:ConceptScheme |
 | mot-clé                | rdfs:Literal    | Un mot-clé DiDo sera représenté par un rdfs:Literal lié par la propriété dcat:keyword |
 
 Dans un premier temps, il n'est pas envisagé de représenter les API DiDo comme dcat:DataService car cette dernière classe est spécifique de DCAT v2 et encore peu utilisée.
 La solution sera d'indiquer dans les dcat:Distribution correspondant à un millésime un lien vers un fichier CSV généré par DiDo.
 
-La suite du document décrit les correspondances des propriétés des classes et dans certains cas des valeurs possibles.
+La suite du document décrit pour chaque classe la correspondance des propriétés et dans certains cas des valeurs possibles.
 
 ## Correspondance des propriétés ainsi que de certaines valeurs
 
@@ -178,6 +178,7 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
 | rid        | uuid   | Identifiant du fichier    | @id        | URI https://dido.geoapi.fr/id/attachments/{rid} |
+|            |        |                           | @type      | dcat:Dataset |
 | dataset    | Dataset | Jeu de données parent    | dct:isPartOf | |
 | title      | string | Titre du fichier          | dct:title  | |
 | description | string | Description du fichier   | dct:description | |
@@ -195,6 +196,7 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
 | millesime  | string | Le millésime du fichier - format YYYY-MM | @id | URI https://dido.geoapi.fr/id/millesimes/{rid}/{m} |
+|            |        |                           | @type      | dcat:Distribution |
 | title      | string | Titre du fichier | dct:title | |
 | date_diffusion | date-time | Date de diffusion du millesime du fichier | dct:issued | |
 | rows | integer | Nombre de lignes dans le fichier | | |
