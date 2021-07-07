@@ -18,6 +18,7 @@ doc: |
    4) le paramètre page_size de la requête d'exposition correspond au nbre de dcat:Dataset par sous-objet dcat:Catalog
    5) la page contenant un sous-objet dcat:Catalog contient aussi tous les Dataset et autres objets liés qui n'ont pas 
       été fournis dans les pages précédentes.
+   6) A chaque millésime est associé un fichier CSV et un schéma JSON qui fournit les champs du fichier CSV.
   
   Remarques sur la structuration DiDo:
     - vérifier que la valeur de fréquence 'punctual' correspond à http://publications.europa.eu/resource/authority/frequency/NEVER
