@@ -1,8 +1,9 @@
 <?php
 /*PhpDoc:
 name: themesdido.inc.php
-title: liste des thèmes DiDo et méthodes associées
+title: initialise la liste des thèmes DiDo et défini les méthodes utilisées dans l'export (api.php) et id.php
 doc: |
+  Peut être amélioré en définissant chaque thème par rapport à un data-theme et par rapport à un concept EuroVoc si nécessaire
 journal: |
   5/7/2021:
     - création
@@ -13,7 +14,7 @@ class ThemeDido {
   const DATA_THEME_ROOT = 'http://publications.europa.eu/resource/authority/data-theme';
   protected string $uri; // URI du theme dans le Scheme DiDo
   protected string $dataTheme; // URI du thème de data-theme correspondant
-  static array $themes; // tableau des thèmes sous la forme [code => ThmeDido]
+  static array $themes; // tableau des thèmes sous la forme [code => ThemeDido]
   
   function __construct(string $key, string $dataTheme) {
     $this->uri = self::URI_ROOT."/$key";
@@ -46,6 +47,34 @@ class ThemeDido {
     }
     //return $result;
     return array_values($result);
+  }
+  
+  // Renvoit le JSON-LD définissant le vocabulaire contrôlé des thèmes DiDo
+  static function themes(): array {
+    $result = [
+      '@id'=> self::URI_ROOT,
+      '@type'=> 'skos:ConceptScheme',
+      'title'=> "Le vocabulaire contrôlé des thèmes DiDo",
+      'skos:hasTopConcept'=> [],
+    ];
+    foreach (self::$themes as $code => $theme) {
+      $result['skos:hasTopConcept'][] = $theme->uri;
+    }
+    return $result;
+  }
+  
+  // Renvoit le JSON-LD définissant un des concepts
+  static function theme(string $uri): array {
+    foreach (self::$themes as $code => $theme) {
+      if ($theme->uri == $uri) {
+        return [
+          '@id'=> $theme->uri,
+          '@type'=> 'skos:Concept',
+          'skos:prefLabel'=> $code,
+        ];
+      }
+    }
+    return [];
   }
 };
 

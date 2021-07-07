@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 name: api.php
-title: script appelé lors de l'appel de l'API export DCAT
+title: script appelé lors de l'appel de l'API export DCAT et de son contexte
 doc: |
   Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/xxx
   ou de http://localhost/geoapi/dido/api.php/v1/xxx
@@ -31,6 +31,7 @@ function headers(array $datasetUris) {
   );
 }
 
+// dcatcontext.jsonld
 if (in_array($_SERVER['REQUEST_URI'], ['/geoapi/dido/api.php/v1/dcatcontext.jsonld', '/v1/dcatcontext.jsonld'])) {
   header('Content-type: application/ld+json; charset="utf-8"');
   $context = file_get_contents(__DIR__.'/dcatcontext.json');
@@ -39,19 +40,24 @@ if (in_array($_SERVER['REQUEST_URI'], ['/geoapi/dido/api.php/v1/dcatcontext.json
   die(json_encode($context, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 }
 
+// ! dcatexport.jsonld
 elseif (!in_array($_SERVER['REQUEST_URI'], ['/geoapi/dido/api.php/v1/dcatexport.jsonld','/v1/dcatexport.jsonld'])) {
   header("HTTP/1.0 404 Not Found");
   header('Content-type: text/plain; charset="utf-8"');
   die("No match for '$_SERVER[REQUEST_URI]'\n");
 }
 
+// dcatexport.jsonld
 else {
   //echo "<pre>";
   if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
     PgSql::open('pgsql://docker@pgsqlserver/gis/public');
   else // sur le serveur dido.geoapi.fr
     PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public');
+  
   $graph = [];
+  
+  // Lecture des ressources stockées en base et fabrication de la liste des URI des datasets DCAT
   $datasetUris = [];
   foreach (PgSql::query("select dcat from didodcat") as $tuple) {
     //echo "$tuple[dcat]\n";
@@ -64,6 +70,7 @@ else {
     }
   }  
   
+  // Génération de l'export du catalogue DCAT non paginée
   header('Content-type: application/ld+json; charset="utf-8"');
   die(json_encode(
     [
