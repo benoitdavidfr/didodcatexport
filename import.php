@@ -19,7 +19,7 @@ doc: |
   De même les thèmes et mots-clés ne sont pas créés dans la base PgSql.
 journal: |
   5/7/2021:
-    - plus de violations dans le validataeur EU mais des warnings
+    - plus de violation dans le validataeur EU mais des warnings
   4/7/2021:
     - première version un peu complète à améliorer
       - revoir la licence, le champ spatial, le schéma JSON
@@ -206,9 +206,6 @@ function buildDcatForJD(array $jd): array {
     true
   );
 
-  /*foreach ($jd['spatial']['zones'] as $spatial)
-    echo "spatial: $spatial\n";*/
-  
   return buildObjectWithMapping($jd,
     [
       '@id'=> ['val', "https://dido.geoapi.fr/id/datasets/$jd[id]"],
@@ -235,7 +232,7 @@ function buildDcatForJD(array $jd): array {
         ],
       ],
       'caution'=> ['val', $jd['caution'] ?? null],
-      'page'=> ['uriarray', 'https://dido.geoapi.fr/id/attachments/', project($jd['attachments'], 'rid')],
+      'page'=> ['uriarray', '', project($jd['attachments'], 'url')],
       'created'=> ['val', $jd['created_at']],
       'modified'=> ['val', $jd['last_modified']],
       'hasPart'=> ['uriarray', 'https://dido.geoapi.fr/id/datafiles/', project($jd['datafiles'], 'rid')],
@@ -246,7 +243,7 @@ function buildDcatForJD(array $jd): array {
 function buildDcatForAttachment(array $attach, array $dataset): array {
   return buildObjectWithMapping($attach,
     [
-      '@id'=> ['val', "https://dido.geoapi.fr/id/attachments/$attach[rid]"],
+      '@id'=> ['val', $attach['url']],
       '@type'=> ['val', 'Document'],
       'title'=> ['val', $attach['title']],
       'description'=> ['val', $attach['description']],
@@ -348,7 +345,7 @@ while ($url) { // tant qu'il reste au moins une page à aller chercher
     storePg($jd, buildDcatForJD($jd), $jdUri, $jdUri);
     
     foreach ($jd['attachments'] as $attach) {
-      storePg($attach, buildDcatForAttachment($attach, $jd), "https://dido.geoapi.fr/id/attachments/$attach[rid]", $jdUri);
+      storePg($attach, buildDcatForAttachment($attach, $jd), $attach['url'], $jdUri);
     }
     foreach ($jd['datafiles'] as $datafile) {
       $dfUri = "https://dido.geoapi.fr/id/datafiles/$datafile[rid]";

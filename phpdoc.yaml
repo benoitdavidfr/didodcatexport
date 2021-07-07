@@ -25,6 +25,7 @@ doc: |
     - vérifier que la valeur de fréquence 'punctual' correspond à http://publications.europa.eu/resource/authority/frequency/NEVER
     - il manque un point de contact par jeu de données et fichier de données,
       ca pourrait être une adresse mail associée au producteur
+    - 2 erreurs détectées dans le Swagger DiDo
   
   mapping serveur:
     https://dido.geoapi.fr/id -> /prod/geoapi/dido/id.php
