@@ -9,7 +9,6 @@ Les [correspondances en DCAT des classes, des propriétés et des valeurs possib
 
 Les principes suivants ont été retenus pour l'exposition DCAT:
 
-  - En amont de l'export DCAT un téléchargement des méta-données DiDo est effectué à partir du site école indiqué ci-dessus.
   - L'export DCAT est exposé en JSON-LD à l'URL https://dido.geoapi.fr/v1/dcatexport.jsonld?page={page}&page_size={page_size} ;
     son contexte  est exposé à l'URL https://dido.geoapi.fr/v1/dcatcontext.jsonld
   - Chaque objet DiDo est identifié par un URI conforme aux modèles ci-dessous.
@@ -39,4 +38,5 @@ Dans le prototype les URI des objets DiDo sont de la forme:
 
 L'export DCAT est disponible en JSON-LD à l'adresse https://dido.geoapi.fr/v1/dcatexport.jsonld  
 
-
+Pour le prototype, en amont de l'export DCAT un téléchargement des méta-données DiDo est effectué
+à partir du site école indiqué ci-dessus.
