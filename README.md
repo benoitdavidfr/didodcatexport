@@ -4,7 +4,7 @@ Un site école est documenté sur https://datahub-ecole.recette.cloud/api-diffus
 Le site de diffusion officiel devrait ouvrir prochainement sur internet.
 
 Le présent projet consiste à concevoir et prototyper un export DCAT du catalogue des données de DiDo.  
-La [correspondance en DCAT des classes d'objets DiDo est définie ici](mapping.md).  
+La [correspondance en DCAT des classes, des propriétés et des valeurs possibles définies dans DiDo est définie ici](mapping.md).  
 
 Les principes suivants ont été retenus pour l'exposition DCAT:
 
