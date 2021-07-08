@@ -1,6 +1,6 @@
 # Correspondances de DiDo en DCAT
 
-mise à jour: 8/7/2021 9h
+mise à jour: 8/7/2021 10h35
 
 ## Correspondances entre classes d'objets
 
