@@ -21,6 +21,7 @@ doc: |
 journal: |
   8/7/2021:
     - suppression de l'URI https://dido.geoapi.fr/id/attachments/{rid}
+    - ajout du champ @context
   6-7/7/2021:
     - améliorations
     - manque les schéma JSON
@@ -118,6 +119,9 @@ else {
     die("Erreur, URI $uri absente\n");
   }
 }
+
+// Rajout du contexte JSON-LD
+$result = array_merge(['@context'=> 'https://dido.geoapi.fr/v1/dcatcontext.jsonld'], $result);
 
 header('Content-type: application/json; charset="utf-8"');
 if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac

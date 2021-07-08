@@ -6,6 +6,8 @@ doc: |
   Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/xxx
   ou de http://localhost/geoapi/dido/api.php/v1/xxx
 journal: |
+  8/7/2021:
+    - chgt retour de catalog()
   6-7/7/2021:
     - améliorations
     - manque la pagination de l'export
@@ -34,7 +36,7 @@ function headers(array $datasetUris) {
     ThemeDido::jsonld(), // Déclaration des thèmes DiDo et du Scheme
     GeoZone::jsonld(), // Déclaration des GéoZones
     Frequency::jsonld(), // Déclaration des frequences
-    catalog($datasetUris)
+    [catalog($datasetUris)] // Déclaration du catalogue
   );
 }
 
