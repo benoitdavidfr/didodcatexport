@@ -134,9 +134,11 @@ car elles ne sont pas définies par des URI.
 L'idée générale est d'utiliser pour les différents territoires l'URI défini par la Commission EU fondé sur les codes ISO 3166-1
 et exigé dans DCAT-AP.  
 Cependant pour la notion de *France*, il existe 3 extensions géographiques distinctes qu'il est utile de distinguer :
+
   - la métrople
   - la métropole plus les 5 DROM
   - l'ensemble du territoire y compris l'ensemble de l'outre-mer
+
 En utilisant l'URI http://publications.europa.eu/resource/authority/country/FRA on perdrait cette précision.
 Le choix a donc été fait d'utiliser les URI de l'INSEE pour la métropole et métropole+5 DROM :
 
