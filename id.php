@@ -91,14 +91,16 @@ elseif (preg_match('!^themes(/([^/]+))?$!', $param, $matches)) {
   }
 }
 
-// Un schema json
+// Un schema JSON
 elseif (preg_match('!^json-schema/([^/]+)/([^/]+)$!', $param, $matches)) {
-  header('Content-type: text/plain; charset="utf-8"');
   $milUri = "https://dido.geoapi.fr/id/millesimes/$matches[1]/$matches[2]";
-  echo "Affichage json-schema de $milUri\n";
+  //echo "Affichage json-schema de $milUri\n";
   $tuples = PgSql::getTuples("select dido from didodcat where uri='$milUri'");
   if (count($tuples) > 0) { // élément trouvé
-    $result = jsonSchema(json_decode($tuples[0]['dido'], true));
+    header('Content-type: application/json; charset="utf-8"');
+    die(json_encode(
+      jsonSchema(json_decode($tuples[0]['dido'], true), $uri),
+      JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
   }
   else {
     header("HTTP/1.0 404 Not Found");
