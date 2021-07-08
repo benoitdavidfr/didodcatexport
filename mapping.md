@@ -167,7 +167,7 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 | Géozone       |  URI                                                             | commentaire |
 |---------------|------------------------------------------------------------------|-------------|
 | country:fr    | http://id.insee.fr/geo/pays/france | Il s'agit de la métrople plus les 5 DROM  |
-| 'country-subset:fr:metro' | http://id.insee.fr/geo/territoireFrancais/franceMetropolitaine | Il s'agit de la métrople |
+| country-subset:fr :metro | http://id.insee.fr/geo/territoireFrancais/franceMetropolitaine | Il s'agit de la métrople |
 | country-subset:fr:drom  | [http://publications.europa.eu/resource/authority/country/GLP, http://publications.europa.eu/resource/authority/country/MTQ, http://publications.europa.eu/resource/authority/country/GUF, http://publications.europa.eu/resource/authority/country/REU, http://publications.europa.eu/resource/authority/country/MYT], | Il s'agit des 5 DROM  |
 
 
