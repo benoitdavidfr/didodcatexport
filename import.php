@@ -18,6 +18,8 @@ doc: |
   L'objet catalogue n'existe pas en DiDo et n'est donc pas créé dans la base PgSql.
   De même les thèmes et mots-clés ne sont pas créés dans la base PgSql.
 journal: |
+  8/7/2021:
+    - remplacement de l'URI https://dido.geoapi.fr/id/attachments/{rid} en l'URL du fichier
   5/7/2021:
     - plus de violation dans le validataeur EU mais des warnings
   4/7/2021:

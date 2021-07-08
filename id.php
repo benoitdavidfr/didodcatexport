@@ -6,7 +6,6 @@ doc: |
   Ce script est appelé lors de l'appel d'un des URI
     - https://dido.geoapi.fr/id/catalog pour le catalogue
     - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo {id} (dcat:Dataset)
-    - https://dido.geoapi.fr/id/attachments/{rid} pour les fichiers annexe {rid} (foaf:Document)
     - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données {rid} (dcat:Dataset)
     - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour le millésime {m} du fichier de données {rid} (dcat:Distribution)
     - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour le schéma JSON du mill. {m} du fichier de données {rid} (foaf:Document)
@@ -20,10 +19,11 @@ doc: |
     - https://dido.geoapi.fr/id/organizations/60abeb7b17967d0023c883a2
     - http://localhost/geoapi/dido/id.php/organizations/60abeb7b17967d0023c883a2
 journal: |
+  8/7/2021:
+    - suppression de l'URI https://dido.geoapi.fr/id/attachments/{rid}
   6-7/7/2021:
     - améliorations
     - manque les schéma JSON
-    - manque l'accès aux fichiers attachés
   1/7/2021:
     - première version assez complète
 includes:
@@ -39,7 +39,7 @@ require __DIR__.'/../../phplib/pgsql.inc.php';
 
 $pattern = '!^(/geoapi/dido/id.php/|/id/)'
     .'(catalog'
-    .'|(datasets|attachments|datafiles|organizations)/[^/]+'
+    .'|(datasets|datafiles|organizations)/[^/]+'
     .'|(millesimes|json-schema)/[^/]+/[^/]+'
     .'|(themes)(/[^/]+)?'
     .')$!';
@@ -74,20 +74,6 @@ if ($param == 'catalog') {
     }
   }
   $result = catalog($datasetUris);
-}
-
-// Un fichier attaché
-elseif (preg_match('!^attachments/!', $param)) {
-  $tuples = PgSql::getTuples("select dido, dcat from didodcat where uri='$uri'");
-  if (count($tuples) > 0) { // élément trouvé
-    $result = json_decode($tuples[0]['dcat'], true);
-    $result['dido'] = json_decode($tuples[0]['dido'], true);
-  }
-  else { // élément non trouvé
-    header("HTTP/1.0 404 Not Found");
-    header('Content-type: text/plain; charset="utf-8"');
-    die("Erreur, URI $uri absente\n");
-  }
 }
 
 // Un theme ou les themes

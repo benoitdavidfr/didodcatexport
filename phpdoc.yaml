@@ -7,7 +7,6 @@ doc: |
    2) les objets DiDo sont identifiés par les URI suivants:
     - https://dido.geoapi.fr/id/catalog pour le catalogue (dcat:Catalog)
     - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo identifié par {id} (dcat:Dataset)
-    NON - https://dido.geoapi.fr/id/attachments/{rid} pour le fichier annexe identifié par {rid} (foaf:Document)
     - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données identifié par {rid} (dcat:Dataset)
     - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour le millésime identifié par {rid} et {m} (dcat:Distribution)
     - https://dido.geoapi.fr/id/organizations/{id} pour l'organisation identifiée par {id} (foaf:Organzation)

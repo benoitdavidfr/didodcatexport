@@ -177,7 +177,7 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
-| rid        | uuid   | Identifiant du fichier    | @id        | URI https://dido.geoapi.fr/id/attachments/{rid} |
+| rid        | uuid   | Identifiant du fichier    | @id        | URI https://dido.geoapi.fr/id/datafiles/{rid}   |
 |            |        |                           | @type      | dcat:Dataset |
 | dataset    | Dataset | Jeu de données parent    | dct:isPartOf | |
 | title      | string | Titre du fichier          | dct:title  | |
