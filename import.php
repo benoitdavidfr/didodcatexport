@@ -313,7 +313,7 @@ function buildDcatForMillesime(array $millesime, array $datafile, array $dataset
         "$rootUrl/datafiles/$datafile[rid]/csv?millesime=$millesime[millesime]"
           ."&withColumnName=true&withColumnDescription=true&withColumnUnit=true"
       ],
-      'MediaType'=> ['val', 'text/csv'],
+      'mediaType'=> ['val', ['@id'=> 'https://www.iana.org/assignments/media-types/text/csv', '@type'=> 'dct:MediaType']],
     ]);
 }
 
