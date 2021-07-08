@@ -125,7 +125,7 @@ else {
 // Rajout du contexte JSON-LD
 $result = array_merge(['@context'=> 'https://dido.geoapi.fr/v1/dcatcontext.jsonld'], $result);
 
-header('Content-type: application/json; charset="utf-8"');
+header('Content-type: application/ld+json; charset="utf-8"');
 if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
   die(
     str_replace(

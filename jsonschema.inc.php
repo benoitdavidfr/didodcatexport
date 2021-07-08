@@ -7,7 +7,7 @@ doc: |
   Logique pour déterminer le type de la colonne:
     - si une unité est définie alors il s'agit d'un nombre -> { "type": "number" }
     - sinon c'est une chaine -> { "type": "string" }
-
+  On ajoute le champ unit pour l'unité en clair.
 journal: |
   8/7/2021:
     - définition d'un schéma JSON
@@ -26,6 +26,7 @@ function jsonSchema(array $dido, string $uri): array {
   foreach ($dido['columns'] as $column) {
     $schema['properties'][$column['name']] = [
       'type'=> $column['unit'] ? 'number' : 'string',
+      'unit'=> $column['unit'],
       'description'=> $column['description'],
     ];
   }
