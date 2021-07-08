@@ -167,11 +167,11 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
 | url        | string | Url pour accéder au fichier | @id      |                         | Utilisation comme URI de l'URL DiDo |
 |            |        |                           | @type      | foaf:Document |
-| title      | string | Titre du fichier          | dct:title  | |
-| description | string | Description du fichier   | dct:description |  |
-| published | date-time | Date de publication du fichier | dct:issued |  |
-| created_at | date-time | Date de création du fichier | dct:created | | **Attention fichier Swagger erroné** |
-| last_modified | date-time | Date de dernière modification du fichier | dct:modified | | **Attention fichier Swagger erroné** |
+| title      | string | Titre du fichier          | dct:title  |
+| description | string | Description du fichier   | dct:description |
+| published | date-time | Date de publication du fichier | dct:issued |
+| created_at | date-time | Date de création du fichier | dct:created |
+| last_modified | date-time | Date de dernière modification du fichier | dct:modified |
 
 ### Fichier de données (Datafile) -> dcat:Dataset
 
