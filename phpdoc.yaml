@@ -24,7 +24,6 @@ doc: |
     - vérifier que la valeur de fréquence 'punctual' correspond à http://publications.europa.eu/resource/authority/frequency/NEVER
     - il manque un point de contact par jeu de données et fichier de données,
       ca pourrait être une adresse mail associée au producteur
-    - 2 erreurs détectées dans le Swagger DiDo
   
   mapping serveur:
     https://dido.geoapi.fr/id -> /prod/geoapi/dido/id.php
@@ -36,7 +35,6 @@ doc: |
     - pagination de l'export du catalogue
     - génération du schéma JSON -> jsonschema.inc.php
       - comment intégrer les unités dans le schéma JSON ?
-    - prendre comme URI des fichiers attachés l'URL fourni par DiDo et non https://dido.geoapi.fr/id/attachments/{rid}
     - comment intégrer le champ caution du jeu de données, dct:rights ?
       frequency_date, spatialGranularity ?
     

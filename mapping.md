@@ -126,13 +126,19 @@ Ces URI sont déclarées comme des objets de la classe dct:Frequency.
 | irregular  |  http://publications.europa.eu/resource/authority/frequency/IRREG     |
 | unknown    |  http://publications.europa.eu/resource/authority/frequency/UNKNOWN   |
 
+
 ### Valeurs Géozones -> URI
 
-Les valeurs de GéoZones ne peuvent pas être utilisées car elles ne sont pas définies par des URI.  
-L'idée est d'utiliser pour les différents territoires l'URI défini par la Commission fondé sur les codes ISO 3166-1
+Les valeurs de [GéoZones](https://www.data.gouv.fr/fr/datasets/geozones/) ne peuvent pas être utilisées
+car elles ne sont pas définies par des URI.  
+L'idée générale est d'utiliser pour les différents territoires l'URI défini par la Commission EU fondé sur les codes ISO 3166-1
 et exigé dans DCAT-AP.  
-Les concepts de métropole et de France posent problème car ils sont définis différemment par les autorités différentes.
-On utilisera pour ces 2 concepts les URI définis par l'INSEE, à savoir:
+Cependant pour la notion de *France*, il existe 3 extensions géographiques distinctes qu'il est utile de distinguer :
+  - la métrople
+  - la métropole plus les 5 DROM
+  - l'ensemble du territoire y compris l'ensemble de l'outre-mer
+En utilisant l'URI http://publications.europa.eu/resource/authority/country/FRA on perdrait cette précision.
+Le choix a donc été fait d'utiliser les URI de l'INSEE pour la métropole et métropole+5 DROM :
 
   - http://id.insee.fr/geo/territoireFrancais/franceMetropolitaine pour la France métropolitaine
   - http://id.insee.fr/geo/pays/france pour la France métropolitaine plus les 5 DROM.
@@ -151,6 +157,8 @@ Pour l'outre-mer on utilisera les URI suivants :
   - http://publications.europa.eu/resource/authority/country/NCL pour la Nouvelle Calédonie,
   - http://publications.europa.eu/resource/authority/country/FQ0 pour les Terres australes et antarctiques françaises,
   - http://publications.europa.eu/resource/authority/country/CPT pour l'île de Clipperton.
+
+L'union de différents territoires sera défini par un ensemble constitué des différents territoires.
 
 Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 
