@@ -207,9 +207,12 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
 | millesime  | string | Le millésime du fichier - format YYYY-MM | @id | URI https://dido.geoapi.fr/id/millesimes/{rid}/{m} |
 |            |        |                           | @type      | dcat:Distribution |
-| title      | string | Titre du fichier | dct:title | |
-| date_diffusion | date-time | Date de diffusion du millesime du fichier | dct:issued | |
-| rows | integer | Nombre de lignes dans le fichier | | |
+| title      | string | Titre du fichier          | dct:title  |
+| date_diffusion | date-time | Date de diffusion du millesime du fichier | dct:issued | 
+| rows | integer | Nombre de lignes dans le fichier | | **Non repris** |
 | columns | array | Liste des colonnes du fichier | dct:conformsTo | Structuration de la liste des colonnes comme schéma JSON | **Problème d'encodage des unités !** |
 | extendedFilters | array | Liste des filtres étendus du fichier | | |
 | geoFields | array | Liste des champs disposant d'une géométrie dans le fichier | | Voir la possibilité d'intégrer l'info dans le schéma JSON |
+|            |        |                           | accessURL  | construction de l'URL d'obtention au fichier CSV |
+|            |        |                           | downloadURL| construction de l'URL d'obtention au fichier CSV |
+|            |        |                           | mediaType  | définition du média-type txt/csv |
