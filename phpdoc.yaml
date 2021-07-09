@@ -33,15 +33,16 @@ doc: |
   
   A faire:
     - pagination de l'export du catalogue
-    - OK génération du schéma JSON -> jsonschema.inc.php
-      - comment intégrer les unités dans le schéma JSON ? -> ajout d'un champ unit
     - comment intégrer le champ caution du jeu de données, dct:rights ?
       frequency_date, spatialGranularity ?
     - définir des liens entre les thèmes et les concepts EuroVoc
+    - voir ajout préconisé par statDCAT-AP
+    - développer une distribution data cube
     
 journal: |
   6-7/7/2021:
     - amélioration du déref. des URI
+    - la version JSON-LD fonctionne avec le validateur EU
   5/7/2021:
     - plus de violations dans le validateur EU mais des warnings
     - vérifier le déref. des URI
