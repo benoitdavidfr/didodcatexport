@@ -18,6 +18,9 @@ doc: |
   L'objet catalogue n'existe pas en DiDo et n'est donc pas créé dans la base PgSql.
   De même les thèmes et mots-clés ne sont pas créés dans la base PgSql.
 journal: |
+  10/7/2021:
+    - modif. modèle de certains URI
+    - modif. signature de storePg()
   8/7/2021:
     - remplacement de l'URI https://dido.geoapi.fr/id/attachments/{rid} en l'URL du fichier
   5/7/2021:
@@ -55,7 +58,7 @@ define('JSON_OPTIONS', JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_U
 
 $rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine de l'API DiDo
 
-if (1) { // Ouverture PgSql et création de la table didodcat
+{ // Ouverture PgSql et création de la table didodcat
   if (($_SERVER['HOME']=='/home/bdavid')) // sur le serveur dido.geoapi.fr
     PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public');
   else // en localhost sur le Mac
@@ -72,11 +75,11 @@ if (1) { // Ouverture PgSql et création de la table didodcat
 }
 
 // stockage d'un enregistrement dans PgSql, si $ifDoesntExist est vrai alors pas d'erreur
-function storePg(array $dido, array $dcat, string $itemUri, string $dsUri, bool $ifDoesntExist=false) {
+function storePg(array $dido, array $dcat, string $dsUri, bool $ifDoesntExist=false) {
   try {
-    $dido = str_replace("'","''", json_encode($dido, JSON_OPTIONS));
-    $dcat = str_replace("'","''", json_encode($dcat, JSON_OPTIONS));
-    $sql = "insert into didodcat(uri, dsuri, dido, dcat) values ('$itemUri', '$dsUri', '$dido', '$dcat')";
+    $didoJson = str_replace("'","''", json_encode($dido, JSON_OPTIONS));
+    $dcatJson = str_replace("'","''", json_encode($dcat, JSON_OPTIONS));
+    $sql = "insert into didodcat(uri, dsuri, dido, dcat) values ('".$dcat['@id']."', '$dsUri', '$didoJson', '$dcatJson')";
     //echo "<pre>$sql</pre>\n";
     PgSql::query($sql);
   }
@@ -203,7 +206,6 @@ function buildDcatForJD(array $jd): array {
   storePg(
     $jd['organization'],
     buildDcatForPublisher($jd['organization']),
-    'https://dido.geoapi.fr/id/organizations/'.$jd['organization']['id'],
     "https://dido.geoapi.fr/id/datasets/$jd[id]",
     true
   );
@@ -281,7 +283,7 @@ function buildDcatForDataFile(array $datafile, array $dataset) : array {
       ],
       'distribution'=> [
         'uriarray',
-        "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/",
+        "https://dido.geoapi.fr/id/datafiles/$datafile[rid]/millesimes/",
         project($datafile['millesimes'], 'millesime')
       ],
       'created'=> ['val', $datafile['created_at']],
@@ -293,13 +295,13 @@ function buildDcatForDataFile(array $datafile, array $dataset) : array {
 function buildDcatForMillesime(array $millesime, array $datafile, array $dataset, string $rootUrl): array {
   return buildObjectWithMapping($millesime,
     [
-      '@id'=> ['val', "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/$millesime[millesime]"],
+      '@id'=> ['val', "https://dido.geoapi.fr/id/datafiles/$datafile[rid]/millesimes/$millesime[millesime]"],
       '@type'=> ['val', 'Distribution'],
       'title'=> ['val', $millesime['title'] ?? null],
       'issued'=> ['val', $millesime['date_diffusion']],
       'conformsTo'=> ['object', [
           '@type'=> ['val', 'dct:Standard'],
-          '@id'=> ['val', "https://dido.geoapi.fr/id/json-schema/$datafile[rid]/$millesime[millesime]"],
+          '@id'=> ['val', "https://dido.geoapi.fr/id/datafiles/$datafile[rid]/millesimes/$millesime[millesime]/json-schema"],
         
       ]],
       'license'=> ['mappingVal', License::mappingToURI(), $dataset['license']],
@@ -336,7 +338,7 @@ while ($url) { // tant qu'il reste au moins une page à aller chercher
   $content = json_decode($content, true);
   foreach ($content['data'] as $jd) { // itération sur les jeux de données
     //print_r($dataset);
-    if (1) { // écriture de chaque JD pour faciliter leur visualisation, inutile en fonctionnement normal
+    if (0) { // écriture de chaque JD pour faciliter leur visualisation, inutile en fonctionnement normal
       file_put_contents(
         __DIR__."/jd/jd$jd[id].json",
         json_encode($jd, JSON_OPTIONS)
@@ -344,20 +346,17 @@ while ($url) { // tant qu'il reste au moins une page à aller chercher
     }
     
     $jdUri = "https://dido.geoapi.fr/id/datasets/$jd[id]";
-    storePg($jd, buildDcatForJD($jd), $jdUri, $jdUri);
+    storePg($jd, buildDcatForJD($jd), $jdUri);
     
     foreach ($jd['attachments'] as $attach) {
-      storePg($attach, buildDcatForAttachment($attach, $jd), $attach['url'], $jdUri);
+      storePg($attach, buildDcatForAttachment($attach, $jd), $jdUri);
     }
     foreach ($jd['datafiles'] as $datafile) {
       $dfUri = "https://dido.geoapi.fr/id/datafiles/$datafile[rid]";
-      storePg($datafile, buildDcatForDataFile($datafile, $jd), $dfUri, $dfUri);
+      storePg($datafile, buildDcatForDataFile($datafile, $jd), $dfUri);
       
       foreach ($datafile['millesimes'] as $millesime) {
-        storePg(
-          $millesime,
-          buildDcatForMillesime($millesime, $datafile, $jd, $rootUrl),
-          "https://dido.geoapi.fr/id/millesimes/$datafile[rid]/$millesime[millesime]", $dfUri);
+        storePg($millesime, buildDcatForMillesime($millesime, $datafile, $jd, $rootUrl), $dfUri);
       }
     }
   }
@@ -365,4 +364,14 @@ while ($url) { // tant qu'il reste au moins une page à aller chercher
   // définition de l'url et du no de la page suivante
   $url = $content['nextPage'];
   $pageNo++;
+}
+
+{
+  $filePath = __DIR__."/import/swagger.json";
+  $url = 'https://datahub-ecole.recette.cloud/api-diffusion/v1/swagger.json';
+  if (!file_exists($filePath)) {
+    echo "$url<br>\n";
+    $content = file_get_contents($url);
+    file_put_contents($filePath, $content);
+  }
 }

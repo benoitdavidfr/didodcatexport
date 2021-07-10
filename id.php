@@ -31,23 +31,30 @@ includes:
   - catalog.inc.php
   - themesdido.inc.php
   - jsonschema.inc.php
+  - refnoms.inc.php
   - ../../phplib/pgsql.inc.php
 */
 require __DIR__.'/catalog.inc.php';
 require __DIR__.'/themesdido.inc.php';
 require __DIR__.'/jsonschema.inc.php';
+require __DIR__.'/refnoms.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
+
+function error(string $message) {
+  header('HTTP/1.0 404 Not Found');
+  header('Content-type: text/plain; charset="utf-8"');
+  die("$message\n");
+}
 
 $pattern = '!^(/geoapi/dido/id.php/|/id/)'
     .'(catalog'
     .'|(datasets|datafiles|organizations)/[^/]+'
-    .'|(millesimes|json-schema)/[^/]+/[^/]+'
-    .'|(themes)(/[^/]+)?'
+    .'|datafiles/[^/]+/millesimes/[^/]+(/json-schema)?'
+    .'|themes(/[^/]+)?'
+    .'|(referentiels|nomenclatures)/[^/]+(/distributions/[^/]+(/json-schema)?)?'
     .')$!';
 if (!preg_match($pattern, $_SERVER['REQUEST_URI'], $matches)) {
-  header("HTTP/1.0 404 Not Found");
-  header('Content-type: text/plain; charset="utf-8"');
-  die("No match for '$_SERVER[REQUEST_URI]'\n");
+  error("No match for '$_SERVER[REQUEST_URI]'\n");
 }
 
 //echo "<h2>id.php</h2><pre>\n";
@@ -91,9 +98,28 @@ elseif (preg_match('!^themes(/([^/]+))?$!', $param, $matches)) {
   }
 }
 
+// Un référentiel, une nomenclaure ou leurs distributions ou leurs schema JSON
+elseif (preg_match('!^(referentiels|nomenclatures)/[^/]+(/distributions/[^/]+(/json-schema)?)?$!', $param, $matches)) {
+  //print_r($matches);
+  if (isset($matches[3])) { // schema JSON
+    if (!($result = RefNom::jsonSchema($uri))) {
+      error("Erreur, URI $uri absente\n");
+    }
+    else {
+      header('Content-type: application/json; charset="utf-8"');
+      die(json_encode($result, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+    }
+  }
+  else { // référentiel, nomenclaure ou leurs distributions
+    if (!($result = RefNom::getByUri($uri))) {
+      error("Erreur, URI $uri absente\n");
+    }
+  }
+}
+
 // Un schema JSON
-elseif (preg_match('!^json-schema/([^/]+)/([^/]+)$!', $param, $matches)) {
-  $milUri = "https://dido.geoapi.fr/id/millesimes/$matches[1]/$matches[2]";
+elseif (preg_match('!^datafiles/([^/]+)/millesimes/([^/]+)/json-schema$!', $param, $matches)) {
+  $milUri = "https://dido.geoapi.fr/id/datafiles/$matches[1]/millesimes/$matches[2]";
   //echo "Affichage json-schema de $milUri\n";
   $tuples = PgSql::getTuples("select dido from didodcat where uri='$milUri'");
   if (count($tuples) > 0) { // élément trouvé
@@ -103,9 +129,7 @@ elseif (preg_match('!^json-schema/([^/]+)/([^/]+)$!', $param, $matches)) {
       JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
   }
   else {
-    header("HTTP/1.0 404 Not Found");
-    header('Content-type: text/plain; charset="utf-8"');
-    die("Erreur, json-schema de $milUri absent\n");
+    error("Erreur, json-schema de $milUri absent\n");
   }
 }
 
@@ -116,9 +140,7 @@ else {
     $result = json_decode($tuples[0]['dcat'], true);
   }
   else { // élément non trouvé
-    header("HTTP/1.0 404 Not Found");
-    header('Content-type: text/plain; charset="utf-8"');
-    die("Erreur, URI $uri absente\n");
+    error("Erreur, URI $uri absente\n");
   }
 }
 

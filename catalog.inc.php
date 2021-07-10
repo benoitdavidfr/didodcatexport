@@ -34,6 +34,13 @@ function catalog(array $datasetUris) {
       'nick'=> 'SDES',
       'comment'=> "Le SDES est le service statistique du ministère de la transition écologique. Il fait partie du Commissariat Général au Développement Durable (CGDD)",
     ],
+    'contactPoint'=> [
+      '@type'=> 'vcard:Kind',
+      'vcard:fn'=> "Assistance DiDo",
+      'vcard:hasEmail'=> [
+        '@id'=> 'mailto:support-dido@developpement-durable.gouv.fr',
+      ],
+    ],
     'themeTaxonomy'=> [
       'http://publications.europa.eu/resource/authority/data-theme',
       'https://dido.geoapi.fr/id/themes',

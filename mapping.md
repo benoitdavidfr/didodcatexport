@@ -205,7 +205,7 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
-| millesime  | string | Le millésime du fichier - format YYYY-MM | @id | URI https://dido.geoapi.fr/id/millesimes/{rid}/{m} |
+| millesime  | string | Le millésime du fichier - format YYYY-MM | @id | URI https://dido.geoapi.fr/id/datafiles/{rid}/millesimes/{m} |
 |            |        |                           | @type      | dcat:Distribution |
 | title      | string | Titre du fichier          | dct:title  |
 | date_diffusion | date-time | Date de diffusion du millesime du fichier | dct:issued | 
@@ -215,4 +215,4 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 | geoFields | array | Liste des champs disposant d'une géométrie dans le fichier | | Voir la possibilité d'intégrer l'info dans le schéma JSON |
 |            |        |                           | accessURL  | construction de l'URL d'obtention au fichier CSV |
 |            |        |                           | downloadURL| construction de l'URL d'obtention au fichier CSV |
-|            |        |                           | mediaType  | définition du média-type txt/csv |
+|            |        |                           | mediaType  | {"@id": "https://www.iana.org/assignments/media-types/text/csv", "@type": "dct:MediaType"} |

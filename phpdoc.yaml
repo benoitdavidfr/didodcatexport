@@ -33,13 +33,18 @@ doc: |
   
   A faire:
     - pagination de l'export du catalogue
+    - ajouter un titre aux distributions et une description aux schema JSON
     - comment intégrer le champ caution du jeu de données, dct:rights ?
       frequency_date, spatialGranularity ?
+    - intégrer les référentiels et nomenclatures comme jeux de données
+    - définir les mots-clés comme des Concept dans un Scheme
     - définir des liens entre les thèmes et les concepts EuroVoc
     - voir ajout préconisé par statDCAT-AP
     - développer une distribution data cube
     
 journal: |
+  8/7/2021:
+    - dév. schéma JSON
   6-7/7/2021:
     - amélioration du déref. des URI
     - la version JSON-LD fonctionne avec le validateur EU
@@ -63,3 +68,5 @@ phpIncludes:
   - /geoapi/dido/jsonschema.inc.php
   - /geoapi/dido/themesdido.inc.php
   - /geoapi/dido/licenses.inc.php
+  - /geoapi/dido/jsonschema.inc.php
+  - /geoapi/dido/referentiels.inc.php

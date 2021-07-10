@@ -20,6 +20,7 @@ Les principes suivants ont été retenus pour l'exposition DCAT:
     été fournis dans les pages précédentes.
   - Les URL de téléchargement des données exposés dans l'export sont ceux fournis par DiDo pour le format CSV.
   - A chaque millésime sont associés un fichier CSV et un schéma JSON, ce dernier fournit les champs du fichier CSV.
+  - Pour chaque référentiel et chaque nomenclature, un dcat:Dataset est défini ainsi qu'une dcat:Distribution.
 
 DCAT étant une ontologie du web des données fondée sur l'identification des ressources par des URI,
 il est nécessaire de définir des URI pour chaque ressource apparaissant dans l'export.  
@@ -28,11 +29,21 @@ Dans le prototype les URI des objets DiDo sont de la forme:
   - https://dido.geoapi.fr/id/catalog pour le catalogue (dcat:Catalog)
   - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo {id} (dcat:Dataset)
   - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données {rid} (dcat:Dataset)
-  - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour le millésime {m} du fichier de données {rid} (dcat:Distribution)
-  - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour le schéma JSON du millésime {m} du fichier de données {rid} (foaf:Document)
+  - https://dido.geoapi.fr/id/datafiles/{rid}/millesimes/{m} pour le millésime {m} du fichier de données {rid} (dcat:Distribution)
+  - https://dido.geoapi.fr/id/datafiles/{rid}/millesimes/{m}/json-schema pour le schéma JSON du millésime {m} du fichier de données
+    {rid} (foaf:Document)
   - https://dido.geoapi.fr/id/organizations/{id} pour l'organisation {id} (foaf:Agent)
   - https://dido.geoapi.fr/id/themes pour les thèmes DiDo (skos:ConceptScheme)
   - https://dido.geoapi.fr/id/themes/{id} pour le thème DiDo {id} (skos:Concept)
+  - https://dido.geoapi.fr/id/tags pour les mots-clés DiDo (skos:ConceptScheme)
+  - https://dido.geoapi.fr/id/tags/{id} pour le mots-clés DiDo {id} (skos:Concept)
+  - https://dido.geoapi.fr/id/referentiels/{id} pour le référentiel DiDo {id} (dcat:Dataset)
+  - https://dido.geoapi.fr/id/referentiels/{id}/distributions/{distrib} pour la distribution du référentiel DiDo {id}
+    (dcat:Distribution)
+  - https://dido.geoapi.fr/id/nomenclatures/{id} pour la nomenclature DiDo {id} (dcat:Dataset)
+  - https://dido.geoapi.fr/id/nomenclatures/{id}/distributions/{distrib} pour la distribution de la nomenclature DiDo {id}
+    (dcat:Distribution)
+  
 
 L'URI associé à chaque fichier annexe (Attachment) est l'URL de téléchargement de ce fichier.
 

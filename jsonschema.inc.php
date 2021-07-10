@@ -1,9 +1,10 @@
 <?php
 /*PhpDoc:
 name: jsonschema.inc.php
-title: construction du schema JSON
+title: construction du schema JSON d'un millésime
 doc: |
-  cas intéressant: http://localhost/geoapi/dido/id.php/json-schema/02622bc1-167c-4089-b14d-69c70b141c32/2020-10
+  cas intéressant:
+    http://localhost/geoapi/dido/id.php/datafiles/02622bc1-167c-4089-b14d-69c70b141c32/millesimes/2020-10/json-schema
   Logique pour déterminer le type de la colonne:
     - si une unité est définie alors il s'agit d'un nombre -> { "type": "number" }
     - sinon c'est une chaine -> { "type": "string" }
@@ -20,7 +21,7 @@ function jsonSchema(array $dido, string $uri): array {
     '$id'=> $uri,
     'type'=> 'object',
     'properties'=> [],
-    //'dido'=> $dido,
+    'dido'=> $dido,
   ];
   
   foreach ($dido['columns'] as $column) {
