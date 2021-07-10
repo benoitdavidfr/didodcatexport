@@ -36,6 +36,8 @@ doc: |
     - ajouter un titre aux distributions et une description aux schema JSON
     - comment intégrer le champ caution du jeu de données, dct:rights ?
       frequency_date, spatialGranularity ?
+    - ajouter d'autres distributions aux référentiels et nomenclatures
+    - comment retouver facilement référentiels et nomenclatures, mot-clés, thèmes ?
     - définir les mots-clés comme des Concept dans un Scheme
     - définir des liens entre les thèmes et les concepts EuroVoc
     - voir ajout préconisé par statDCAT-AP

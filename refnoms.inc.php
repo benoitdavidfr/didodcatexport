@@ -83,6 +83,10 @@ class RefNom {
         '@id'=> 'https://www.etalab.gouv.fr/licence-ouverte-open-licence',
         '@type'=> 'dct:LicenseDocument',
       ],
+      'mediaType'=> [
+          '@id'=> 'https://www.iana.org/assignments/media-types/text/csv',
+          '@type'=> 'dct:MediaType',
+      ],
       'conformsTo'=> [
         '@id'=> 'https://dido.geoapi.fr/id/${kind}/${id}/distributions/csv/json-schema',
         '@type'=> 'dct:Standard',
@@ -150,8 +154,8 @@ class RefNom {
   static function jsonld(): array {
     $graph = [];
     foreach (self::ITEMS as $id => $ref) {
-      $graph[] = self::replace(['${id}'=> $id, '${name}'=> $ref['name']], self::DATASET_MODEL);
-      $graph[] = self::replace(['${id}'=> $id, '${name}'=> $ref['name']], self::DISTRIB_MODELS['csv']);
+      $graph[] = self::replace(['${kind}'=> $ref['kind'], '${id}'=> $id, '${name}'=> $ref['name']], self::DATASET_MODEL);
+      $graph[] = self::replace(['${kind}'=> $ref['kind'], '${id}'=> $id, '${name}'=> $ref['name']], self::DISTRIB_MODELS['csv']);
     }
     return $graph;
   }
