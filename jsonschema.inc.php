@@ -10,6 +10,8 @@ doc: |
     - sinon c'est une chaine -> { "type": "string" }
   On ajoute le champ unit pour l'unité en clair.
 journal: |
+  10/7/2021:
+    - ajout d'un titre au schéma
   8/7/2021:
     - définition d'un schéma JSON
   7/7/2021:
@@ -19,9 +21,10 @@ function jsonSchema(array $dido, string $uri): array {
   $schema = [
     '$schema'=> 'http://json-schema.org/draft-07/schema#',
     '$id'=> $uri,
+    'title'=> "Schema JSON du millésime $dido[millesime]",
     'type'=> 'object',
     'properties'=> [],
-    'dido'=> $dido,
+    //'dido'=> $dido,
   ];
   
   foreach ($dido['columns'] as $column) {

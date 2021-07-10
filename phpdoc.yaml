@@ -33,9 +33,9 @@ doc: |
   
   A faire:
     - pagination de l'export du catalogue
-    - ajouter un titre aux distributions et une description aux schema JSON
     - comment intégrer le champ caution du jeu de données, dct:rights ?
       frequency_date, spatialGranularity ?
+    - ajouter les thème et mots-clés aux datafiles
     - ajouter d'autres distributions aux référentiels et nomenclatures
     - comment retouver facilement référentiels et nomenclatures, mot-clés, thèmes ?
     - définir les mots-clés comme des Concept dans un Scheme

@@ -119,6 +119,7 @@ elseif (preg_match('!^(referentiels|nomenclatures)/[^/]+(/distributions/[^/]+(/j
 
 // Un schema JSON
 elseif (preg_match('!^datafiles/([^/]+)/millesimes/([^/]+)/json-schema$!', $param, $matches)) {
+  $dfUri = "https://dido.geoapi.fr/id/datafiles/$matches[1]";
   $milUri = "https://dido.geoapi.fr/id/datafiles/$matches[1]/millesimes/$matches[2]";
   //echo "Affichage json-schema de $milUri\n";
   $tuples = PgSql::getTuples("select dido from didodcat where uri='$milUri'");
