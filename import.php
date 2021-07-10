@@ -6,22 +6,22 @@ doc: |
   Ce script lit les objets DiDo au travers de son API de consultation, les restructure en DCAT
   et les stocke en base PostGis en vue de leur exposition DCAT.
 
-  Le script décompose les objets en éléments DCAT et stocke chaque élément en base Pgsql avec pour chacun:
-   - leur contenu DiDo moissonné comme JSON uniquement pour les millésimes
-   - leur contenu DCAT comme JSON-LD
-   - l'URI de l'objet permettant de le retrouver par son URI
-   - l'URI du dcat:Dataset auquel l'objet est associé
+  Le script décompose les objets en éléments DCAT et les stocke en base Pgsql avec pour chacun:
+    - l'URI de l'objet permettant de le retrouver par son URI
+    - l'URI du dcat:Dataset auquel l'objet est associé, pour la pagination
+    - leur contenu DCAT comme JSON-LD
+    - leur contenu DiDo moissonné comme JSON, uniquement pour les millésimes
+
+  L'objet catalogue qui n'existe pas en DiDo n'est donc pas créé dans la base PgSql.
+  De même les thèmes et mots-clés ne sont pas créés dans la base PgSql.
 
   De plus un cache des pages datasets lues dans DiDo est stocké dans le répertoire import dans des fichiers nommés page{no}.json
-  Le répertoire jd contient un fichier par jeu de données DiDo permettant de faciliter la compréhension des données de DiDo.
-
-  L'objet catalogue n'existe pas en DiDo et n'est donc pas créé dans la base PgSql.
-  De même les thèmes et mots-clés ne sont pas créés dans la base PgSql.
+  Le répertoire jd contient un fichier par jeu de données DiDo pour faciliter la compréhension des données de DiDo.
 journal: |
   10/7/2021:
     - modif. modèle de certains URI
     - modif. signature de storePg()
-    - chgt algo. des builDcatXXX() en supprimant les buildXXXWithMapping()
+    - simplif. par chgt algo. des builDcatXXX() en supprimant les buildXXXWithMapping()
   8/7/2021:
     - remplacement de l'URI https://dido.geoapi.fr/id/attachments/{rid} en l'URL du fichier
   5/7/2021:
@@ -69,7 +69,7 @@ $rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine
     uri varchar(256) not null primary key, -- l'URI de l'élément DCAT 
     dsuri varchar(256) not null, -- l'URI du dataset auquel l'élément est rattaché
     dcat jsonb not null,  -- le contenu de l'élément traduit en DCAT et structuré en JSON-LD
-    dido jsonb -- le contenu de l'élément DiDo structuré en JSON, uniquement pour le millésime
+    dido jsonb -- uniquement pour les millésimes le contenu de l'élément DiDo structuré en JSON, sinon null
   )");
   PgSql::query("comment on table didodcat is 'Un n-uplet par element moissonné dans DiDo'");
   PgSql::query("create index didodcat_dsuri on didodcat(dsuri)");
