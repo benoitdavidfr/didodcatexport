@@ -11,61 +11,69 @@ journal: |
   9-10/7/2021:
     - création, limitée aux distributions CSV
 */
+// construit un ensemble d'Uris par concaténation du préfixe $uriPrefix avec chaque valeur de l'ensemble $setOfIds
+function setOfUris(string $uriPrefix, array $setOfIds): array {
+  $set = [];
+  foreach ($setOfIds as $id)
+    $set[] = $uriPrefix.$id;
+  return $set;
+}
+
 class RefNom {
   // Liste des référentiels et nomenclatures
-  // sous la forme [id => ['kind'=> ('referentiels'|'nomenclatures'), 'name'=> {name}, 'formats'=> {formats}]]
+  // sous la forme [id => ['kind'=> ('referentiels'|'nomenclatures'), 'name'=> {name}, ('theme'=> {theme})?, 'formats'=> {formats}]]
   const ITEMS = [
     'polluantsEau' => [
       'kind'=> 'referentiels',
       'name'=> "Référentiel des polluants de l'eau",
       'theme'=> 'Environnement',
-      'formats'=> ['csv'],
+      'formats'=> ['csv','json'],
     ],
     'stationsAir' => [
       'kind'=> 'referentiels',
       'name'=> "Référentiel des stations de mesures de la qualité de l'air",
       'theme'=> 'Environnement',
-      'formats'=> ['csv'],
+      'formats'=> ['csv','json'],
     ],
     'stationsEsu' => [
       'kind'=> 'referentiels',
       'name'=> "Référentiel des stations de mesures de la qualité des eaux superficielles", // à confirmer
       'theme'=> 'Environnement',
-      'formats'=> ['csv'],
+      'formats'=> ['csv','json'],
     ],
     'ports' => [
       'kind'=> 'referentiels',
       'name'=> "Référentiel des ports",
       'theme'=> 'Environnement',
-      'formats'=> ['csv'],
+      'formats'=> ['csv','json'],
     ],
     'cog' => [
       'kind'=> 'referentiels',
       'name'=> "Référentiel du COG",
-      'formats'=> ['csv'],
+      'formats'=> ['csv','json'],
     ],
     'geozones' => [
       'kind'=> 'referentiels',
       'name'=> "Référentiel des GéoZones",
-      'formats'=> ['csv'],
+      'formats'=> ['csv','json'],
     ],
     'bilanEnergie'=> [
       'kind'=> 'nomenclatures',
       'name'=> "Nomenclature du bilan de l'énergie",
       'theme'=> 'Énergie',
-      'formats'=> ['csv'],
+      'formats'=> ['csv','json'],
     ],
     'cslFilieres'=> [
       'kind'=> 'nomenclatures',
       'name'=> "Nomenclature des filières du Compte satellite du logement (CSL)",
       'theme'=> 'Logement',
-      'formats'=> ['csv'],
+      'formats'=> ['csv','json'],
     ],
     'cslOperations'=> [
       'kind'=> 'nomenclatures',
       'name'=> "Nomenclature des opérations du Compte satellite du logement (CSL)",
       'theme'=> 'Logement',
-      'formats'=> ['csv'],
+      'formats'=> ['csv','json'],
     ],
   ];
   
@@ -86,54 +94,36 @@ class RefNom {
         '@id'=> 'https://www.etalab.gouv.fr/licence-ouverte-open-licence',
         '@type'=> 'dct:LicenseDocument',
       ],
-      'distribution'=> ["https://dido.geoapi.fr/id/$item[kind]/$id/distributions/csv"],
+      'distribution'=> setOfUris("https://dido.geoapi.fr/id/$item[kind]/$id/distributions/", $item['formats']),
     ];
   }
   
   // modèles de ressource dcat:Distribution JSON-LD
   static function distribModels(string $format, string $id, array $item): array {
-    return match($format) {
-      'csv'=> [
-        '@id'=> "https://dido.geoapi.fr/id/$item[kind]/${id}/distributions/csv",
-        '@type'=> 'Distribution',
-        'title'=> "Téléchargement CSV de $item[name]",
-        'description'=> "Téléchargement CSV de $item[name]",
-        'license'=> [
-          '@id'=> 'https://www.etalab.gouv.fr/licence-ouverte-open-licence',
-          '@type'=> 'dct:LicenseDocument',
-        ],
-        'mediaType'=> [
-            '@id'=> 'https://www.iana.org/assignments/media-types/text/csv',
-            '@type'=> 'dct:MediaType',
-        ],
-        'conformsTo'=> [
-          '@id'=> "https://dido.geoapi.fr/id/$item[kind]/$id/distributions/csv/json-schema",
-          '@type'=> 'dct:Standard',
-        ],
-        'accessURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/csv?"
-          .'withColumnName=true&withColumnDescription=true',
-        'downloadURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/csv?"
-          .'withColumnName=true&withColumnDescription=true',
+    return [
+      '@id'=> "https://dido.geoapi.fr/id/$item[kind]/${id}/distributions/$format",
+      '@type'=> 'Distribution',
+      'title'=> "Téléchargement $format de $item[name]",
+      'description'=> "Téléchargement $format de $item[name]",
+      'license'=> [
+        '@id'=> 'https://www.etalab.gouv.fr/licence-ouverte-open-licence',
+        '@type'=> 'dct:LicenseDocument',
       ],
-    };
+      'mediaType'=> [
+          '@id'=> 'https://www.iana.org/assignments/media-types/'
+            .match($format) {'csv'=> 'text/csv', 'json'=> 'application/json'},
+          '@type'=> 'dct:MediaType',
+      ],
+      'conformsTo'=> [
+        '@id'=> "https://dido.geoapi.fr/id/$item[kind]/$id/distributions/csv/json-schema",
+        '@type'=> 'dct:Standard',
+      ],
+      'accessURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/$format"
+        .(($format == 'csv') ? '?withColumnName=true&withColumnDescription=true' : ''),
+      'downloadURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/$format"
+        .(($format == 'csv') ? '?withColumnName=true&withColumnDescription=true' : ''),
+    ];
   }
-  
-  // remplace les chaines définies par le mapping dans la valeur source qui peut être une chaine ou un array
-  /*static public function replace(array $mapping, $source) {
-    if (is_string($source)) {
-      $result = $source;
-      foreach ($mapping as $var => $value) {
-        $result = str_replace($var, $value, $result);
-      }
-    }
-    else {
-      $result = [];
-      foreach ($source as $key => $value) {
-        $result[$key] = self::replace($mapping, $value);
-      }
-    }
-    return $result;
-  }*/
   
   // retourne un référentiel, une nomenclature ou une de leurs distributions à partir de son URI
   static function getByUri(string $uri): ?array {
@@ -144,15 +134,11 @@ class RefNom {
     $kind = $matches[1];
     $id = $matches[2];
     $format = $matches[4] ?? null;
-    switch ($format) {
-      // référentiel ou nomenclature
-      case null : return self::datasetModel($id, self::ITEMS[$id]);
-      // distribution CSV
-      case 'csv': return self::distribModels('csv', $id, self::ITEMS[$id]);
-      default: {
-        echo "No match ligne ",__LINE__,"\n";
-        return null;
-      }
+    if (!$format) { // référentiel ou nomenclature
+      return self::datasetModel($id, self::ITEMS[$id]);
+    }
+    else { // distribution CSV/JSON/...
+      return self::distribModels($format, $id, self::ITEMS[$id]);
     }
   }
 
@@ -170,7 +156,8 @@ class RefNom {
     $graph = [];
     foreach (self::ITEMS as $id => $item) {
       $graph[] = self::datasetModel($id, $item);
-      $graph[] = self::distribModels('csv', $id, $item);
+      foreach ($item['formats'] as $format)
+        $graph[] = self::distribModels($format, $id, $item);
     }
     return $graph;
   }
