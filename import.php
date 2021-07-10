@@ -1,13 +1,13 @@
 <?php
 /*PhpDoc:
 name: import.php
-title: import V2 du catalogue de DiDo et structuration en vue de l'exposition DCAT
+title: import V2 du catalogue de DiDo et structuration en objets DCAT en vue de l'exposition DCAT
 doc: |
   Ce script lit les objets DiDo au travers de son API de consultation, les restructure en DCAT
   et les stocke en base PostGis en vue de leur exposition DCAT.
 
   Le script décompose les objets en éléments DCAT et stocke chaque élément en base Pgsql avec pour chacun:
-   - leur contenu DiDo moissonné comme JSON
+   - leur contenu DiDo moissonné comme JSON uniquement pour les millésimes
    - leur contenu DCAT comme JSON-LD
    - l'URI de l'objet permettant de le retrouver par son URI
    - l'URI du dcat:Dataset auquel l'objet est associé
@@ -68,28 +68,19 @@ $rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine
   PgSql::query("create table didodcat(
     uri varchar(256) not null primary key, -- l'URI de l'élément DCAT 
     dsuri varchar(256) not null, -- l'URI du dataset auquel l'élément est rattaché
-    dido jsonb not null, -- le contenu de l'élément DiDo structuré en JSON
-    dcat jsonb not null  -- le contenu de l'élément traduit en DCAT et structuré en JSON-LD
+    dcat jsonb not null,  -- le contenu de l'élément traduit en DCAT et structuré en JSON-LD
+    dido jsonb -- le contenu de l'élément DiDo structuré en JSON, uniquement pour le millésime
   )");
   PgSql::query("comment on table didodcat is 'Un n-uplet par element moissonné dans DiDo'");
   PgSql::query("create index didodcat_dsuri on didodcat(dsuri)");
 }
 
-function cleanObject(array $array): array {
-  $result = [];
-  foreach ($array as $key => $value)
-    if (!is_null($value))
-      $result[$key] = $value;
-  return $result;
-}
-
-// stockage d'un enregistrement dans PgSql, si $ifDoesntExist est vrai alors pas d'erreur
-function storePg(array $dido, array $dcat, string $dsUri, bool $ifDoesntExist=false) {
-  $dcat = cleanObject($dcat);
+// stocke un enregistrement dans PgSql, si $ifDoesntExist est vrai alors n'affiche pas d'erreur
+function storePg(array $dcat, string $dsUri, array $dido=[], bool $ifDoesntExist=false) {
   try {
-    $didoJson = str_replace("'","''", json_encode($dido, JSON_OPTIONS));
-    $dcatJson = str_replace("'","''", json_encode($dcat, JSON_OPTIONS));
-    $sql = "insert into didodcat(uri, dsuri, dido, dcat) values ('".$dcat['@id']."', '$dsUri', '$didoJson', '$dcatJson')";
+    $didoJson = $dido ? "'".str_replace("'","''", json_encode($dido, JSON_OPTIONS))."'" : 'null';
+    $dcatJson = "'".str_replace("'","''", json_encode($dcat, JSON_OPTIONS))."'";
+    $sql = "insert into didodcat(uri, dsuri, dcat, dido) values ('".$dcat['@id']."', '$dsUri', $dcatJson, $didoJson)";
     //echo "<pre>$sql</pre>\n";
     PgSql::query($sql);
   }
@@ -99,7 +90,17 @@ function storePg(array $dido, array $dcat, string $dsUri, bool $ifDoesntExist=fa
   }
 }
 
-// applique un mapping à une valeur
+// supprime les champs de l'objet ayant null comme valeur
+function deleteNullValueFromObject(array $object): array {
+  $result = [];
+  foreach ($object as $key => $value)
+    if (!is_null($value))
+      $result[$key] = $value;
+  return $result;
+}
+
+// j'appelle mapping un tableau de correspondance qui associe une valeur à une chaine, le tableau est stocké comme array Php
+// applique un mapping à une valeur en levant une exception en cas d'absence de mapping
 function mapsAVal(array $mapping, string $val) {
   if (isset($mapping[$val]))
     return $mapping[$val];
@@ -107,7 +108,7 @@ function mapsAVal(array $mapping, string $val) {
     throw new Exception("Erreur de mapping sur $val");
 }
 
-// construit un ensemble de mappings
+// applique un mapping à chacune des valeurs d'un ensemble pour construire un nnouvel ensemble en levant évt. une exception
 function mapsASet(array $mapping, array $setOfVals): array {
   $result = [];
   foreach ($setOfVals as $elt) {
@@ -119,7 +120,7 @@ function mapsASet(array $mapping, array $setOfVals): array {
   return $result;
 }
 
-// construit un ensemble d'Uris par concaténation d'un prefix et de chaque valeur de l'ensemble
+// construit un ensemble d'Uris par concaténation du préfixe $uriPrefix avec chaque valeur de l'ensemble $setOfIds
 function setOfUris(string $uriPrefix, array $setOfIds): array {
   $set = [];
   foreach ($setOfIds as $id)
@@ -127,10 +128,10 @@ function setOfUris(string $uriPrefix, array $setOfIds): array {
   return $set;
 }
 
-// prend un array d'objets JSON et le nom d'un champ et renvoie un array des valeurs du champ construit à partir de chaque objet 
-function project(array $objects, string $field): array {
+// construit l'ensemble des valeurs du champ $field de chaque objet de $setOfObjects
+function project(string $field, array $setOfObjects): array {
   $result = [];
-  foreach ($objects as $object) {
+  foreach ($setOfObjects as $object) {
     $result[] = $object[$field];
   }
   return $result;
@@ -152,9 +153,9 @@ function buildDcatForPublisher(array $org): array {
 function buildDcatForJD(array $jd): array {
   // enregistre l'organization en effet de bord ssi elle n'est pas déjà définie
   storePg(
-    $jd['organization'],
     buildDcatForPublisher($jd['organization']),
     "https://dido.geoapi.fr/id/datasets/$jd[id]",
+    [],
     true
   );
 
@@ -181,15 +182,15 @@ function buildDcatForJD(array $jd): array {
       'endDate'=> $jd['temporal_coverage']['end'],
     ],
     'caution'=> $jd['caution'] ?? null,
-    'page'=> project($jd['attachments'], 'url'),
+    'page'=> project('url', $jd['attachments']),
     'created'=> $jd['created_at'],
     'modified'=> $jd['last_modified'],
-    'hasPart'=> setOfUris('https://dido.geoapi.fr/id/datafiles/', project($jd['datafiles'], 'rid')),
+    'hasPart'=> setOfUris('https://dido.geoapi.fr/id/datafiles/', project('rid', $jd['datafiles'])),
     //'dido'=> $jd,
   ];
 }
 
-// fabrique l'élément DCAT correspondant à un fichier attaché
+// fabrique le Document DublinCore correspondant à un fichier attaché
 function buildDcatForAttachment(array $attach, array $dataset): array {
   return [
     '@id'=> $attach['url'],
@@ -204,7 +205,7 @@ function buildDcatForAttachment(array $attach, array $dataset): array {
 
 // fabrique le Dataset DCAT correspondant à un fichier de données
 function buildDcatForDataFile(array $datafile, array $dataset) : array {
-  return [
+  return deleteNullValueFromObject([
     '@id'=> "https://dido.geoapi.fr/id/datafiles/$datafile[rid]",
     '@type'=> 'Dataset',
     'isPartOf'=> "https://dido.geoapi.fr/id/datasets/$dataset[id]",
@@ -224,11 +225,11 @@ function buildDcatForDataFile(array $datafile, array $dataset) : array {
     ],
     'distribution'=> setOfUris(
       "https://dido.geoapi.fr/id/datafiles/$datafile[rid]/millesimes/",
-      project($datafile['millesimes'], 'millesime')
+      project('millesime', $datafile['millesimes'])
     ),
     'created'=> $datafile['created_at'],
     'modified'=> $datafile['last_modified'],
-  ];
+  ]);
 }
 
 // fabrique l'élément DCAT correspondant à un millésime
@@ -278,17 +279,17 @@ while ($url) { // tant qu'il reste au moins une page à aller chercher
     }
     
     $jdUri = "https://dido.geoapi.fr/id/datasets/$jd[id]";
-    storePg($jd, buildDcatForJD($jd), $jdUri);
+    storePg(buildDcatForJD($jd), $jdUri);
     
     foreach ($jd['attachments'] as $attach) {
-      storePg($attach, buildDcatForAttachment($attach, $jd), $jdUri);
+      storePg(buildDcatForAttachment($attach, $jd), $jdUri);
     }
     foreach ($jd['datafiles'] as $datafile) {
       $dfUri = "https://dido.geoapi.fr/id/datafiles/$datafile[rid]";
-      storePg($datafile, buildDcatForDataFile($datafile, $jd), $dfUri);
+      storePg(buildDcatForDataFile($datafile, $jd), $dfUri);
       
       foreach ($datafile['millesimes'] as $millesime) {
-        storePg($millesime, buildDcatForMillesime($millesime, $datafile, $jd, $rootUrl), $dfUri);
+        storePg(buildDcatForMillesime($millesime, $datafile, $jd, $rootUrl), $dfUri, $millesime);
       }
     }
   }
