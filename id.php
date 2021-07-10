@@ -81,7 +81,7 @@ if ($param == 'catalog') {
       $datasetUris[] = $resource['@id'];
     }
   }
-  $result = catalog($datasetUris);
+  $result = catalog(array_merge(RefNom::dsUris(), $datasetUris));
 }
 
 // Un theme ou les themes

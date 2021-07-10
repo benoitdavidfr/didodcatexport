@@ -158,10 +158,14 @@ class RefNom {
 
   // retourne le schema JSON, utilise le fichier swagger
   static function jsonSchema(string $uri): ?array {
-    if (!preg_match('!^https://dido.geoapi.fr/id/referentiels/([^/]+)/distributions/csv/json-schema$!', $uri, $matches)) {
+    if (!preg_match(
+        '!^https://dido.geoapi.fr/id/(referentiels|nomenclatures)/([^/]+)/distributions/csv/json-schema$!',
+        $uri,
+        $matches
+      )) {
       return null;
     }
-    $id = $matches[1];
+    $id = $matches[2];
     $swagger = file_get_contents(__DIR__.'/import/swagger.json');
     $swagger = json_decode($swagger, true);
     $schema = $swagger['components']['schemas']["item_$id"];
