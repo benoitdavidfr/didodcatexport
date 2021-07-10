@@ -90,34 +90,32 @@ class RefNom {
     ];
   }
   
-  // tableau par format des modèles de ressource dcat:Distribution JSON-LD paramétré par ${kind}, ${id} et ${name}
+  // modèles de ressource dcat:Distribution JSON-LD
   static function distribModels(string $format, string $id, array $item): array {
-    switch($format) {
-      case 'csv': {
-        return [
-          '@id'=> "https://dido.geoapi.fr/id/$item[kind]/${id}/distributions/csv",
-          '@type'=> 'Distribution',
-          'title'=> 'Téléchargement CSV de $item[name]',
-          'description'=> 'Téléchargement CSV de $item[name]',
-          'license'=> [
-            '@id'=> 'https://www.etalab.gouv.fr/licence-ouverte-open-licence',
-            '@type'=> 'dct:LicenseDocument',
-          ],
-          'mediaType'=> [
-              '@id'=> 'https://www.iana.org/assignments/media-types/text/csv',
-              '@type'=> 'dct:MediaType',
-          ],
-          'conformsTo'=> [
-            '@id'=> "https://dido.geoapi.fr/id/$item[kind]/$id/distributions/csv/json-schema",
-            '@type'=> 'dct:Standard',
-          ],
-          'accessURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/csv?"
-            .'withColumnName=true&withColumnDescription=true',
-          'downloadURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/csv?"
-            .'withColumnName=true&withColumnDescription=true',
-        ];
-      }
-    }
+    return match($format) {
+      'csv'=> [
+        '@id'=> "https://dido.geoapi.fr/id/$item[kind]/${id}/distributions/csv",
+        '@type'=> 'Distribution',
+        'title'=> "Téléchargement CSV de $item[name]",
+        'description'=> "Téléchargement CSV de $item[name]",
+        'license'=> [
+          '@id'=> 'https://www.etalab.gouv.fr/licence-ouverte-open-licence',
+          '@type'=> 'dct:LicenseDocument',
+        ],
+        'mediaType'=> [
+            '@id'=> 'https://www.iana.org/assignments/media-types/text/csv',
+            '@type'=> 'dct:MediaType',
+        ],
+        'conformsTo'=> [
+          '@id'=> "https://dido.geoapi.fr/id/$item[kind]/$id/distributions/csv/json-schema",
+          '@type'=> 'dct:Standard',
+        ],
+        'accessURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/csv?"
+          .'withColumnName=true&withColumnDescription=true',
+        'downloadURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/csv?"
+          .'withColumnName=true&withColumnDescription=true',
+      ],
+    };
   }
   
   // remplace les chaines définies par le mapping dans la valeur source qui peut être une chaine ou un array
