@@ -51,7 +51,7 @@ $pattern = '!^(/geoapi/dido/id.php/|/id/)'
     .'|(datasets|datafiles|organizations)/[^/]+'
     .'|datafiles/[^/]+/millesimes/[^/]+(/json-schema)?'
     .'|themes(/[^/]+)?'
-    .'|(referentiels|nomenclatures)/[^/]+(/distributions/[^/]+(/json-schema)?)?'
+    .'|(referentiels|nomenclatures)/[^/]+(/formats/[^/]+|/json-schema|)'
     .')$!';
 if (!preg_match($pattern, $_SERVER['REQUEST_URI'], $matches)) {
   error("No match for '$_SERVER[REQUEST_URI]'\n");
@@ -99,9 +99,9 @@ elseif (preg_match('!^themes(/([^/]+))?$!', $param, $matches)) {
 }
 
 // Un référentiel, une nomenclaure ou leurs distributions ou leurs schema JSON
-elseif (preg_match('!^(referentiels|nomenclatures)/[^/]+(/distributions/[^/]+(/json-schema)?)?$!', $param, $matches)) {
+elseif (preg_match('!^(referentiels|nomenclatures)/[^/]+(/formats/[^/]+|/json-schema|)$!', $param, $matches)) {
   //print_r($matches);
-  if (isset($matches[3])) { // schema JSON
+  if ($matches[2]=='/json-schema') { // schema JSON
     if (!($result = RefNom::jsonSchema($uri))) {
       error("Erreur, URI $uri absente\n");
     }

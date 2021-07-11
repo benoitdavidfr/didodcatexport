@@ -103,7 +103,7 @@ class RefNom {
         '@id'=> 'https://www.etalab.gouv.fr/licence-ouverte-open-licence',
         '@type'=> 'dct:LicenseDocument',
       ],
-      'distribution'=> setOfUris("https://dido.geoapi.fr/id/$item[kind]/$id/distributions/", $item['formats']),
+      'distribution'=> setOfUris("https://dido.geoapi.fr/id/$item[kind]/$id/formats/", $item['formats']),
     ];
   }
   
@@ -124,7 +124,7 @@ class RefNom {
       'geojson-AREA'=> "Téléchargement de $item[name] en GéoJSON avec jointure sur AREA",
     ];
     return [
-      '@id'=> "https://dido.geoapi.fr/id/$item[kind]/${id}/distributions/$format",
+      '@id'=> "https://dido.geoapi.fr/id/$item[kind]/${id}/formats/$format",
       '@type'=> 'Distribution',
       'title'=> $titles[$format],
       'description'=> $titles[$format],
@@ -137,7 +137,7 @@ class RefNom {
           '@type'=> 'dct:MediaType',
       ],
       'conformsTo'=> [
-        '@id'=> "https://dido.geoapi.fr/id/$item[kind]/$id/distributions/csv/json-schema",
+        '@id'=> "https://dido.geoapi.fr/id/$item[kind]/$id/json-schema",
         '@type'=> 'dct:Standard',
       ],
       'accessURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/".$dlUrlOptions[$format],
@@ -147,7 +147,7 @@ class RefNom {
   
   // retourne un référentiel, une nomenclature ou une de leurs distributions à partir de son URI
   static function getByUri(string $uri): ?array {
-    if (!preg_match('!^https://dido.geoapi.fr/id/(referentiels|nomenclatures)/([^/]+)(/distributions/([^/]+))?$!', $uri, $matches)) {
+    if (!preg_match('!^https://dido.geoapi.fr/id/(referentiels|nomenclatures)/([^/]+)(/formats/([^/]+))?$!', $uri, $matches)) {
       echo "No match ligne ",__LINE__,"\n";
       return null;
     }
@@ -185,7 +185,7 @@ class RefNom {
   // retourne le schema JSON, utilise le fichier swagger
   static function jsonSchema(string $uri): ?array {
     if (!preg_match(
-        '!^https://dido.geoapi.fr/id/(referentiels|nomenclatures)/([^/]+)/distributions/csv/json-schema$!',
+        '!^https://dido.geoapi.fr/id/(referentiels|nomenclatures)/([^/]+)/json-schema$!',
         $uri,
         $matches
       )) {
