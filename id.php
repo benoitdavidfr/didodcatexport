@@ -38,6 +38,7 @@ require __DIR__.'/catalog.inc.php';
 require __DIR__.'/themesdido.inc.php';
 require __DIR__.'/jsonschema.inc.php';
 require __DIR__.'/refnoms.inc.php';
+require __DIR__.'/pagination.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
 function error(string $message) {
@@ -53,8 +54,8 @@ $pattern = '!^(/geoapi/dido/id.php/|/id/)'
     .'|themes(/[^/]+)?'
     .'|(referentiels|nomenclatures)/[^/]+(/formats/[^/]+|/json-schema|)'
     .')$!';
-if (!preg_match($pattern, $_SERVER['REQUEST_URI'], $matches)) {
-  error("No match for '$_SERVER[REQUEST_URI]'\n");
+if (!preg_match($pattern, $_SERVER['PHP_SELF'], $matches)) {
+  error("No match for '$_SERVER[PHP_SELF]'\n");
 }
 
 //echo "<h2>id.php</h2><pre>\n";
@@ -71,17 +72,21 @@ else // sur le serveur dido.geoapi.fr
   PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public');
 
 if ($param == 'catalog') {
+  $pagination = new Pagination;
+  
   $datasetUris = []; // Liste des URI des Dataset DCAT
-  foreach (PgSql::query("select dcat from didodcat") as $tuple) {
-    //echo "$tuple[dcat]\n";
-    $resource = json_decode($tuple['dcat'], true);
-    if (isset($resource['@type'])
-        && ((is_string($resource['@type']) && ($resource['@type']=='Dataset'))
-             || (is_array($resource['@type']) && in_array('Dataset', $resource['@type'])))) {
-      $datasetUris[] = $resource['@id'];
+  if ($pagination->sql) {
+    foreach (PgSql::query($pagination->sql) as $tuple) {
+      //echo "$tuple[dcat]\n";
+      $resource = json_decode($tuple['dcat'], true);
+      if (isset($resource['@type'])
+          && ((is_string($resource['@type']) && ($resource['@type']=='Dataset'))
+               || (is_array($resource['@type']) && in_array('Dataset', $resource['@type'])))) {
+        $datasetUris[] = $resource['@id'];
+      }
     }
   }
-  $result = catalog(array_merge(RefNom::dsUris(), $datasetUris));
+  $result = catalog(array_merge($pagination->refNomDsUrisSel, $datasetUris), $pagination);
 }
 
 // Un theme ou les themes

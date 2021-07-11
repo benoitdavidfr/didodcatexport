@@ -11,10 +11,10 @@ journal: |
     - création
 */
 // retourne l'objet Catalog comme objet JSON-LD
-function catalog(array $datasetUris, int|string $page_size='all', int $page=0, int $totalItems=0): array {
+function catalog(array $datasetUris, Pagination $pag): array {
   $catalog = [
     '@id'=> 'https://dido.geoapi.fr/id/catalog',
-    '@type'=> ($page_size == 'all') ? 'Catalog' : ['Catalog', 'hydra:Collection'],
+    '@type'=> ($pag->page_size == 'all') ? 'Catalog' : ['Catalog', 'hydra:Collection'],
     'title'=> "Catalogue DiDo",
     'description'=> "Test d'export en DCAT-AP du catalogue DiDo provenant du site école",
     'dataset'=> $datasetUris,
@@ -46,20 +46,20 @@ function catalog(array $datasetUris, int|string $page_size='all', int $page=0, i
       'https://dido.geoapi.fr/id/themes',
     ],
   ];
-  if ($page_size <> 'all') {
-    $catalog['totalItems'] = $totalItems; // nbre total de Datasets
+  if ($pag->page_size <> 'all') {
+    $catalog['totalItems'] = $pag->totalItems; // nbre total de Datasets
     $selfUrl = (($_SERVER['SERVER_NAME']=='localhost') ? 'http://' : 'https://').$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
     $catalog['view'] = [
-      '@id'=> "$selfUrl?page=$page&page_size=$page_size",
+      '@id'=> "$selfUrl?page=$pag->page&page_size=$pag->page_size",
       '@type'=> 'hydra:PartialCollectionView',
-      'first'=> "$selfUrl?page=1&page_size=$page_size",
+      'first'=> "$selfUrl?page=1&page_size=$pag->page_size",
     ];
-    if ($page > 1)
-      $catalog['view']['previous'] = "$selfUrl?page=".($page-1)."&page_size=$page_size";
-    $lastPage = floor($totalItems / $page_size) + 1;
-    if ($page < $lastPage)
-      $catalog['view']['next'] = "$selfUrl?page=".($page+1)."&page_size=$page_size";
-    $catalog['view']['last'] = "$selfUrl?page=$lastPage&page_size=$page_size";
+    if ($pag->page > 1)
+      $catalog['view']['previous'] = "$selfUrl?page=".($pag->page-1)."&page_size=$pag->page_size";
+    $lastPage = floor($pag->totalItems / $pag->page_size) + 1;
+    if ($pag->page < $lastPage)
+      $catalog['view']['next'] = "$selfUrl?page=".($pag->page+1)."&page_size=$pag->page_size";
+    $catalog['view']['last'] = "$selfUrl?page=$lastPage&page_size=$pag->page_size";
   }
   return $catalog;
 }

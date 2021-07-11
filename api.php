@@ -50,8 +50,6 @@ elseif (!in_array($_SERVER['PHP_SELF'], ['/geoapi/dido/api.php/v1/dcatexport.jso
 }
 
 // dcatexport.jsonld
-$page = $_GET['page'] ?? 1;
-$page_size = $_GET['page_size'] ?? 10;
 
 // ouverture de la base PgSql en fonction du serveur
 if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
@@ -60,17 +58,14 @@ else // sur le serveur dido.geoapi.fr
   PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public');
 
 
-$paramsPagination = paramsPagination($page, $page_size);
-$sql = $paramsPagination['sql'];
-$refNomDsUrisSel = $paramsPagination['refNomDsUrisSel'];
-$totalItems = $paramsPagination['totalItems'];
+$pagination = new Pagination();
 
 $graph = [];
 
 // Lecture des ressources stockées en base et fabrication de la liste des URI des datasets DCAT
 $datasetUris = [];
-if ($sql) {
-  foreach (PgSql::query($sql) as $tuple) {
+if ($pagination->sql) {
+  foreach (PgSql::query($pagination->sql) as $tuple) {
     //echo "$tuple[dcat]\n";
     $resource = json_decode($tuple['dcat'], true);
     $graph[] = $resource;
@@ -82,20 +77,20 @@ if ($sql) {
   }
 }
 
-if ($page == 1) {
+if ($pagination->page == 1) {
   $graph = array_merge(
     ThemeDido::jsonld(), // Les thèmes DiDo et du Scheme
     GeoZone::jsonld(), // Les GéoZones
     Frequency::jsonld(), // Les valeurs de fréquence
-    [catalog(array_merge($refNomDsUrisSel, $datasetUris), $page_size, $page, $totalItems)],
-    RefNom::jsonld($refNomDsUrisSel), // Les référentiels et nomenclatures
+    [catalog(array_merge($pagination->refNomDsUrisSel, $datasetUris), $pagination)],
+    RefNom::jsonld($pagination->refNomDsUrisSel), // Les référentiels et nomenclatures
     $graph // Les ressources DCAT stockées en base
   );
 }
 else {
   $graph = array_merge(
-    [catalog(array_merge($refNomDsUrisSel, $datasetUris), $page_size, $page, $totalItems)],
-    RefNom::jsonld($refNomDsUrisSel), // Les référentiels et nomenclatures
+    [catalog(array_merge($pagination->refNomDsUrisSel, $datasetUris), $pagination)],
+    RefNom::jsonld($pagination->refNomDsUrisSel), // Les référentiels et nomenclatures
     $graph // Les ressources DCAT stockées en base
   );
 }
