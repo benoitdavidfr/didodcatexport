@@ -67,20 +67,27 @@ $rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine
   PgSql::query("drop table if exists didodcat");
   PgSql::query("create table didodcat(
     uri varchar(256) not null primary key, -- l'URI de l'élément DCAT 
-    dsuri varchar(256) not null, -- l'URI du dataset auquel l'élément est rattaché
+    dsnum int not null, -- le numero du dataset auquel l'élément est rattaché, à partir de 0
     dcat jsonb not null,  -- le contenu de l'élément traduit en DCAT et structuré en JSON-LD
     dido jsonb -- uniquement pour les millésimes le contenu de l'élément DiDo structuré en JSON, sinon null
   )");
   PgSql::query("comment on table didodcat is 'Un n-uplet par element moissonné dans DiDo'");
-  PgSql::query("create index didodcat_dsuri on didodcat(dsuri)");
+  PgSql::query("create index didodcat_dsnum on didodcat(dsnum)");
 }
 
 // stocke un enregistrement dans PgSql, si $ifDoesntExist est vrai alors n'affiche pas d'erreur
 function storePg(array $dcat, string $dsUri, array $dido=[], bool $ifDoesntExist=false) {
+  // enregistrement des URI des Datasets pour définir un numéro de dataset utilisé dans la pagination
+  static $dsUris = []; // [$dsUri => no]
+  
+  if (!isset($dsUris[$dsUri]))
+    $dsUris[$dsUri] = count($dsUris);
+  $dsNum = $dsUris[$dsUri];
+    
   try {
     $didoJson = $dido ? "'".str_replace("'","''", json_encode($dido, JSON_OPTIONS))."'" : 'null';
     $dcatJson = "'".str_replace("'","''", json_encode($dcat, JSON_OPTIONS))."'";
-    $sql = "insert into didodcat(uri, dsuri, dcat, dido) values ('".$dcat['@id']."', '$dsUri', $dcatJson, $didoJson)";
+    $sql = "insert into didodcat(uri, dsnum, dcat, dido) values ('".$dcat['@id']."', $dsNum, $dcatJson, $didoJson)";
     //echo "<pre>$sql</pre>\n";
     PgSql::query($sql);
   }
@@ -99,7 +106,7 @@ function deleteNullValueFromObject(array $object): array {
   return $result;
 }
 
-// j'appelle mapping un tableau de correspondance qui associe une valeur à une chaine, le tableau est stocké comme array Php
+// Un mapping un tableau de correspondance qui associe une valeur à une chaine, le tableau est stocké comme array Php
 // applique un mapping à une valeur en levant une exception en cas d'absence de mapping
 function mapsAVal(array $mapping, string $val) {
   if (isset($mapping[$val]))
@@ -108,7 +115,7 @@ function mapsAVal(array $mapping, string $val) {
     throw new Exception("Erreur de mapping sur $val");
 }
 
-// applique un mapping à chacune des valeurs d'un ensemble pour construire un nnouvel ensemble en levant évt. une exception
+// applique un mapping à chacune des valeurs d'un ensemble pour construire un nouvel ensemble en levant évt. une exception
 function mapsASet(array $mapping, array $setOfVals): array {
   $result = [];
   foreach ($setOfVals as $elt) {

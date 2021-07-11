@@ -87,7 +87,7 @@ class RefNom {
   ];
   
   // modèle de ressource dcat:Dataset JSON-LD paramétré par $id et $item
-  static function datasetModel(string $id, array $item): array {
+  static private function datasetModel(string $id, array $item): array {
     return [
       '@id'=> "https://dido.geoapi.fr/id/$item[kind]/$id",
       '@type'=> 'Dataset',
@@ -108,7 +108,7 @@ class RefNom {
   }
   
   // modèles de ressource dcat:Distribution JSON-LD
-  static function distribModels(string $format, string $id, array $item): array {
+  static private function distribModels(string $format, string $id, array $item): array {
     // fin et options pour l'URL de téléchargement en fonction du format
     $dlUrlOptions = [
       'csv'=> 'csv?withColumnName=true&withColumnDescription=false',
@@ -171,11 +171,14 @@ class RefNom {
     return $uris;
   }
 
-  // retourne les référentiels, nomenclatures et leurs distributions comme JSON-LD
-  static function jsonld(): array {
+  // retourne les référentiels, nomenclatures et leurs distributions comme JSON-LD en sél. les DS dans $uris
+  static function jsonld(array $uris): array {
     $graph = [];
     foreach (self::ITEMS as $id => $item) {
-      $graph[] = self::datasetModel($id, $item);
+      $dataset = self::datasetModel($id, $item);
+      if (!in_array($dataset['@id'], $uris))
+        continue;
+      $graph[] = $dataset;
       foreach ($item['formats'] as $format)
         $graph[] = self::distribModels($format, $id, $item);
     }

@@ -11,12 +11,12 @@ journal: |
     - création
 */
 // retourne l'objet Catalog comme objet JSON-LD
-function catalog(array $datasetUris) {
-  return [
+function catalog(array $datasetUris, int $page, int|string $page_size, int $totalItems): array {
+  $catalog = [
     '@id'=> 'https://dido.geoapi.fr/id/catalog',
-    '@type'=> 'Catalog',
+    '@type'=> ($page_size == 'all') ? 'Catalog' : ['Catalog', 'hydra:Collection'],
     'title'=> "Catalogue DiDo",
-    'description'=> "Test d'export en DCAT-AP du catalogue DiDo provenant du site école ; l'export est formatté en JSON-LD",
+    'description'=> "Test d'export en DCAT-AP du catalogue DiDo provenant du site école",
     'dataset'=> $datasetUris,
     'homepage'=> [
       '@id'=> 'https://github.com/benoitdavidfr/didodcatexport', // indiquer ici la page d'accueil du catalogue
@@ -46,4 +46,20 @@ function catalog(array $datasetUris) {
       'https://dido.geoapi.fr/id/themes',
     ],
   ];
+  if ($page_size <> 'all') {
+    $catalog['totalItems'] = $totalItems; // nbre total de Datasets
+    $selfUrl = (($_SERVER['SERVER_NAME']=='localhost') ? 'http://' : 'https://').$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
+    $catalog['view'] = [
+      '@id'=> "$selfUrl?page=$page&page_size=$page_size",
+      '@type'=> 'hydra:PartialCollectionView',
+      'first'=> "$selfUrl?page=1&page_size=$page_size",
+    ];
+    if ($page > 1)
+      $catalog['view']['previous'] = "$selfUrl?page=".($page-1)."&page_size=$page_size";
+    $lastPage = floor($totalItems / $page_size) + 1;
+    if ($page < $lastPage)
+      $catalog['view']['next'] = "$selfUrl?page=".($page+1)."&page_size=$page_size";
+    $catalog['view']['last'] = "$selfUrl?page=$lastPage&page_size=$page_size";
+  }
+  return $catalog;
 }
