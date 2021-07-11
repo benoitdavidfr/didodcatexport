@@ -15,13 +15,14 @@ Les principes suivants ont été retenus pour l'exposition DCAT:
   - La ressource JSON-LD correspondant au catalogue (dcat:Catalog) peut contenir de nombreux jeux de données
     et son export est donc paginée selon les principes d'une [Collection Hydra](https://www.hydra-cg.com/spec/latest/core/)
     identiques à ceux utilisés dans l'export DCAT de https://data.gouv.fr/ à l'URL https://www.data.gouv.fr/catalog.jsonld.
-  - Le paramètre page_size de la requête d'exposition correspond au nbre de dcat:Dataset par sous-objet dcat:Catalog
+  - Le paramètre page_size de la requête d'exposition du catalogue correspond au nbre de dcat:Dataset par sous-objet dcat:Catalog
   - La page contenant un sous-objet dcat:Catalog contient aussi tous les Dataset et autres objets liés qui n'ont pas 
     été fournis dans les pages précédentes.
-  - Les URL de téléchargement des milésimes exposés dans l'export sont ceux fournis par DiDo pour le format CSV.
-  - A chaque millésime sont associés un fichier CSV et un schéma JSON, ce dernier fournit les champs du fichier CSV.
+  - Les URL de téléchargement associés aux millésimes exposés dans l'export sont ceux fournis par DiDo pour le format CSV.
+  - Outre le fichier CSV, à chaque millésime est associé un schéma JSON qui fournit la liste des champs du fichier CSV.
   - Pour chaque référentiel et chaque nomenclature, un dcat:Dataset est défini ainsi que des dcat:Distribution
-    correspondant à un ou plusieurs formats de téléchargement (CSV, JSON, géoJSON).
+    correspondant à un ou plusieurs formats de téléchargement (CSV, JSON, GéoJSON) ;
+    un schéma JSOn est aussi associé à chaque distribution.
   - Les données exposées par le prototype sont celles exposées sur le site école indiqué ci-dessus ;
     en amont de l'export DCAT un téléchargement des méta-données DiDo est effectué à partir de ce site.
 
