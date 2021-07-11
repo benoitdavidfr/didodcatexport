@@ -43,7 +43,7 @@ doc: |
 journal: |
   11/7/2021:
     - ajout autres distributions des référentiels et nomenclatures
-    - mise en oeuvre de la pagination de l'export du catalogue
+    - mise en oeuvre de la pagination de l'export du catalogue et du catalogue
   9-10/7/2021:
     - ajout des référentiels et nomenclatures comme jeux de données avec leur distribution CSV
   8/7/2021:
