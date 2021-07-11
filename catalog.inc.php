@@ -11,7 +11,7 @@ journal: |
     - création
 */
 // retourne l'objet Catalog comme objet JSON-LD
-function catalog(array $datasetUris, int $page, int|string $page_size, int $totalItems): array {
+function catalog(array $datasetUris, int|string $page_size='all', int $page=0, int $totalItems=0): array {
   $catalog = [
     '@id'=> 'https://dido.geoapi.fr/id/catalog',
     '@type'=> ($page_size == 'all') ? 'Catalog' : ['Catalog', 'hydra:Collection'],

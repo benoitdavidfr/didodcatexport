@@ -5,12 +5,6 @@ title: script d'appel de l'export DCAT et de son contexte
 doc: |
   Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/xxx
   ou de http://localhost/geoapi/dido/api.php/v1/xxx
-
-  Principes de la pagination:
-    - le num de page commence à 1, c'est le numéro par défaut
-    - la taille des pages par défaut est 10 ; si elle vaut 'all' alors pas de pagination
-    - les définitions des vocabulaires sont dans la page 1
-    - les datasets (JD/DFiles/Ref/Nom) sont répartis dans les pages
 journal: |
   9-10/7/2021:
     - ajout référentiels et nomenclatures
@@ -31,6 +25,7 @@ includes:
   - frequency.inc.php
   - catalog.inc.php
   - refnoms.inc.php
+  - pagination.inc.php
   - ../../phplib/pgsql.inc.php
 */
 require __DIR__.'/themesdido.inc.php';
@@ -38,6 +33,7 @@ require __DIR__.'/geozones.inc.php';
 require __DIR__.'/frequency.inc.php';
 require __DIR__.'/catalog.inc.php';
 require __DIR__.'/refnoms.inc.php';
+require __DIR__.'/pagination.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
 // génération du contexte - dcatcontext.jsonld
@@ -63,47 +59,11 @@ if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
 else // sur le serveur dido.geoapi.fr
   PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public');
 
-// calcul des numéros de ds à récupérer dans PgSql, définition de la requête SQL dans la variable $sql
-$refNomDsUris = RefNom::dsUris(); // Les URIS des datasets réf. et nomenclature
-// calcul du bre de dcat:Dataset dans la base
-$sql = "select count(*) nbre from didodcat
-        where uri like 'https://dido.geoapi.fr/id/datasets/%' 
-           or (uri like 'https://dido.geoapi.fr/id/datafiles/%' and dido is null)";
-$nbrDsData = PgSql::getTuples($sql)[0]['nbre'] + 0;
-//echo "nbrDsData=$nbrDsData\n";
-$totalItems = count($refNomDsUris) + $nbrDsData;
-if ($page_size == 'all') { // pas de pagination
-  $page = 1;
-  $sql = "select dcat from didodcat"; // Tout à sélectionner
-  $refNomDsUrisSel = $refNomDsUris;
-}
-else {
-  $refNomDsUrisSel = [];
-  if ($page * $page_size <= count($refNomDsUris)) { // alors la page est composée uniquement de refnoms
-    // recopie d'une portion des refNomDsUris
-    //echo "sélection des RefNoms ",($page-1)*$page_size," inclus à ",$page*$page_size," exclus<br>\n";
-    for($no = ($page-1)*$page_size; $no < $page*$page_size; $no++) {
-      $refNomDsUrisSel[] = $refNomDsUris[$no];
-    }
-    $sql = ''; // aucun DS de la base
-  }
-  elseif (($page-1) * $page_size < count($refNomDsUris)) {
-    //echo "sélection des RefNoms ",($page-1)*$page_size," inclus à ",count($refNomDsUris)," exclus<br>\n";
-    for($no = ($page-1)*$page_size; $no < count($refNomDsUris); $no++) {
-      $refNomDsUrisSel[] = $refNomDsUris[$no];
-    }
-    $dsmin = 0;
-    $dsmax = $page*$page_size - count($refNomDsUris);
-    $sql = "select dcat from didodcat where dsnum >= $dsmin and dsnum < $dsmax";
-  }
-  else {
-    $dsmin = ($page-1)*$page_size - count($refNomDsUris);
-    $dsmax = $page*$page_size - count($refNomDsUris);
-    $sql = "select dcat from didodcat where dsnum >= $dsmin and dsnum < $dsmax";
-  }
-}
-//echo "<pre>"; die("sql='$sql'\n");
-//echo "<pre>"; print_r($_SERVER); die();
+
+$paramsPagination = paramsPagination($page, $page_size);
+$sql = $paramsPagination['sql'];
+$refNomDsUrisSel = $paramsPagination['refNomDsUrisSel'];
+$totalItems = $paramsPagination['totalItems'];
 
 $graph = [];
 
@@ -127,14 +87,14 @@ if ($page == 1) {
     ThemeDido::jsonld(), // Les thèmes DiDo et du Scheme
     GeoZone::jsonld(), // Les GéoZones
     Frequency::jsonld(), // Les valeurs de fréquence
-    [catalog(array_merge($refNomDsUrisSel, $datasetUris), $page, $page_size, $totalItems)],
+    [catalog(array_merge($refNomDsUrisSel, $datasetUris), $page_size, $page, $totalItems)],
     RefNom::jsonld($refNomDsUrisSel), // Les référentiels et nomenclatures
     $graph // Les ressources DCAT stockées en base
   );
 }
 else {
   $graph = array_merge(
-    [catalog(array_merge($refNomDsUrisSel, $datasetUris), $page, $page_size, $totalItems)],
+    [catalog(array_merge($refNomDsUrisSel, $datasetUris), $page_size, $page, $totalItems)],
     RefNom::jsonld($refNomDsUrisSel), // Les référentiels et nomenclatures
     $graph // Les ressources DCAT stockées en base
   );
@@ -146,7 +106,6 @@ $json = json_encode(
   [
     '@context'=> 'https://dido.geoapi.fr/v1/dcatcontext.jsonld',
     '@graph'=> $graph,
-    'sql'=> $sql,
   ],
   JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE
 );
