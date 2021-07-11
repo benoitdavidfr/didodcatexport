@@ -36,16 +36,14 @@ doc: |
     - comment intégrer le champ caution du jeu de données, dct:rights ?
       frequency_date, spatialGranularity ?
     - ajouter les thèmes et mots-clés aux datafiles
-    - ajouter d'autres distributions aux référentiels et nomenclatures
-    - comment retouver facilement référentiels et nomenclatures, mot-clés, thèmes ?
     - définir les mots-clés comme des Concept dans un Scheme
     - définir des liens entre les thèmes et les concepts EuroVoc
     - voir ajout préconisé par statDCAT-AP
     - développer une distribution data cube
     
 journal: |
-  9-10/7/2021:
-    - ajout des référentiels et nomenclatures comme jeux de données avec leur dustribution, uniqument CSV
+  9-11/7/2021:
+    - ajout des référentiels et nomenclatures comme jeux de données avec leurs distributions
   8/7/2021:
     - dév. schéma JSON
   6-7/7/2021:

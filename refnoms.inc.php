@@ -5,11 +5,13 @@ title: initialise et exploite la liste des référentiels et des nomenclatures D
 doc: |
   La classe RefNom contient:
     - la définition des listes de référentiels et nomenclatures avec pour chacun son type, son nom et les formats disponibles
-    - des modèles de construction des ressources JSON-LD pour le Dataset et la Distribution
-  A ce stade seule la distribution CSV est définie.
+    - des modèles de définition des ressources JSON-LD pour le Dataset et la Distribution
+    - les méthodes pour générer
+      - la liste des URI des datasets
+      - la ressource JSON-LD en fonction de l'URI
 journal: |
-  9-10/7/2021:
-    - création, limitée aux distributions CSV
+  9-11/7/2021:
+    - création
 */
 // construit un ensemble d'Uris par concaténation du préfixe $uriPrefix avec chaque valeur de l'ensemble $setOfIds
 function setOfUris(string $uriPrefix, array $setOfIds): array {
@@ -20,6 +22,13 @@ function setOfUris(string $uriPrefix, array $setOfIds): array {
 }
 
 class RefNom {
+  // IANA Media Types
+  const MEDIATYPES = [
+    'csv'=> 'text/csv',
+    'json'=> 'application/json',
+    'geojson-LOCATION'=> 'application/geo+json', // GéoJSON avec jointure sur LOCATION
+    'geojson-AREA'=> 'application/geo+json', // GéoJSON avec jointure sur AREA
+  ];
   // Liste des référentiels et nomenclatures
   // sous la forme [id => ['kind'=> ('referentiels'|'nomenclatures'), 'name'=> {name}, ('theme'=> {theme})?, 'formats'=> {formats}]]
   const ITEMS = [
@@ -33,13 +42,13 @@ class RefNom {
       'kind'=> 'referentiels',
       'name'=> "Référentiel des stations de mesures de la qualité de l'air",
       'theme'=> 'Environnement',
-      'formats'=> ['csv','json'],
+      'formats'=> ['csv','json','geojson-LOCATION'],
     ],
     'stationsEsu' => [
       'kind'=> 'referentiels',
       'name'=> "Référentiel des stations de mesures de la qualité des eaux superficielles", // à confirmer
       'theme'=> 'Environnement',
-      'formats'=> ['csv','json'],
+      'formats'=> ['csv','json','geojson-LOCATION'],
     ],
     'ports' => [
       'kind'=> 'referentiels',
@@ -50,7 +59,7 @@ class RefNom {
     'cog' => [
       'kind'=> 'referentiels',
       'name'=> "Référentiel du COG",
-      'formats'=> ['csv','json'],
+      'formats'=> ['csv','json','geojson-LOCATION','geojson-AREA'],
     ],
     'geozones' => [
       'kind'=> 'referentiels',
@@ -100,28 +109,39 @@ class RefNom {
   
   // modèles de ressource dcat:Distribution JSON-LD
   static function distribModels(string $format, string $id, array $item): array {
+    // fin et options pour l'URL de téléchargement en fonction du format
+    $dlUrlOptions = [
+      'csv'=> 'csv?withColumnName=true&withColumnDescription=false',
+      'json'=> 'json',
+      'geojson-LOCATION'=> 'spatial/geojson?geoField=LOCATION',
+      'geojson-AREA'=> 'spatial/geojson?geoField=AREA',
+    ];
+    // titre et description de la distribution en fonction du format
+    $titles = [
+      'csv'=> "Téléchargement CSV de $item[name]",
+      'json'=> "Téléchargement JSON de $item[name]",
+      'geojson-LOCATION'=> "Téléchargement de $item[name] en GéoJSON avec jointure sur LOCATION",
+      'geojson-AREA'=> "Téléchargement de $item[name] en GéoJSON avec jointure sur AREA",
+    ];
     return [
       '@id'=> "https://dido.geoapi.fr/id/$item[kind]/${id}/distributions/$format",
       '@type'=> 'Distribution',
-      'title'=> "Téléchargement $format de $item[name]",
-      'description'=> "Téléchargement $format de $item[name]",
+      'title'=> $titles[$format],
+      'description'=> $titles[$format],
       'license'=> [
         '@id'=> 'https://www.etalab.gouv.fr/licence-ouverte-open-licence',
         '@type'=> 'dct:LicenseDocument',
       ],
       'mediaType'=> [
-          '@id'=> 'https://www.iana.org/assignments/media-types/'
-            .match($format) {'csv'=> 'text/csv', 'json'=> 'application/json'},
+          '@id'=> 'https://www.iana.org/assignments/media-types/'.self::MEDIATYPES[$format],
           '@type'=> 'dct:MediaType',
       ],
       'conformsTo'=> [
         '@id'=> "https://dido.geoapi.fr/id/$item[kind]/$id/distributions/csv/json-schema",
         '@type'=> 'dct:Standard',
       ],
-      'accessURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/$format"
-        .(($format == 'csv') ? '?withColumnName=true&withColumnDescription=true' : ''),
-      'downloadURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/$format"
-        .(($format == 'csv') ? '?withColumnName=true&withColumnDescription=true' : ''),
+      'accessURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/".$dlUrlOptions[$format],
+      'downloadURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/".$dlUrlOptions[$format],
     ];
   }
   

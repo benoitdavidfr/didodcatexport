@@ -38,10 +38,10 @@ Dans le prototype les URI des objets DiDo sont de la forme:
   - https://dido.geoapi.fr/id/tags pour les mots-clés DiDo (skos:ConceptScheme)
   - https://dido.geoapi.fr/id/tags/{id} pour le mots-clés DiDo {id} (skos:Concept)
   - https://dido.geoapi.fr/id/referentiels/{id} pour le référentiel DiDo {id} (dcat:Dataset)
-  - https://dido.geoapi.fr/id/referentiels/{id}/distributions/{distrib} pour la distribution du référentiel DiDo {id}
+  - https://dido.geoapi.fr/id/referentiels/{id}/distributions/{distrib} pour la distribution {distrib} du référentiel DiDo {id}
     (dcat:Distribution)
   - https://dido.geoapi.fr/id/nomenclatures/{id} pour la nomenclature DiDo {id} (dcat:Dataset)
-  - https://dido.geoapi.fr/id/nomenclatures/{id}/distributions/{distrib} pour la distribution de la nomenclature DiDo {id}
+  - https://dido.geoapi.fr/id/nomenclatures/{id}/distributions/{distrib} pour la distribution {distrib} de la nomenclature DiDo {id}
     (dcat:Distribution)
   
 
