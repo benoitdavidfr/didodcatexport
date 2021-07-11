@@ -13,9 +13,9 @@ Les principes suivants ont été retenus pour l'exposition DCAT:
     son contexte  est exposé à l'URL https://dido.geoapi.fr/v1/dcatcontext.jsonld
   - Chaque ressource de l'export est identifiée par un URI conforme aux modèles ci-dessous.
   - La ressource JSON-LD correspondant au catalogue (dcat:Catalog) peut contenir de nombreux jeux de données
-    et son export est donc paginée selon les principes d'une [Collection Hydra](https://www.hydra-cg.com/spec/latest/core/)
+    et son export est donc paginé selon les principes d'une [Collection Hydra](https://www.hydra-cg.com/spec/latest/core/)
     identiques à ceux utilisés dans l'export DCAT de https://data.gouv.fr/ à l'URL https://www.data.gouv.fr/catalog.jsonld.
-  - Le paramètre page_size de la requête d'exposition du catalogue correspond au nbre de dcat:Dataset par sous-objet dcat:Catalog
+  - Le paramètre *page_size* de la requête d'exposition du catalogue définit le nombre de dcat:Dataset par sous-objet dcat:Catalog.
   - La page contenant un sous-objet dcat:Catalog contient aussi tous les Dataset et autres objets liés qui n'ont pas 
     été fournis dans les pages précédentes.
   - L'URL de téléchargement associé à chaque millésime exposé dans l'export est celui fourni par DiDo pour le format CSV
