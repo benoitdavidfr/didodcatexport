@@ -32,7 +32,6 @@ doc: |
   Essai d'utilisation de easyRdf avec composer - pas réussi à le faire fonctionner
   
   A faire:
-    - pagination de l'export du catalogue
     - comment intégrer le champ caution du jeu de données, dct:rights ?
       frequency_date, spatialGranularity ?
     - ajouter les thèmes et mots-clés aux datafiles
@@ -42,8 +41,11 @@ doc: |
     - développer une distribution data cube
     
 journal: |
-  9-11/7/2021:
-    - ajout des référentiels et nomenclatures comme jeux de données avec leurs distributions
+  11/7/2021:
+    - ajout autres distributions des référentiels et nomenclatures
+    - mise en oeuvre de la pagination de l'export du catalogue
+  9-10/7/2021:
+    - ajout des référentiels et nomenclatures comme jeux de données avec leur distribution CSV
   8/7/2021:
     - dév. schéma JSON
   6-7/7/2021:
