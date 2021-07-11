@@ -11,18 +11,19 @@ Les principes suivants ont été retenus pour l'exposition DCAT:
 
   - L'export DCAT est exposé en JSON-LD à l'URL https://dido.geoapi.fr/v1/dcatexport.jsonld?page={page}&page_size={page_size} ;
     son contexte  est exposé à l'URL https://dido.geoapi.fr/v1/dcatcontext.jsonld
-  - Chaque ressource DiDo est identifiée par un URI conforme aux modèles ci-dessous.
+  - Chaque ressource de l'export est identifiée par un URI conforme aux modèles ci-dessous.
   - La ressource JSON-LD correspondant au catalogue (dcat:Catalog) peut contenir de nombreux jeux de données
     et son export est donc paginée selon les principes d'une [Collection Hydra](https://www.hydra-cg.com/spec/latest/core/)
     identiques à ceux utilisés dans l'export DCAT de https://data.gouv.fr/ à l'URL https://www.data.gouv.fr/catalog.jsonld.
   - Le paramètre page_size de la requête d'exposition du catalogue correspond au nbre de dcat:Dataset par sous-objet dcat:Catalog
   - La page contenant un sous-objet dcat:Catalog contient aussi tous les Dataset et autres objets liés qui n'ont pas 
     été fournis dans les pages précédentes.
-  - Les URL de téléchargement associés aux millésimes exposés dans l'export sont ceux fournis par DiDo pour le format CSV.
+  - L'URL de téléchargement associé à chaque millésime exposé dans l'export est celui fourni par DiDo pour le format CSV
+    avec pour chaque colonne son nom, sa description et son unité.
   - Outre le fichier CSV, à chaque millésime est associé un schéma JSON qui fournit la liste des champs du fichier CSV.
   - Pour chaque référentiel et chaque nomenclature, un dcat:Dataset est défini ainsi que des dcat:Distribution
     correspondant à un ou plusieurs formats de téléchargement (CSV, JSON, GéoJSON) ;
-    un schéma JSOn est aussi associé à chaque distribution.
+    un schéma JSON est aussi associé à chaque distribution.
   - Les données exposées par le prototype sont celles exposées sur le site école indiqué ci-dessus ;
     en amont de l'export DCAT un téléchargement des méta-données DiDo est effectué à partir de ce site.
 
@@ -44,7 +45,7 @@ Des URI ont donc été définis dans le prototype et sont de la forme :
   - https://dido.geoapi.fr/id/themes pour les thèmes DiDo (skos:ConceptScheme)
   - https://dido.geoapi.fr/id/themes/{id} pour le thème DiDo {id} (skos:Concept)
   - https://dido.geoapi.fr/id/tags pour les mots-clés DiDo (skos:ConceptScheme)
-  - https://dido.geoapi.fr/id/tags/{id} pour le mots-clés DiDo {id} (skos:Concept)
+  - https://dido.geoapi.fr/id/tags/{id} pour le mot-clé DiDo {id} (skos:Concept)
   - https://dido.geoapi.fr/id/referentiels/{id} pour le référentiel DiDo {id} (dcat:Dataset)
   - https://dido.geoapi.fr/id/referentiels/{id}/formats/{format} pour le référentiel DiDo {id} dans le format {format}
     (dcat:Distribution)
