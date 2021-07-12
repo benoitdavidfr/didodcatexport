@@ -237,7 +237,7 @@ Ces propriétés sont principalement issues des informations disponibles dans le
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
-|            |        |                           | @id        | URI de la forme https://dido.geoapi.fr/id/(referentiels||nomenclatures)/{id}/formats/{format} |
+|            |        |                           | @id        | URI de la forme https://dido.geoapi.fr/id/(referentiels\|nomenclatures)/{id}/formats/{format} |
 |            |        |                           | @type      | "dcat:Distribution"                             |
 |            |        |                           | title      | titre proposé                                   |
 |            |        |                           | description| description proposée                            |
