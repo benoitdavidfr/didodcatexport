@@ -226,7 +226,7 @@ Ces propriétés sont principalement issues des informations disponibles dans le
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
-|            |        |                           | @id        | URI utilisant un nom issu du Swagger de la forme 'https://dido.geoapi.fr/id/(referentiels|nomenclatures)/{id}' |
+|            |        |                           | @id        | URI utilisant un nom issu du Swagger de la forme 'https://dido.geoapi.fr/id/(referentiels\|nomenclatures)/{id}' |
 |            |        |                           | @type      | "dcat:Dataset"                                  |
 |            |        |                           | title      | titre proposé                                   |
 |            |        |                           | description| description proposée                            |
@@ -243,7 +243,7 @@ Ces propriétés sont principalement issues des informations disponibles dans le
 |            |        |                           | description| description proposée                            |
 |            |        |                           | license    | 'https://www.etalab.gouv.fr/licence-ouverte-open-licence' |
 |            |        |                           | mediaType  | URI correspondant au format                     |
-|            |        |                           | conformsTo | URI correspondant au schéma JSON de la forme https://dido.geoapi.fr/id/(referentiels|nomenclatures)/{id}/json-schema | Le schéma est défini à partir du Swagger |
+|            |        |                           | conformsTo | URI correspondant au schéma JSON de la forme https://dido.geoapi.fr/id/(referentiels\|nomenclatures)/{id}/json-schema | Le schéma est défini à partir du Swagger |
 |            |        |                           | accessURL  | URL correspondant au téléchargement dans le format |
 |            |        |                           | downloadURL| URL correspondant au téléchargement dans le format |
 
