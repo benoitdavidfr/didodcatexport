@@ -164,7 +164,7 @@ Pour l'outre-mer on utilisera les URI suivants :
   - http://publications.europa.eu/resource/authority/country/FQ0 pour les Terres australes et antarctiques françaises,
   - http://publications.europa.eu/resource/authority/country/CPT pour l'île de Clipperton.
 
-L'union de différents territoires sera défini par un ensemble constitué des différents territoires.
+L'union géographique de différents territoires sera définie par un ensemble constitué des URI de chacun des territoires.
 
 Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 
@@ -237,7 +237,7 @@ Ces propriétés sont principalement issues des informations disponibles dans le
 
 | nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
 |------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
-|            |        |                           | @id        | URI de la forme https://dido.geoapi.fr/id/(referentiels|nomenclatures)/{id}/formats/{format} |
+|            |        |                           | @id        | URI de la forme https://dido.geoapi.fr/id/(referentiels||nomenclatures)/{id}/formats/{format} |
 |            |        |                           | @type      | "dcat:Distribution"                             |
 |            |        |                           | title      | titre proposé                                   |
 |            |        |                           | description| description proposée                            |
