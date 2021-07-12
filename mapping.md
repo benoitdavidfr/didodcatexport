@@ -16,6 +16,8 @@ Le catalogue de DiDo définit les classes d'objets suivantes:
   - millésime
   - theme
   - mot-clé
+  - référentiel
+  - nomenclature
 
 Le standard DCAT (https://www.w3.org/TR/vocab-dcat-2/) est fondé notamment sur les classes suivantes:
 
@@ -41,6 +43,8 @@ La correspondance choisie pour les classes est la suivante:
 | thème                  | skos:Concept    | La correspondance de ces thèmes vers le vocabulaire data-theme est définie ci-dessous |
 | vocabulaire des thèmes | skos:ConceptScheme | L'ensemble des thémes DiDo est structuré dans un skos:ConceptScheme |
 | mot-clé                | rdfs:Literal    | Un mot-clé DiDo sera représenté par un rdfs:Literal lié par la propriété dcat:keyword |
+| référentiel            | dcat:Dataset    | Un référentiel expose différentes distributions correspondant aux différents formats |
+| nomenclature           | dcat:Dataset    | Une nomenclature expose différentes distributions correspondant aux différents formats |
 
 Dans un premier temps, il n'est pas envisagé de représenter les API DiDo comme dcat:DataService car cette dernière classe est spécifique de DCAT v2 et encore peu utilisée.
 La solution sera d'indiquer dans les dcat:Distribution correspondant à un millésime un lien vers un fichier CSV généré par DiDo.
@@ -216,3 +220,29 @@ Ainsi la correspondance des valeurs trouvées dans DiDo est la suivante :
 |            |        |                           | accessURL  | construction de l'URL d'obtention au fichier CSV |
 |            |        |                           | downloadURL| construction de l'URL d'obtention au fichier CSV |
 |            |        |                           | mediaType  | {"@id": "https://www.iana.org/assignments/media-types/text/csv", "@type": "dct:MediaType"} |
+
+### Référentiel/Nomenclature -> dcat:Dataset/dcat:Distribution
+Ces propriétés sont principalement issues des informations disponibles dans le Swagger.
+
+| nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
+|------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
+|            |        |                           | @id        | URI utilisant un nom issu du Swagger            |
+|            |        |                           | @type      | "dcat:Dataset"                                  |
+|            |        |                           | title      | titre proposé                                   |
+|            |        |                           | description| description proposée                            |
+|            |        |                           | theme      | un theme data-theme et un Dido lorsque cela a du sens |
+|            |        |                           | keyword    | "Référentiel DiDo" ou "Nomenclature DiDo"       |
+|            |        |                           | license    | 'https://www.etalab.gouv.fr/licence-ouverte-open-licence' |
+|            |        |                           | distribution | Liste de distributions, une par format exposé |
+
+| nom DiDo   |  type  | description               | nom DCAT   | transformation                                  | commentaire |
+|------------|--------|---------------------------|------------|-------------------------------------------------|-------------|
+|            |        |                           | @id        | URI utilisant un nom issu du Swagger            |
+|            |        |                           | @type      | "dcat:Distribution"                             |
+|            |        |                           | title      | titre proposé                                   |
+|            |        |                           | description| description proposée                            |
+|            |        |                           | license    | 'https://www.etalab.gouv.fr/licence-ouverte-open-licence' |
+|            |        |                           | mediaType  | URI correspondant au format                     |
+|            |        |                           | conformsTo | URI correspondant au schéma JSON défini à partir du Swagger |
+|            |        |                           | accessURL  | URL correspondant au téléchargement dans le format |
+|            |        |                           | downloadURL| URL correspondant au téléchargement dans le format |

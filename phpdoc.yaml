@@ -39,6 +39,7 @@ doc: |
     - définir des liens entre les thèmes et les concepts EuroVoc
     - voir ajout préconisé par statDCAT-AP
     - développer une distribution data cube
+    - essayer de charger le catalogue dans CKAN, soit au travers de l'export DCAT soit par API CKAN
     
 journal: |
   11/7/2021:
