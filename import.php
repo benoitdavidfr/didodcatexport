@@ -1,23 +1,33 @@
 <?php
 /*PhpDoc:
 name: import.php
-title: import V2 du catalogue de DiDo et structuration en objets DCAT en vue de l'exposition DCAT
+title: import.php - import V2 du catalogue de DiDo et structuration en objets DCAT en vue de l'exposition DCAT
 doc: |
   Ce script lit les objets DiDo au travers de son API de consultation, les restructure en DCAT
   et les stocke en base PostGis en vue de leur exposition DCAT.
 
   Le script décompose les objets en éléments DCAT et les stocke en base Pgsql avec pour chacun:
-    - l'URI de l'objet permettant de le retrouver par son URI
-    - l'URI du dcat:Dataset auquel l'objet est associé, pour la pagination
+    - l'URI de l'objet permettant de le retrouver par son URI (uri)
+    - le numero du dataset auquel l'élément est rattaché, à partir de 0, pour la pagination
     - leur contenu DCAT comme JSON-LD
-    - leur contenu DiDo moissonné comme JSON, uniquement pour les millésimes
+    - leur contenu DiDo moissonné comme JSON, uniquement pour les millésimes, sinon null
+
+  Au fur et à mesure de la détection des datasets DCAT, un compteur est incrémenté ce qui permet d'associer à chaque élément DCAT
+  un numéro de dataset.
+  Ce numéro est utilisé dans la pagination pour définir les éléments DCAT à intégrer dans une page.
 
   L'objet catalogue qui n'existe pas en DiDo n'est donc pas créé dans la base PgSql.
   De même les thèmes et mots-clés ne sont pas créés dans la base PgSql.
 
   De plus un cache des pages datasets lues dans DiDo est stocké dans le répertoire import dans des fichiers nommés page{no}.json
   Le répertoire jd contient un fichier par jeu de données DiDo pour faciliter la compréhension des données de DiDo.
+
+  Une option a été introduite en verrue pour générer des ordres d'insertion dans une instance CKAN
+  et ainsi copier dans cette instance les MD DiDo. Cette option ne fonctionne que sur localhost.
 journal: |
+  16/7/2021:
+    - ajout code pour copier les MD dans un CKAN
+      - la création de relations entre JD et DF ne semble pas fonctionner
   10/7/2021:
     - modif. modèle de certains URI
     - modif. signature de storePg()
@@ -49,6 +59,10 @@ require __DIR__.'/frequency.inc.php';
 require __DIR__.'/licenses.inc.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
+//define('CKAN_SERVER', 'sopra'); // définition d'un serveur CKAN. Si mis en commentaire alors stockage du DCAT en PgSql
+
+$ckanServer = null; // par défaut, pas de serveur CKAN => stockage en PgSql
+
 //echo '<pre>'; print_r($_SERVER); die();
 //echo php_sapi_name(),"<br>\n"; die();
 if (php_sapi_name() <> 'cli') { // Restriction de l'exécution du script en CLI pour le restreindre aux personnes loguées
@@ -59,12 +73,17 @@ define('JSON_OPTIONS', JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_U
 
 $rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine de l'API DiDo
 
-{ // Ouverture PgSql et création de la table didodcat
+if (defined('CKAN_SERVER') && ($_SERVER['HOME']<>'/home/bdavid')) { // utilisation d'une instance CKAN avec l'API DcatApi.
+  require '../../ckanapi/dcatapi.inc.php';
+  $ckanServer = new DcatApi(CKAN_SERVER); 
+}
+else { // Ouverture PgSql et création de la table didodcat
   if (($_SERVER['HOME']=='/home/bdavid')) // sur le serveur dido.geoapi.fr
     PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public');
   else // en localhost sur le Mac
     PgSql::open('pgsql://docker@pgsqlserver/gis/public');
   PgSql::query("drop table if exists didodcat");
+  // Schéma de la table didocat
   PgSql::query("create table didodcat(
     uri varchar(256) not null primary key, -- l'URI de l'élément DCAT 
     dsnum int not null, -- le numero du dataset auquel l'élément est rattaché, à partir de 0
@@ -158,13 +177,15 @@ function buildDcatForPublisher(array $org): array {
 
 // fabrique le Dataset DCAT correspondant à un jeu de données DiDo
 function buildDcatForJD(array $jd): array {
-  // enregistre l'organization en effet de bord ssi elle n'est pas déjà définie
-  storePg(
-    buildDcatForPublisher($jd['organization']),
-    "https://dido.geoapi.fr/id/datasets/$jd[id]",
-    [],
-    true
-  );
+  if (!defined('CKAN_SERVER')) {
+    // enregistre l'organization en effet de bord ssi elle n'est pas déjà définie
+    storePg(
+      buildDcatForPublisher($jd['organization']),
+      "https://dido.geoapi.fr/id/datasets/$jd[id]",
+      [],
+      true
+    );
+  }
 
   return [
     '@id'=> "https://dido.geoapi.fr/id/datasets/$jd[id]",
@@ -286,17 +307,35 @@ while ($url) { // tant qu'il reste au moins une page à aller chercher
     }
     
     $jdUri = "https://dido.geoapi.fr/id/datasets/$jd[id]";
-    storePg(buildDcatForJD($jd), $jdUri);
+    $jdDcat = buildDcatForJD($jd);
+    if ($ckanServer) {
+      $ckanServer->dataset_delete("ds$jd[id]");
+      $result = $ckanServer->dataset_create("ds$jd[id]", $jdDcat);
+      print_r($result);
+    }
+    else
+      storePg($jdDcat, $jdUri);
     
     foreach ($jd['attachments'] as $attach) {
-      storePg(buildDcatForAttachment($attach, $jd), $jdUri);
+      if (!$ckanServer)
+        storePg(buildDcatForAttachment($attach, $jd), $jdUri);
     }
     foreach ($jd['datafiles'] as $datafile) {
       $dfUri = "https://dido.geoapi.fr/id/datafiles/$datafile[rid]";
-      storePg(buildDcatForDataFile($datafile, $jd), $dfUri);
+      $dfDcat = buildDcatForDataFile($datafile, $jd);
+      if ($ckanServer) {
+        $ckanServer->dataset_delete("df$datafile[rid]");
+        print_r($ckanServer->dataset_create("df$datafile[rid]", $dfDcat));
+        print_r(
+          $ckanServer->dataset_relationship_create("df$datafile[rid]", "ds$jd[id]", 'child_of', "Is a datafile of the dataset")
+        );
+      }
+      else
+        storePg($dfDcat, $dfUri);
       
       foreach ($datafile['millesimes'] as $millesime) {
-        storePg(buildDcatForMillesime($millesime, $datafile, $jd, $rootUrl), $dfUri, $millesime);
+        if (!$ckanServer)
+          storePg(buildDcatForMillesime($millesime, $datafile, $jd, $rootUrl), $dfUri, $millesime);
       }
     }
   }

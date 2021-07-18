@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 name: api.php
-title: script d'appel de l'export DCAT et de son contexte
+title: api.php - script d'appel de l'export DCAT et de son contexte
 doc: |
   Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/xxx
   ou de http://localhost/geoapi/dido/api.php/v1/xxx

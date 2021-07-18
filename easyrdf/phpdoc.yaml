@@ -1,0 +1,22 @@
+title: dido/easyrdf - Test de EasyRdf
+path: /geoapi/dido/easyrdf
+doc: |
+  https://www.easyrdf.org/
+  Attention: l'utilisation de JSON-LD nécessite l'ajout du module adhoc dans composer.json
+  composer install
+  
+  converter.php est le script de conversion proposé sur le site EasyRdf
+  easyrdf est un script simple de conversion en Turtle du catalogue des données DiDo
+  
+  JSON-LD est plus simple à produire.
+  Turtle est plus simple à lire.
+  Il est donc intéressant de produire en JSON-LD puis d'afficher en Turtle.
+journal: |
+  18/7/2021:
+    - première version
+submodules:
+phpScripts:
+  - /geoapi/dido/easyrdf/converter.php
+  - /geoapi/dido/easyrdf/easyrdf.php
+phpIncludes:
+  - /geoapi/dido/easyrdf/html_tag_helpers.php

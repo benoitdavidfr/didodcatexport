@@ -32,7 +32,7 @@ DCAT étant une ontologie du web des données, les ressources sont identifiées 
 et il est donc nécessaire de définir des URI pour chaque ressource apparaissant dans l'export.
 La plupart des URL fournies par DiDo ne peuvent pas être utilisés comme URI
 car ils contiennent le no de version de l'API et ne sont donc pas stables.  
-Des URI ont donc été définis dans le prototype et sont de la forme :
+Ainsi des URI ont été définis dans le prototype et sont de la forme :
 
   - https://dido.geoapi.fr/id/catalog pour le catalogue (dcat:Catalog)
   - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo {id} (dcat:Dataset)

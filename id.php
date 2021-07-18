@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 name: id.php
-title: déréférencement des URI définis dans l'export DCAT
+title: id.php - déréférencement des URI définis dans l'export DCAT
 doc: |
   Ce script est appelé lors de l'appel d'un des URI
     - https://dido.geoapi.fr/id/catalog pour le catalogue

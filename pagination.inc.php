@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 name: pagination.inc.php
-title: calcule les paramètres de pagination du catalogue
+title: pagination.inc.php - calcule les paramètres de pagination du catalogue
 doc: |
   Principes de la pagination:
     - le num de page commence à 1, c'est le numéro par défaut

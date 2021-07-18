@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 name: catalog.inc.php
-title: Génération de l'objet JSON-LD du catalogue
+title: catalog.inc.php - Génération de l'objet JSON-LD du catalogue
 doc: |
 journal: |
   8/7/2021:

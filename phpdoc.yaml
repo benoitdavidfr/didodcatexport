@@ -29,22 +29,25 @@ doc: |
     https://dido.geoapi.fr/id -> /prod/geoapi/dido/id.php
     https://dido.geoapi.fr/v1 -> /prod/geoapi/dido/api.php
   
-  Essai d'utilisation de easyRdf avec composer - pas réussi à le faire fonctionner
+  Essai d'utilisation de easyRdf avec composer -> easyrdf
   
   A faire:
     - comment intégrer le champ caution du jeu de données, dct:rights ?
       frequency_date, spatialGranularity ?
     - ajouter les thèmes et mots-clés aux datafiles
-    - définir les mots-clés comme des Concept dans un Scheme
+    - définir un ConceptScheme avec les themes comme topConcepts et les mots-clés comme Concept dans le Scheme
     - définir des liens entre les thèmes et les concepts EuroVoc
     - voir ajout préconisé par statDCAT-AP
+    - ajouter aux JD les millésimes de ses fichiers de données
     - développer une distribution data cube
     - essayer de charger le catalogue dans CKAN, soit au travers de l'export DCAT soit par API CKAN
     
 journal: |
+  16/7/2021:
+    - ajout code dans import.php pour copier les MD dans une instance CKAN, ne fonctionne que sur localhost
   11/7/2021:
     - ajout autres distributions des référentiels et nomenclatures
-    - mise en oeuvre de la pagination de l'export du catalogue et du catalogue
+    - mise en oeuvre de la pagination de l'export du catalogue et dans l'affichage du catalogue
   9-10/7/2021:
     - ajout des référentiels et nomenclatures comme jeux de données avec leur distribution CSV
   8/7/2021:
@@ -61,6 +64,8 @@ journal: |
       - génère des violations dans le validateur EU en utilisant la version turtle 
   26/6/2021:
     - première version
+submodules:
+  - /geoapi/dido/easyrdf
 phpScripts:
   - /geoapi/dido/api.php
   - /geoapi/dido/id.php
@@ -73,5 +78,5 @@ phpIncludes:
   - /geoapi/dido/themesdido.inc.php
   - /geoapi/dido/licenses.inc.php
   - /geoapi/dido/jsonschema.inc.php
-  - /geoapi/dido/referentiels.inc.php
+  - /geoapi/dido/refnoms.inc.php
   - /geoapi/dido/pagination.inc.php

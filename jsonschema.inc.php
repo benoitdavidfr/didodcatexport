@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 name: jsonschema.inc.php
-title: construction du schema JSON d'un millésime
+title: jsonschema.inc.php - construction du schema JSON d'un millésime
 doc: |
   cas intéressant:
     http://localhost/geoapi/dido/id.php/datafiles/02622bc1-167c-4089-b14d-69c70b141c32/millesimes/2020-10/json-schema
