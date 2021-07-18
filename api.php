@@ -5,7 +5,12 @@ title: api.php - script d'appel de l'export DCAT et de son contexte
 doc: |
   Ce script est appelé lors de l'appel de https://dido.geoapi.fr/v1/xxx
   ou de http://localhost/geoapi/dido/api.php/v1/xxx
+
+  En fonction de l'extension, l'export est effectué en JSON-LD (.jsonld), Turtle (.ttl) ou RDF/XML (.rdf).
+  Il existe aussi un format html qui est du Turtle structuré en HTML.
 journal: |
+  18/7/2021:
+    - ajout export au formats turtle, rdf ou html
   9-10/7/2021:
     - ajout référentiels et nomenclatures
   8/7/2021:
@@ -34,7 +39,9 @@ require __DIR__.'/frequency.inc.php';
 require __DIR__.'/catalog.inc.php';
 require __DIR__.'/refnoms.inc.php';
 require __DIR__.'/pagination.inc.php';
+require __DIR__.'/vendor/autoload.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
+
 
 // génération du contexte - dcatcontext.jsonld
 if (in_array($_SERVER['PHP_SELF'], ['/geoapi/dido/api.php/v1/dcatcontext.jsonld', '/v1/dcatcontext.jsonld'])) {
@@ -42,14 +49,24 @@ if (in_array($_SERVER['PHP_SELF'], ['/geoapi/dido/api.php/v1/dcatcontext.jsonld'
   die(file_get_contents(__DIR__.'/dcatcontext.json'));
 }
 
-// ! dcatexport.jsonld => erreur
-elseif (!in_array($_SERVER['PHP_SELF'], ['/geoapi/dido/api.php/v1/dcatexport.jsonld','/v1/dcatexport.jsonld'])) {
+
+// génération du contexte - dcatcontext.(jsonld|ttl|rdf)
+if (!preg_match('!((/geoapi/dido/api\.php)?/v1/dcatexport)(\.jsonld|\.ttl|\.rdf|\.html)!', $_SERVER['PHP_SELF'], $matches)) {
   header("HTTP/1.0 404 Not Found");
   header('Content-type: text/plain; charset="utf-8"');
   die("No match for '$_SERVER[PHP_SELF]'\n");
 }
 
-// dcatexport.jsonld
+//print_r($matches);
+
+$format = $matches[3];
+
+// Url appelée sans le format
+$selfUrl = (($_SERVER['SERVER_NAME']=='localhost') ? 'http://' : 'https://').$_SERVER['SERVER_NAME']
+  .$matches[1];
+//echo "selfUrl=$selfUrl\n";
+
+// dcatexport.(jsonld|ttl|rdf)
 
 // ouverture de la base PgSql en fonction du serveur
 if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
@@ -95,8 +112,7 @@ else {
   );
 }
 
-// Génération de l'export du catalogue DCAT
-header('Content-type: application/ld+json; charset="utf-8"');
+// Génération du JSON-LD de l'export du catalogue DCAT
 $json = json_encode(
   [
     '@context'=> 'https://dido.geoapi.fr/v1/dcatcontext.jsonld',
@@ -107,8 +123,7 @@ $json = json_encode(
 
 // En localhost je remplace les URL par des URL locales pour faciliter les tests en local
 if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
-  die(
-    str_replace(
+  $json = str_replace(
       [
         'https://dido.geoapi.fr/v1',
         'https://dido.geoapi.fr/id',
@@ -118,7 +133,30 @@ if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
         'http://localhost/geoapi/dido/id.php',
       ],
       $json
-    )
-  );
-else // sur le serveur dido.geoapi.fr
-  die($json);
+    );
+
+switch($format) {
+  case '.jsonld': {
+    header('Content-type: application/ld+json; charset="utf-8"');
+    die($json);
+  }
+  case '.ttl': {
+    header('Content-type: text/plain; charset="utf-8"');
+    $data = new \EasyRdf\Graph("$selfUrl.jsonld");
+    $data->parse($json, 'jsonld', "$selfUrl.jsonld");
+    die($data->serialise('turtle'));
+  }
+  case '.rdf': {
+    header('Content-type: application/rdf+xml; charset="utf-8"');
+    $data = new \EasyRdf\Graph("$selfUrl.jsonld");
+    $data->parse($json, 'jsonld', "$selfUrl.jsonld");
+    die($data->serialise('rdf'));
+  }
+  case '.html': {
+    echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>dcatexport.ttl</title></head><body><pre>\n";
+    $data = new \EasyRdf\Graph("$selfUrl.jsonld");
+    $data->parse($json, 'jsonld', "$selfUrl.jsonld");
+    echo str_replace('<', '&lt', $data->serialise('turtle'));
+    die();
+  }
+}
