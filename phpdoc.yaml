@@ -31,9 +31,8 @@ doc: |
     - https://dido.geoapi.fr/id/nomenclatures/{id}/formats/{fmt} pour le téléchargement de la nomenclature {id}
       dans le format {fmt} (dcat:Distribution)
     - https://dido.geoapi.fr/id/nomenclatures/{id}/json-schema pour schéma JSON de la nomenclature {id} (foaf:Document)
-
-   6) Les URL de téléchargement des données exposés dans l'export sont ceux fournis par DiDo pour le format CSV.
-   7) A chaque millésime est associé un fichier CSV et un schéma JSON qui fournit les champs du fichier CSV.
+   5) Les URL de téléchargement des données exposés dans l'export sont ceux fournis par DiDo pour le format CSV.
+   6) A chaque millésime est associé un fichier CSV et un schéma JSON qui fournit les champs du fichier CSV.
   
   Remarques sur la structuration DiDo:
     - vérifier que la valeur de fréquence 'punctual' correspond à http://publications.europa.eu/resource/authority/frequency/NEVER
@@ -44,7 +43,9 @@ doc: |
     https://dido.geoapi.fr/id -> /prod/geoapi/dido/id.php
     https://dido.geoapi.fr/v1 -> /prod/geoapi/dido/api.php
   
-  Essai d'utilisation de easyRdf avec composer -> easyrdf
+  Les composants Php EasyRdf et JsonLD sont utilisés pour effectuer des conversions entre formats RDF ;
+  ils doivent être installés par la commande `composer install` ;
+  des tests d'utilisation sont réalisés dans le répertoire easyrdf.
   
   A faire:
     - comment intégrer le champ caution du jeu de données, dct:rights ?
@@ -58,8 +59,8 @@ doc: |
     - essayer de charger le catalogue dans CKAN, soit au travers de l'export DCAT soit par API CKAN
     
 journal: |
-  18/7/2021:
-    - ajout export au formats turtle, rdf et html en utilisant EasyRdf et JsonLD
+  18-20/7/2021:
+    - ajout export au formats turtle, rdf en utilisant EasyRdf et JsonLD
       - le format d'export est défini par l'extension utilisée dans l'URL (.jsonld, .ttl, .rdf)
       - développement de http://localhost/geoapi/tools/rdfnav.php pour faciliter la navigation RDF
   16/7/2021:
