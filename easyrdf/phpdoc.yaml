@@ -2,7 +2,7 @@ title: dido/easyrdf - Test de EasyRdf
 path: /geoapi/dido/easyrdf
 doc: |
   https://www.easyrdf.org/
-  Attention: l'utilisation de JSON-LD nécessite l'ajout du module adhoc dans composer.json
+  Attention: l'utilisation de JSON-LD nécessite l'ajout du module JsonLD dans composer.json
   composer install
   
   converter.php est le script de conversion proposé sur le site EasyRdf

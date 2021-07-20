@@ -33,17 +33,18 @@ class ThemeDido {
   static function jsonld(): array {
     $result['scheme'] = [
       '@id'=> self::URI_ROOT,
-      '@type'=> 'skos:ConceptScheme',
+      '@type'=> 'ConceptScheme',
       'title'=> "Le vocabulaire contrôlé des thèmes DiDo",
-      'skos:hasTopConcept'=> [],
+      'hasTopConcept'=> [],
     ];
     foreach (self::$themes as $code => $theme) {
       $result[$code] = [
         '@id'=> $theme->uri,
-        '@type'=> 'skos:Concept',
-        'skos:prefLabel'=> $code,
+        '@type'=> 'Concept',
+        'prefLabel'=> $code,
+        'inScheme'=> self::URI_ROOT,
       ];
-      $result['scheme']['skos:hasTopConcept'][] = $theme->uri;
+      $result['scheme']['hasTopConcept'][] = $theme->uri;
     }
     //return $result;
     return array_values($result);
@@ -53,12 +54,12 @@ class ThemeDido {
   static function themes(): array {
     $result = [
       '@id'=> self::URI_ROOT,
-      '@type'=> 'skos:ConceptScheme',
+      '@type'=> 'ConceptScheme',
       'title'=> "Le vocabulaire contrôlé des thèmes DiDo",
-      'skos:hasTopConcept'=> [],
+      'hasTopConcept'=> [],
     ];
     foreach (self::$themes as $code => $theme) {
-      $result['skos:hasTopConcept'][] = $theme->uri;
+      $result['hasTopConcept'][] = $theme->uri;
     }
     return $result;
   }
@@ -69,8 +70,9 @@ class ThemeDido {
       if ($theme->uri == $uri) {
         return [
           '@id'=> $theme->uri,
-          '@type'=> 'skos:Concept',
-          'skos:prefLabel'=> $code,
+          '@type'=> 'Concept',
+          'prefLabel'=> $code,
+          'inScheme'=> self::URI_ROOT,
         ];
       }
     }

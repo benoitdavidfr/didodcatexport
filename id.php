@@ -4,14 +4,23 @@ name: id.php
 title: id.php - déréférencement des URI définis dans l'export DCAT
 doc: |
   Ce script est appelé lors de l'appel d'un des URI
-    - https://dido.geoapi.fr/id/catalog pour le catalogue
+    - https://dido.geoapi.fr/id/catalog pour le catalogue (dcat:Catalog)
     - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo {id} (dcat:Dataset)
     - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données {rid} (dcat:Dataset)
-    - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour le millésime {m} du fichier de données {rid} (dcat:Distribution)
-    - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour le schéma JSON du mill. {m} du fichier de données {rid} (foaf:Document)
+    - https://dido.geoapi.fr/id/datafiles/{rid}/millesimes/{m} pour le millésime {m} du f. de données {rid} (dcat:Distribution)
+    - https://dido.geoapi.fr/id/datafiles/{rid}/millesimes/{m}/json-schema pour le schéma JSON du millésime {m} du fichier
+      de données {rid} (foaf:Document)
     - https://dido.geoapi.fr/id/organizations/{id} pour l'organisation {id} (foaf:Organzation)
     - https://dido.geoapi.fr/id/themes pour les thèmes DiDo (skos:ConceptScheme)
     - https://dido.geoapi.fr/id/themes/{id} pour le thème DiDo {id} (skos:Concept)
+    - https://dido.geoapi.fr/id/referentiels/{id} pour le référentiel {id} (dcat:Dataset)
+    - https://dido.geoapi.fr/id/referentiels/{id}/formats/{fmt} pour le téléchargement du référentiel {id} dans le format {fmt}
+      (dcat:Distribution)
+    - https://dido.geoapi.fr/id/referentiels/{id}/json-schema pour schéma JSON du référentiel {id} (foaf:Document)
+    - https://dido.geoapi.fr/id/nomenclatures/{id} pour la nomenclature {id} (dcat:Dataset)
+    - https://dido.geoapi.fr/id/nomenclatures/{id}/formats/{fmt} pour le téléchargement de la nomenclature {id}
+      dans le format {fmt} (dcat:Distribution)
+    - https://dido.geoapi.fr/id/nomenclatures/{id}/json-schema pour schéma JSON de la nomenclature {id} (foaf:Document)
 
   Il peut être appelé pour des tests locaux à l'adresse:
     - https://localhost/geoapi/dido/id.php/...
@@ -157,8 +166,8 @@ header('Content-type: application/ld+json; charset="utf-8"');
 if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
   die(
     str_replace(
-      'https://dido.geoapi.fr/id',
-      'http://localhost/geoapi/dido/id.php',
+      ['https://dido.geoapi.fr/id', 'https://dido.geoapi.fr/v1'],
+      ['http://localhost/geoapi/dido/id.php', 'http://localhost/geoapi/dido/api.php/v1'],
       json_encode($result, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)
     )
   );

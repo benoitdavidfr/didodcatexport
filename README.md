@@ -9,8 +9,11 @@ Les [correspondances en DCAT des classes, des propriétés et des valeurs possib
 
 Les principes suivants ont été retenus pour l'exposition DCAT:
 
-  - L'export DCAT est exposé en JSON-LD à l'URL https://dido.geoapi.fr/v1/dcatexport.jsonld?page={page}&page_size={page_size} ;
-    son contexte  est exposé à l'URL https://dido.geoapi.fr/v1/dcatcontext.jsonld
+  - L'export DCAT est exposé en JSON-LD à l'URL https://dido.geoapi.fr/v1/dcatexport.jsonld?page={page}&page_size={page_size}  
+    où:
+      - xxx
+  
+  - Le contexte JSON-LD de l'export est exposé à l'URL https://dido.geoapi.fr/v1/dcatcontext.jsonld
   - Chaque ressource de l'export est identifiée par un URI conforme aux modèles ci-dessous.
   - La ressource JSON-LD correspondant au catalogue (dcat:Catalog) peut contenir de nombreux jeux de données
     et son export est donc paginé selon les principes d'une [Collection Hydra](https://www.hydra-cg.com/spec/latest/core/)
@@ -54,6 +57,5 @@ Ainsi des URI ont été définis dans le prototype et sont de la forme :
   - https://dido.geoapi.fr/id/nomenclatures/{id}/formats/{format} pour la nomenclature DiDo {id} dans le format {format}
     (dcat:Distribution)
   - https://dido.geoapi.fr/id/nomenclatures/{id}/json-schema pour le schéma JSON des éléments de la nomenclature {id} (foaf:Document)
-  
 
 L'URI associé à chaque fichier annexe (Attachment) est l'URL de téléchargement de ce fichier.

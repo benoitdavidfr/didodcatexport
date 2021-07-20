@@ -2,21 +2,36 @@ title: dido - import du catalogue de DiDo pour export en DCAT
 path: /geoapi/dido
 doc: |
   Les principes d'exposition DCAT sont:
-   1) l'export DCAT est exposé à l'URL https://dido.geoapi.fr/v1/dcatexport.jsonld?page={page}&page_size={page_size}
+   1) l'export DCAT est exposé à l'URL https://dido.geoapi.fr/v1/dcatexport.{fmt}?page={page}&page_size={page_size}
+      où
+       - {fmt} peut être 'jsonld' pour du JSON-LD, 'ttl' pour du Turtle ou 'rdf' pour du RDF/XML,
+       - {page} est le no de page à partir de 1,
+       - {page_size} est
+         - soit le nbre de dcat:Dataset par sous-objet dcat:Catalog,
+         - soit 'all' pour supprimer la pagination
       son contexte  est exposé à l'URL https://dido.geoapi.fr/v1/dcatcontext.jsonld
-   2) les objets DiDo sont identifiés par les URI suivants:
+   2) l'objet dcat:Catalog est paginé selon les principes d'une Collection Hydra (https://www.hydra-cg.com/spec/latest/core/),
+   3) la page contenant un sous-objet dcat:Catalog contient aussi tous les Dataset et autres objets liés qui n'ont pas 
+      été fournis dans les pages précédentes.
+   4) les objets DiDo sont identifiés par les URI suivants:
     - https://dido.geoapi.fr/id/catalog pour le catalogue (dcat:Catalog)
-    - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo identifié par {id} (dcat:Dataset)
-    - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données identifié par {rid} (dcat:Dataset)
-    - https://dido.geoapi.fr/id/millesimes/{rid}/{m} pour le millésime identifié par {rid} et {m} (dcat:Distribution)
-    - https://dido.geoapi.fr/id/organizations/{id} pour l'organisation identifiée par {id} (foaf:Organzation)
+    - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo {id} (dcat:Dataset)
+    - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données {rid} (dcat:Dataset)
+    - https://dido.geoapi.fr/id/datafiles/{rid}/millesimes/{m} pour le millésime {m} du f. de données {rid} (dcat:Distribution)
+    - https://dido.geoapi.fr/id/datafiles/{rid}/millesimes/{m}/json-schema pour le schéma JSON du millésime {m} du fichier
+      de données {rid} (foaf:Document)
+    - https://dido.geoapi.fr/id/organizations/{id} pour l'organisation {id} (foaf:Organzation)
     - https://dido.geoapi.fr/id/themes pour les thèmes DiDo (skos:ConceptScheme)
     - https://dido.geoapi.fr/id/themes/{id} pour le thème DiDo {id} (skos:Concept)
-    - https://dido.geoapi.fr/id/json-schema/{rid}/{m} pour les schéma JSON du millésime identifié par {rid} et {m} (foaf:Document)
-   3) l'objet dcat:Catalog est paginé selon les principes d'une Collection Hydra,
-   4) le paramètre page_size de la requête d'exposition correspond au nbre de dcat:Dataset par sous-objet dcat:Catalog
-   5) la page contenant un sous-objet dcat:Catalog contient aussi tous les Dataset et autres objets liés qui n'ont pas 
-      été fournis dans les pages précédentes.
+    - https://dido.geoapi.fr/id/referentiels/{id} pour le référentiel {id} (dcat:Dataset)
+    - https://dido.geoapi.fr/id/referentiels/{id}/formats/{fmt} pour le téléchargement du référentiel {id} dans le format {fmt}
+      (dcat:Distribution)
+    - https://dido.geoapi.fr/id/referentiels/{id}/json-schema pour schéma JSON du référentiel {id} (foaf:Document)
+    - https://dido.geoapi.fr/id/nomenclatures/{id} pour la nomenclature {id} (dcat:Dataset)
+    - https://dido.geoapi.fr/id/nomenclatures/{id}/formats/{fmt} pour le téléchargement de la nomenclature {id}
+      dans le format {fmt} (dcat:Distribution)
+    - https://dido.geoapi.fr/id/nomenclatures/{id}/json-schema pour schéma JSON de la nomenclature {id} (foaf:Document)
+
    6) Les URL de téléchargement des données exposés dans l'export sont ceux fournis par DiDo pour le format CSV.
    7) A chaque millésime est associé un fichier CSV et un schéma JSON qui fournit les champs du fichier CSV.
   
@@ -43,6 +58,10 @@ doc: |
     - essayer de charger le catalogue dans CKAN, soit au travers de l'export DCAT soit par API CKAN
     
 journal: |
+  18/7/2021:
+    - ajout export au formats turtle, rdf et html en utilisant EasyRdf et JsonLD
+      - le format d'export est défini par l'extension utilisée dans l'URL (.jsonld, .ttl, .rdf)
+      - développement de http://localhost/geoapi/tools/rdfnav.php pour faciliter la navigation RDF
   16/7/2021:
     - ajout code dans import.php pour copier les MD dans une instance CKAN, ne fonctionne que sur localhost
   11/7/2021:

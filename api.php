@@ -7,8 +7,11 @@ doc: |
   ou de http://localhost/geoapi/dido/api.php/v1/xxx
 
   En fonction de l'extension, l'export est effectué en JSON-LD (.jsonld), Turtle (.ttl) ou RDF/XML (.rdf).
-  Il existe aussi un format html qui est du Turtle structuré en HTML.
+  Utilise EasyRdf pour effectuer l'éventuelle conversion.
 journal: |
+  20/7/2021:
+    - suppression du format d'export html en raison de l'écriture de rdfnav.php
+    - utilisation pour Turtle du type MIME: application/x-turtle
   18/7/2021:
     - ajout export au formats turtle, rdf ou html
   9-10/7/2021:
@@ -39,7 +42,6 @@ require __DIR__.'/frequency.inc.php';
 require __DIR__.'/catalog.inc.php';
 require __DIR__.'/refnoms.inc.php';
 require __DIR__.'/pagination.inc.php';
-require __DIR__.'/vendor/autoload.php';
 require __DIR__.'/../../phplib/pgsql.inc.php';
 
 
@@ -51,8 +53,8 @@ if (in_array($_SERVER['PHP_SELF'], ['/geoapi/dido/api.php/v1/dcatcontext.jsonld'
 
 
 // génération du contexte - dcatcontext.(jsonld|ttl|rdf)
-if (!preg_match('!((/geoapi/dido/api\.php)?/v1/dcatexport)(\.jsonld|\.ttl|\.rdf|\.html)!', $_SERVER['PHP_SELF'], $matches)) {
-  header("HTTP/1.0 404 Not Found");
+if (!preg_match('!((/geoapi/dido/api\.php)?/v1/dcatexport)(\.jsonld|\.ttl|\.rdf)!', $_SERVER['PHP_SELF'], $matches)) {
+  header("HTTP/1.1 404 Not Found");
   header('Content-type: text/plain; charset="utf-8"');
   die("No match for '$_SERVER[PHP_SELF]'\n");
 }
@@ -135,28 +137,20 @@ if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
       $json
     );
 
-switch($format) {
-  case '.jsonld': {
-    header('Content-type: application/ld+json; charset="utf-8"');
-    die($json);
-  }
-  case '.ttl': {
-    header('Content-type: text/plain; charset="utf-8"');
-    $data = new \EasyRdf\Graph("$selfUrl.jsonld");
-    $data->parse($json, 'jsonld', "$selfUrl.jsonld");
+if ($format == '.jsonld') {
+  header('Content-type: application/ld+json; charset="utf-8"');
+  die($json);
+}
+else {
+  require __DIR__.'/vendor/autoload.php';
+  $data = new \EasyRdf\Graph("$selfUrl.jsonld");
+  $data->parse($json, 'jsonld', "$selfUrl.jsonld");
+  if ($format == '.ttl') {
+    header('Content-type: application/x-turtle; charset="utf-8"');
     die($data->serialise('turtle'));
   }
-  case '.rdf': {
+  else {
     header('Content-type: application/rdf+xml; charset="utf-8"');
-    $data = new \EasyRdf\Graph("$selfUrl.jsonld");
-    $data->parse($json, 'jsonld', "$selfUrl.jsonld");
     die($data->serialise('rdf'));
-  }
-  case '.html': {
-    echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>dcatexport.ttl</title></head><body><pre>\n";
-    $data = new \EasyRdf\Graph("$selfUrl.jsonld");
-    $data->parse($json, 'jsonld', "$selfUrl.jsonld");
-    echo str_replace('<', '&lt', $data->serialise('turtle'));
-    die();
   }
 }
