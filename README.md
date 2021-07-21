@@ -22,7 +22,7 @@ Les principes suivants ont été retenus pour l'exposition DCAT:
         - soit la valeur 'all' indiquant une absence de pagination.
     - exemples:
       - https://dido.geoapi.fr/v1/dcatexport.jsonld
-      - https://dido.geoapi.fr/v1/dcatexport.html?page=2&page_size=20_
+      - https://dido.geoapi.fr/v1/dcatexport.html?page=2&page_size=20
   - Le contexte JSON-LD de l'export est exposé à l'URL `https://dido.geoapi.fr/v1/dcatcontext.jsonld`
   - La ressource JSON-LD correspondant au catalogue (dcat:Catalog) peut contenir de nombreux jeux de données
     et son export est donc paginé selon les principes d'une [Collection Hydra](https://www.hydra-cg.com/spec/latest/core/)
