@@ -24,7 +24,16 @@ doc: |
 
   Une option a été introduite en verrue pour générer des ordres d'insertion dans une instance CKAN
   et ainsi copier dans cette instance les MD DiDo. Cette option ne fonctionne que sur localhost.
+
+  Point à voir:
+    - j'utilise 'https://www.iana.org/assignments/media-types/' comme prefix d'URI pour les types de média IANA,
+      c'est celui qui est utilisé dans les exemples du standard DCAT.
+      Ces URI ne sont pas déréfençables.
+      Le W3C recommande d'utiliser 'https://www.w3.org/ns/iana/media-types/' qui sont déréférençables.
+
 journal: |
+  21/7/2021:
+    - ajout d'un type aux accessURL et downloadURL
   16/7/2021:
     - ajout code pour copier les MD dans un CKAN
       - la création de relations entre JD et DF ne semble pas fonctionner
@@ -189,7 +198,7 @@ function buildDcatForJD(array $jd): array {
 
   return [
     '@id'=> "https://dido.geoapi.fr/id/datasets/$jd[id]",
-    '@type'=> ['Dataset', 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series'],
+    '@type'=> ['Dataset', 'series'],
     'identifier'=> $jd['id'],
     'title'=> $jd['title'],
     'description'=> $jd['description'],
@@ -272,11 +281,17 @@ function buildDcatForMillesime(array $millesime, array $datafile, array $dataset
       '@id'=> "https://dido.geoapi.fr/id/datafiles/$datafile[rid]/millesimes/$millesime[millesime]/json-schema",
     ],
     'license'=> mapsAVal(License::mappingToURI(), $dataset['license']),
-    'downloadURL'=> "$rootUrl/datafiles/$datafile[rid]/csv?millesime=$millesime[millesime]"
-        ."&withColumnName=true&withColumnDescription=true&withColumnUnit=true",
-    'accessURL'=> "$rootUrl/datafiles/$datafile[rid]/csv?millesime=$millesime[millesime]"
-        ."&withColumnName=true&withColumnDescription=true&withColumnUnit=true",
-    'mediaType'=> ['@id'=> 'https://www.iana.org/assignments/media-types/text/csv', '@type'=> 'dct:MediaType'],
+    'downloadURL'=> [
+      '@type'=> 'foaf:Document',
+      '@id'=> "$rootUrl/datafiles/$datafile[rid]/csv?millesime=$millesime[millesime]"
+              ."&withColumnName=true&withColumnDescription=true&withColumnUnit=true",
+    ],
+    'accessURL'=> [
+      '@type'=> 'foaf:Document',
+      '@id'=> "$rootUrl/datafiles/$datafile[rid]/csv?millesime=$millesime[millesime]"
+              ."&withColumnName=true&withColumnDescription=true&withColumnUnit=true",
+    ],
+    'mediaType'=> ['@type'=> 'dct:MediaType', '@id'=> 'https://www.iana.org/assignments/media-types/text/csv'],
   ];
 }
 

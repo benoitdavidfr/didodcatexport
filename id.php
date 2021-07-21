@@ -3,31 +3,15 @@
 name: id.php
 title: id.php - déréférencement des URI définis dans l'export DCAT
 doc: |
-  Ce script est appelé lors de l'appel d'un des URI
-    - https://dido.geoapi.fr/id/catalog pour le catalogue (dcat:Catalog)
-    - https://dido.geoapi.fr/id/datasets/{id} pour le jeu de données DiDo {id} (dcat:Dataset)
-    - https://dido.geoapi.fr/id/datafiles/{rid} pour le fichier de données {rid} (dcat:Dataset)
-    - https://dido.geoapi.fr/id/datafiles/{rid}/millesimes/{m} pour le millésime {m} du f. de données {rid} (dcat:Distribution)
-    - https://dido.geoapi.fr/id/datafiles/{rid}/millesimes/{m}/json-schema pour le schéma JSON du millésime {m} du fichier
-      de données {rid} (foaf:Document)
-    - https://dido.geoapi.fr/id/organizations/{id} pour l'organisation {id} (foaf:Organzation)
-    - https://dido.geoapi.fr/id/themes pour les thèmes DiDo (skos:ConceptScheme)
-    - https://dido.geoapi.fr/id/themes/{id} pour le thème DiDo {id} (skos:Concept)
-    - https://dido.geoapi.fr/id/referentiels/{id} pour le référentiel {id} (dcat:Dataset)
-    - https://dido.geoapi.fr/id/referentiels/{id}/formats/{fmt} pour le téléchargement du référentiel {id} dans le format {fmt}
-      (dcat:Distribution)
-    - https://dido.geoapi.fr/id/referentiels/{id}/json-schema pour schéma JSON du référentiel {id} (foaf:Document)
-    - https://dido.geoapi.fr/id/nomenclatures/{id} pour la nomenclature {id} (dcat:Dataset)
-    - https://dido.geoapi.fr/id/nomenclatures/{id}/formats/{fmt} pour le téléchargement de la nomenclature {id}
-      dans le format {fmt} (dcat:Distribution)
-    - https://dido.geoapi.fr/id/nomenclatures/{id}/json-schema pour schéma JSON de la nomenclature {id} (foaf:Document)
-
+  Ce script est appelé lors de l'appel d'un des URI de ressource
   Il peut être appelé pour des tests locaux à l'adresse:
     - https://localhost/geoapi/dido/id.php/...
   Exemples:
     - https://dido.geoapi.fr/id/organizations/60abeb7b17967d0023c883a2
     - http://localhost/geoapi/dido/id.php/organizations/60abeb7b17967d0023c883a2
 journal: |
+  21/7/2021:
+    - ajout cas particulier de l'organisation SDES qui n'existe pas dans les organisations DiDo
   8/7/2021:
     - suppression de l'URI https://dido.geoapi.fr/id/attachments/{rid}
     - ajout du champ @context
@@ -106,7 +90,7 @@ elseif (preg_match('!^themes(/([^/]+))?$!', $param, $matches)) {
     $result = ThemeDido::themes();
   }
   elseif (!($result = ThemeDido::theme($uri))) {
-    header("HTTP/1.0 404 Not Found");
+    header("HTTP/1.1 404 Not Found");
     header('Content-type: text/plain; charset="utf-8"');
     die("Erreur, URI $uri absente\n");
   }
@@ -148,6 +132,11 @@ elseif (preg_match('!^datafiles/([^/]+)/millesimes/([^/]+)/json-schema$!', $para
   }
 }
 
+// Le publisher SDES
+elseif ($param == 'organizations/SDES') {
+  $result = organizationSDES();
+}
+
 // Elt DCAT stockés en base et restitués tel quel
 else {
   $tuples = PgSql::getTuples("select dcat from didodcat where uri='$uri'");
@@ -162,7 +151,7 @@ else {
 // Rajout du contexte JSON-LD
 $result = array_merge(['@context'=> 'https://dido.geoapi.fr/v1/dcatcontext.jsonld'], $result);
 
-header('Content-type: application/ld+json; charset="utf-8"');
+header('Content-type: application/ld+json');
 if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
   die(
     str_replace(

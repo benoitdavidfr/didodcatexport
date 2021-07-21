@@ -1,20 +1,34 @@
 <?php
 /*PhpDoc:
 name: catalog.inc.php
-title: catalog.inc.php - Génération de l'objet JSON-LD du catalogue
+title: catalog.inc.php - Génération de l'objet JSON-LD du catalogue et de l'organization SDES qui le publie
 doc: |
 journal: |
+  21/7/2021:
+    - ajout fonction pour retourner le SDES utilisée dans id.php
   8/7/2021:
     - ajout du champ @context
     - chgt retour de catalog()
   6/7/2021:
     - création
 */
+// retourne le SDES comme objet JSON-LD
+function organizationSDES(): array {
+  return [
+    '@id'=> 'https://dido.geoapi.fr/id/organizations/SDES',
+    //'@type'=> 'Organization', -> génère une violation du validateur DCAT-AP
+    '@type'=> 'Agent',
+    'name'=> "Service des Données et des Etudes Statistiques (SDES) du Ministère de la transition écologique (MTE)",
+    'nick'=> 'SDES',
+    'comment'=> "Le SDES est le service statistique du ministère de la transition écologique. Il fait partie du Commissariat Général au Développement Durable (CGDD)",
+  ];
+}
+
 // retourne l'objet Catalog comme objet JSON-LD
 function catalog(array $datasetUris, Pagination $pag): array {
   $catalog = [
     '@id'=> 'https://dido.geoapi.fr/id/catalog',
-    '@type'=> ($pag->page_size == 'all') ? 'Catalog' : ['Catalog', 'hydra:Collection'],
+    '@type'=> ($pag->page_size == 'all') ? 'Catalog' : ['Catalog', 'Collection'],
     'title'=> "Catalogue DiDo",
     'description'=> "Test d'export en DCAT-AP du catalogue DiDo provenant du site école",
     'dataset'=> $datasetUris,
@@ -26,20 +40,11 @@ function catalog(array $datasetUris, Pagination $pag): array {
       '@id'=> 'http://publications.europa.eu/resource/authority/language/FRA',
       '@type'=> 'dct:LinguisticSystem',
     ],
-    'publisher'=> [
-      '@id'=> 'https://dido.geoapi.fr/id/organizations/SDES',
-      //'@type'=> 'Organization', -> génère une violation du validateur DCAT-AP
-      '@type'=> 'Agent',
-      'name'=> "Ministère de la transition écologique (MTE), Service des Données et des Etudes Statistiques",
-      'nick'=> 'SDES',
-      'comment'=> "Le SDES est le service statistique du ministère de la transition écologique. Il fait partie du Commissariat Général au Développement Durable (CGDD)",
-    ],
+    'publisher'=> organizationSDES(),
     'contactPoint'=> [
-      '@type'=> 'vcard:Kind',
-      'vcard:fn'=> "Assistance DiDo",
-      'vcard:hasEmail'=> [
-        '@id'=> 'mailto:support-dido@developpement-durable.gouv.fr',
-      ],
+      '@type'=> 'Kind',
+      'fn'=> "Assistance DiDo",
+      'hasEmail'=> 'mailto:support-dido@developpement-durable.gouv.fr',
     ],
     'themeTaxonomy'=> [
       'http://publications.europa.eu/resource/authority/data-theme',

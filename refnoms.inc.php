@@ -9,7 +9,16 @@ doc: |
     - les méthodes pour générer
       - la liste des URI des datasets
       - la ressource JSON-LD en fonction de l'URI
+
+  Point à voir:
+    - j'utilise 'https://www.iana.org/assignments/media-types/' comme prefix d'URI pour les types de média IANA,
+      c'est celui qui est utilisé dans les exemples du standard DCAT.
+      Ces URI ne sont pas déréfençables.
+      Le W3C recommande d'utiliser 'https://www.w3.org/ns/iana/media-types/' qui sont déréférençables.
+
 journal: |
+  21/7/2021:
+    - ajout d'un type aux accessURL et downloadURL
   9-11/7/2021:
     - création
 */
@@ -23,6 +32,7 @@ function setOfUris(string $uriPrefix, array $setOfIds): array {
 
 class RefNom {
   // IANA Media Types
+  const MEDIATYPE_ROOT = 'https://www.iana.org/assignments/media-types/';
   const MEDIATYPES = [
     'csv'=> 'text/csv',
     'json'=> 'application/json',
@@ -133,15 +143,21 @@ class RefNom {
         '@type'=> 'dct:LicenseDocument',
       ],
       'mediaType'=> [
-          '@id'=> 'https://www.iana.org/assignments/media-types/'.self::MEDIATYPES[$format],
+          '@id'=> self::MEDIATYPE_ROOT.self::MEDIATYPES[$format],
           '@type'=> 'dct:MediaType',
       ],
       'conformsTo'=> [
         '@id'=> "https://dido.geoapi.fr/id/$item[kind]/$id/json-schema",
         '@type'=> 'dct:Standard',
       ],
-      'accessURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/".$dlUrlOptions[$format],
-      'downloadURL'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/".$dlUrlOptions[$format],
+      'accessURL'=> [
+        '@type'=> 'foaf:Document',
+        '@id'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/".$dlUrlOptions[$format],
+      ],
+      'downloadURL'=> [
+        '@type'=> 'foaf:Document',
+        '@id'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/".$dlUrlOptions[$format],
+      ],
     ];
   }
   

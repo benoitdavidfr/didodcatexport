@@ -48,6 +48,7 @@ doc: |
   des tests d'utilisation sont réalisés dans le répertoire easyrdf.
   
   A faire:
+    - définir le SDES comme URI
     - comment intégrer le champ caution du jeu de données, dct:rights ?
       frequency_date, spatialGranularity ?
     - ajouter les thèmes et mots-clés aux datafiles
