@@ -8,12 +8,16 @@ doc: |
 
   En fonction de l'extension, l'export est effectué en JSON-LD (.jsonld), Turtle (.ttl) ou RDF/XML (.rdf).
   Utilise EasyRdf pour effectuer l'éventuelle conversion.
+  L'export au format HTML (.html) est permis en utilisant un renvoi vers ../tools/rdfnav.php 
+  ce qui crée une dépendance vers ce script.
 journal: |
+  21/7/2021:
+    - rajout du format html en renvoyant vers ../tools/rdfnav.php
   20/7/2021:
     - suppression du format d'export html en raison de l'écriture de rdfnav.php
     - utilisation pour Turtle du type MIME: application/x-turtle
   18/7/2021:
-    - ajout export au formats turtle, rdf ou html
+    - ajout export en formats turtle, rdf ou html
   9-10/7/2021:
     - ajout référentiels et nomenclatures
   8/7/2021:
@@ -47,42 +51,56 @@ require __DIR__.'/../../phplib/pgsql.inc.php';
 
 // génération du contexte - dcatcontext.jsonld
 if (in_array($_SERVER['PHP_SELF'], ['/geoapi/dido/api.php/v1/dcatcontext.jsonld', '/v1/dcatcontext.jsonld'])) {
-  header('Content-type: application/ld+json; charset="utf-8"');
+  header('Content-type: application/ld+json');
   die(file_get_contents(__DIR__.'/dcatcontext.json'));
 }
 
+$localhost = ($_SERVER['SERVER_NAME']=='localhost'); // utilisé pour savoir si on est ou non sur localhost
 
-// génération du contexte - dcatcontext.(jsonld|ttl|rdf)
-if (!preg_match('!((/geoapi/dido/api\.php)?/v1/dcatexport)(\.jsonld|\.ttl|\.rdf)!', $_SERVER['PHP_SELF'], $matches)) {
+// ! génération de l'export - dcatexport.(jsonld|ttl|rdf|html) => message d'ERREUR
+if (!preg_match('!((/geoapi/dido/api\.php)?/v1/dcatexport)(\.jsonld|\.ttl|\.rdf|\.html)!', $_SERVER['PHP_SELF'], $matches)) {
   header("HTTP/1.1 404 Not Found");
   header('Content-type: text/plain; charset="utf-8"');
-  die("No match for '$_SERVER[PHP_SELF]'\n");
+  echo "No match for '$_SERVER[PHP_SELF]'\n\n";
+  echo "Les URL autorisées sont:\n";
+  foreach ([
+    'dcatexport.jsonld' => "l'export en JSON-LD",
+    'dcatcontext.jsonld' => "le contexte JSON-LD",
+    'dcatexport.ttl' => "l'export en Turtle",
+    'dcatexport.rdf' => "l'export en RDF/XML",
+    'dcatexport.html' => "l'affichage en Turtle en HTML",
+    ] as $name => $label) {
+      echo ' - '.($localhost ? 'http://localhost/geoapi/dido/api.php/v1/' : 'https://dido.geoapi.fr/v1/')."$name pour $label\n";
+  }
+  die();
 }
-
 //print_r($matches);
 
-$format = $matches[3];
+$format = $matches[3]; // format demandé pour l'export
 
 // Url appelée sans le format
-$selfUrl = (($_SERVER['SERVER_NAME']=='localhost') ? 'http://' : 'https://').$_SERVER['SERVER_NAME']
-  .$matches[1];
+$selfUrl = ($localhost ? 'http://' : 'https://').$_SERVER['SERVER_NAME'].$matches[1];
 //echo "selfUrl=$selfUrl\n";
 
-// dcatexport.(jsonld|ttl|rdf)
+// pour le format html, renvoie vers ../tools/rdfnav.php pour afficher cette URL en JSON-LD
+if ($format == '.html') {
+  $rdfnav = ($localhost ? 'http://localhost/geoapi' : 'https://geoapi.fr').'/tools/rdfnav.php';
+  header("Location: $rdfnav?url=".urlencode("$selfUrl.jsonld"));
+  die();
+}
 
 // ouverture de la base PgSql en fonction du serveur
-if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
+if ($localhost) // en localhost sur le Mac
   PgSql::open('pgsql://docker@pgsqlserver/gis/public');
 else // sur le serveur dido.geoapi.fr
   PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/datagouv/public');
 
 
-$pagination = new Pagination();
+$pagination = new Pagination(); // calcule les paramètres de pagination du catalogue
 
-$graph = [];
-
-// Lecture des ressources stockées en base et fabrication de la liste des URI des datasets DCAT
-$datasetUris = [];
+// Lecture en base des listes des URI des datasets DCAT et des ressources
+$graph = []; // liste des ressources
+$datasetUris = []; // liste des URI des datasets DCAT
 if ($pagination->sql) {
   foreach (PgSql::query($pagination->sql) as $tuple) {
     //echo "$tuple[dcat]\n";
@@ -96,7 +114,8 @@ if ($pagination->sql) {
   }
 }
 
-if ($pagination->page == 1) {
+// construction de l'export en fonction de la pagination
+if ($pagination->page == 1) { // la première page est particulière
   $graph = array_merge(
     ThemeDido::jsonld(), // Les thèmes DiDo et du Scheme
     GeoZone::jsonld(), // Les GéoZones
@@ -123,8 +142,8 @@ $json = json_encode(
   JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE
 );
 
-// En localhost je remplace les URL par des URL locales pour faciliter les tests en local
-if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
+// En localhost remplacement des URL par des URL locales pour faciliter les tests en local
+if ($localhost)
   $json = str_replace(
       [
         'https://dido.geoapi.fr/v1',
@@ -137,16 +156,17 @@ if (($_SERVER['SERVER_NAME']=='localhost')) // en localhost sur le Mac
       $json
     );
 
+// affichage en fonction du format demandé
 if ($format == '.jsonld') {
-  header('Content-type: application/ld+json; charset="utf-8"');
+  header('Content-type: application/ld+json');
   die($json);
 }
-else {
+else { // sinon une conversion est effectuée avec EasyRdf
   require __DIR__.'/vendor/autoload.php';
   $data = new \EasyRdf\Graph("$selfUrl.jsonld");
   $data->parse($json, 'jsonld', "$selfUrl.jsonld");
   if ($format == '.ttl') {
-    header('Content-type: application/x-turtle; charset="utf-8"');
+    header('Content-type: application/x-turtle');
     die($data->serialise('turtle'));
   }
   else {
