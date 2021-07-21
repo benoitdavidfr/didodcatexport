@@ -10,7 +10,7 @@ Les [correspondances en DCAT des classes, des propriétés et des valeurs possib
 Les principes suivants ont été retenus pour l'exposition DCAT:
 
   - L'export DCAT est exposé à l'URL `https://dido.geoapi.fr/v1/dcatexport.{fmt}?page={page}&page_size={page_size}`
-    où:
+    - où:
       - {fmt} est le format souhaité obligatoire qui peut être:
         - jsonld pour [JSON-LD](https://www.w3.org/TR/json-ld11/)
         - ttl pour [Turtle](https://www.w3.org/TR/turtle/)
@@ -20,7 +20,7 @@ Les principes suivants ont été retenus pour l'exposition DCAT:
       - {page_size} est:
         - soit le nombre de dcat:Dataset par sous-objet dcat:Catalog, par défaut vaut 10,
         - soit la valeur 'all' indiquant une absence de pagination.
-    exemples:
+    - exemples:
       - https://dido.geoapi.fr/v1/dcatexport.jsonld
       - https://dido.geoapi.fr/v1/dcatexport.html?page=2&page_size=20_
   - Le contexte JSON-LD de l'export est exposé à l'URL `https://dido.geoapi.fr/v1/dcatcontext.jsonld`
