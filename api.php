@@ -13,6 +13,7 @@ doc: |
 journal: |
   21/7/2021:
     - rajout du format html en renvoyant vers ../tools/rdfnav.php
+    - correction d'un bug sur le renvoi pour format html
   20/7/2021:
     - suppression du format d'export html en raison de l'écriture de rdfnav.php
     - utilisation pour Turtle du type MIME: application/x-turtle
@@ -84,9 +85,11 @@ $selfUrl = ($localhost ? 'http://' : 'https://').$_SERVER['SERVER_NAME'].$matche
 
 // pour le format html, renvoie vers ../tools/rdfnav.php pour afficher cette URL en JSON-LD
 if ($format == '.html') {
+  //echo '<pre>'; print_r($_SERVER);
   $rdfnav = ($localhost ? 'http://localhost/geoapi' : 'https://geoapi.fr').'/tools/rdfnav.php';
-  header("Location: $rdfnav?url=".urlencode("$selfUrl.jsonld"));
-  die();
+  $location = "$rdfnav?url=".urlencode("$selfUrl.jsonld".($_SERVER['QUERY_STRING'] ? "?$_SERVER[QUERY_STRING]" : ''));
+  header("Location: $location");
+  die("Renvoi vers $location");
 }
 
 // ouverture de la base PgSql en fonction du serveur
