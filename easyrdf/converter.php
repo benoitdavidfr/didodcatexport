@@ -16,6 +16,9 @@ doc: |
   @package    EasyRdf
   @copyright  Copyright (c) 2009-2020 Nicholas J Humfrey
   @license    http://unlicense.org/
+journal: |
+  19/8/2021:
+    - correction documentée dans le texte pour mettre le formulaire en POST et ainsi autoriser un texte long en entrée
 */
 
 require_once realpath(__DIR__.'/..')."/vendor/autoload.php";
@@ -53,7 +56,7 @@ if (!isset($_REQUEST['raw'])) {
     print "<h1>EasyRdf Converter</h1>\n";
 
     print "<div style='margin: 10px'>\n";
-    print form_tag();
+    print form_tag(null, ['method'=> 'post']); // modifié par BD le 19/8/2021
     print label_tag('data', 'Input Data: ').'<br />'.text_area_tag('data', '', array('cols'=>80, 'rows'=>10)) . "<br />\n";
     print label_tag('uri', 'or Uri: ').text_field_tag('uri', 'http://danbri.org/foaf.rdf#danbri', array('size'=>80)) . "<br />\n";
     print label_tag('input_format', 'Input Format: ').select_tag('input_format', $input_format_options) . "<br />\n";
@@ -72,7 +75,8 @@ if (isset($_REQUEST['uri']) or isset($_REQUEST['data'])) {
     } else {
         $graph->parse($_REQUEST['data'], $_REQUEST['input_format'], $_REQUEST['uri']);
     }
-
+    //echo '<pre>'; print_r($graph); echo "</pre>\n";
+    
     // Lookup the output format
     $format = \EasyRdf\Format::getFormat($_REQUEST['output_format']);
 
