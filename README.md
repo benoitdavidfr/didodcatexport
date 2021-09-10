@@ -1,7 +1,6 @@
 # Export DCAT du catalogue de DiDo
 DiDo est un outil de diffusion des données du service des statistiques (SDES) du MTE.
-Un site école est documenté sur https://datahub-ecole.recette.cloud/api-diffusion/v1/apidoc.html
-Le site de diffusion officiel devrait ouvrir prochainement sur internet.
+Sa documentation est accessible sur https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/apidoc.html.
 
 Le présent projet consiste à concevoir et prototyper un export [DCAT](https://www.w3.org/TR/vocab-dcat-2/)
 du catalogue des données de DiDo.  

@@ -152,11 +152,11 @@ class RefNom {
       ],
       'accessURL'=> [
         '@type'=> 'foaf:Document',
-        '@id'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/".$dlUrlOptions[$format],
+        '@id'=> "https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/$item[kind]/$id/".$dlUrlOptions[$format],
       ],
       'downloadURL'=> [
         '@type'=> 'foaf:Document',
-        '@id'=> "https://datahub-ecole.recette.cloud/api-diffusion/v1/$item[kind]/$id/".$dlUrlOptions[$format],
+        '@id'=> "https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/$item[kind]/$id/".$dlUrlOptions[$format],
       ],
     ];
   }

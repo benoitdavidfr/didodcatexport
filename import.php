@@ -80,7 +80,8 @@ if (php_sapi_name() <> 'cli') { // Restriction de l'exécution du script en CLI 
 
 define('JSON_OPTIONS', JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
 
-$rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine de l'API DiDo
+//$rootUrl = 'https://datahub-ecole.recette.cloud/api-diffusion/v1'; // url racine de l'API DiDo
+$rootUrl = 'https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1'; // url racine de l'API DiDo
 
 if (defined('CKAN_SERVER') && ($_SERVER['HOME']<>'/home/bdavid')) { // utilisation d'une instance CKAN avec l'API DcatApi.
   require '../../ckanapi/dcatapi.inc.php';
@@ -362,7 +363,8 @@ while ($url) { // tant qu'il reste au moins une page à aller chercher
 
 { // import du fichier Swagger
   $filePath = __DIR__."/import/swagger.json";
-  $url = 'https://datahub-ecole.recette.cloud/api-diffusion/v1/swagger.json';
+  //$url = 'https://datahub-ecole.recette.cloud/api-diffusion/v1/swagger.json';
+  $url = 'https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/swagger.json';
   if (!file_exists($filePath)) {
     echo "$url<br>\n";
     $content = file_get_contents($url);

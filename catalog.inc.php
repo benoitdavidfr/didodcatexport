@@ -30,7 +30,7 @@ function catalog(array $datasetUris, Pagination $pag): array {
     '@id'=> 'https://dido.geoapi.fr/id/catalog',
     '@type'=> ($pag->page_size == 'all') ? 'Catalog' : ['Catalog', 'Collection'],
     'title'=> "Catalogue DiDo",
-    'description'=> "Test d'export en DCAT-AP du catalogue DiDo provenant du site école",
+    'description'=> "Test d'export en DCAT-AP du catalogue DiDo",
     'dataset'=> $datasetUris,
     'homepage'=> [
       '@id'=> 'https://github.com/benoitdavidfr/didodcatexport', // indiquer ici la page d'accueil du catalogue
