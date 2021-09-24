@@ -72,3 +72,4 @@ Chaque URI est déréférencable et renvoit la description de la ressource en JS
 des URI de foaf:Document, dc:LicenseDocument et dc:Standard qui renvoient vers un document (JSON, HTML, PDF, CSV, ...)
 exposé en HTTP.
 
+L'export DCAT est finalement testé par le validateur DCAT-AP exposé sur https://data.europa.eu/mqa/shacl-validator-ui/.
